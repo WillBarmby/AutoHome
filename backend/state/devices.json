@@ -10,7 +10,7 @@
   },
   {
     "entity_id": "climate.bedroom",
-    "state": "off",
+    "state": "on",
     "attributes": {
       "friendly_name": "Bedroom Thermostat",
       "hvac_mode": "cool"
