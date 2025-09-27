@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { gsap } from "gsap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,6 +23,13 @@ import { ChatMessage, ChatIntent } from "@/types";
 import { llmService } from "@/services/adapters";
 
 const VoiceAssist = () => {
+  // Animation refs
+  const headerRef = useRef<HTMLDivElement>(null);
+  const voiceControlsRef = useRef<HTMLDivElement>(null);
+  const conversationHistoryRef = useRef<HTMLDivElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
+  const quickCommandsRef = useRef<HTMLDivElement>(null);
+  
   const [isListening, setIsListening] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(true);
@@ -166,10 +174,35 @@ const VoiceAssist = () => {
     }
   };
 
+  // Animate elements on mount
+  useEffect(() => {
+    const elements = [
+      headerRef.current,
+      voiceControlsRef.current,
+      conversationHistoryRef.current,
+      settingsRef.current,
+      quickCommandsRef.current
+    ].filter(Boolean);
+
+    gsap.fromTo(elements, 
+      { 
+        y: 30, 
+        opacity: 0 
+      },
+      { 
+        y: 0, 
+        opacity: 1, 
+        duration: 0.8, 
+        stagger: 0.15,
+        ease: 'power2.out'
+      }
+    );
+  }, []);
+
   return (
     <div className="space-y-6 p-6 min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div ref={headerRef} className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Voice Assistant</h1>
           <p className="text-sm text-muted-foreground">Control your home with voice commands</p>
@@ -187,7 +220,7 @@ const VoiceAssist = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Voice Controls */}
-        <div className="lg:col-span-1 space-y-6">
+        <div ref={voiceControlsRef} className="lg:col-span-1 space-y-6">
           {/* Main Controls */}
           <Card className="bg-gradient-card border-card-border">
             <CardHeader>
@@ -233,7 +266,8 @@ const VoiceAssist = () => {
           </Card>
 
           {/* Settings */}
-          <Card className="bg-gradient-card border-card-border">
+          <div ref={settingsRef}>
+            <Card className="bg-gradient-card border-card-border">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="h-5 w-5" />
@@ -305,11 +339,12 @@ const VoiceAssist = () => {
                 </Button>
               </div>
             </CardContent>
-          </Card>
+            </Card>
+          </div>
         </div>
 
         {/* Conversation History */}
-        <div className="lg:col-span-2">
+        <div ref={conversationHistoryRef} className="lg:col-span-2">
           <Card className="bg-gradient-card border-card-border h-[600px]">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
@@ -366,7 +401,8 @@ const VoiceAssist = () => {
       </div>
 
       {/* Quick Commands */}
-      <Card className="bg-gradient-card border-card-border">
+      <div ref={quickCommandsRef}>
+        <Card className="bg-gradient-card border-card-border">
         <CardHeader>
           <CardTitle>Voice Command Examples</CardTitle>
         </CardHeader>
@@ -393,7 +429,8 @@ const VoiceAssist = () => {
             ))}
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };

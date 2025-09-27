@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ export function ChatConsole({ messages, onSendMessage, className }: ChatConsoleP
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
 
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;
@@ -62,11 +63,31 @@ export function ChatConsole({ messages, onSendMessage, className }: ChatConsoleP
     return JSON.stringify(intent, null, 2);
   };
 
+  // Auto-scroll to bottom when new messages arrive
+  const scrollToBottom = () => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    if (isProcessing) {
+      scrollToBottom();
+    }
+  }, [isProcessing]);
+
   return (
     <Card className={cn("bg-gradient-card border-card-border shadow-card", className)}>
       <CardContent className="p-4">
         {/* Messages Area */}
-        <ScrollArea className="h-48 mb-4">
+        <ScrollArea ref={scrollAreaRef} className="h-48 mb-4">
           <div className="space-y-3">
             {messages.map((message) => (
               <div key={message.id} className={cn(
@@ -103,16 +124,6 @@ export function ChatConsole({ messages, onSendMessage, className }: ChatConsoleP
                       {message.content}
                     </div>
                     
-                    {message.intent && (
-                      <div className="space-y-1">
-                        <Badge variant="outline" className="text-xs">
-                          Intent: {message.intent.type}
-                        </Badge>
-                        <pre className="text-xs bg-muted/50 p-2 rounded text-muted-foreground overflow-x-auto">
-                          {formatIntent(message.intent)}
-                        </pre>
-                      </div>
-                    )}
                   </div>
                 </div>
               </div>

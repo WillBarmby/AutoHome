@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { gsap } from "gsap";
 import { CircularMeter } from "./CircularMeter";
 import { ChatConsole } from "./ChatConsole";
 import { OperationModeToggle } from "./OperationModeToggle";
@@ -13,7 +14,10 @@ import {
   DollarSign,
   Bell,
   Minus,
-  Plus
+  Plus,
+  Zap,
+  Hand,
+  Pause
 } from "lucide-react";
 import { 
   DeviceEntity, 
@@ -43,6 +47,17 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
   const [vitals] = useState(mockVitals);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
+  
+  // Animation refs
+  const headerRef = useRef<HTMLDivElement>(null);
+  const chatConsoleRef = useRef<HTMLDivElement>(null);
+  const leftColumnRef = useRef<HTMLDivElement>(null);
+  const rightColumnRef = useRef<HTMLDivElement>(null);
+  
+  // Operation mode button refs
+  const autoButtonRef = useRef<HTMLButtonElement>(null);
+  const manualButtonRef = useRef<HTMLButtonElement>(null);
+  const pausedButtonRef = useRef<HTMLButtonElement>(null);
 
   const handleDeviceToggle = async (deviceId: string) => {
     const device = devices.find(d => d.id === deviceId);
@@ -174,6 +189,31 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     }
   };
 
+  const handleOperationModeChange = (mode: OperationMode) => {
+    // Animate the clicked button
+    const buttonRefs = {
+      auto: autoButtonRef,
+      manual: manualButtonRef,
+      paused: pausedButtonRef
+    };
+    
+    const clickedButton = buttonRefs[mode].current;
+    if (clickedButton) {
+      gsap.fromTo(clickedButton, 
+        { scale: 1 },
+        { 
+          scale: 0.95, 
+          duration: 0.1,
+          yoyo: true,
+          repeat: 1,
+          ease: 'power2.out'
+        }
+      );
+    }
+    
+    setOperationMode(mode);
+  };
+
   const currentPrice = mockPricing[new Date().getHours()]?.price_cents_kWh || 15;
   const peakHours = mockPricing.filter(p => p.is_peak).map(p => p.hour);
   const isCurrentlyPeak = peakHours.includes(new Date().getHours());
@@ -216,13 +256,86 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     };
   }, []);
 
+  // Animate elements on mount
+  useEffect(() => {
+    const elements = [
+      headerRef.current,
+      chatConsoleRef.current,
+      leftColumnRef.current,
+      rightColumnRef.current
+    ].filter(Boolean);
+
+    gsap.fromTo(elements, 
+      { 
+        y: 30, 
+        opacity: 0 
+      },
+      { 
+        y: 0, 
+        opacity: 1, 
+        duration: 0.8, 
+        stagger: 0.15,
+        ease: 'power2.out'
+      }
+    );
+  }, []);
+
   return (
     <div className="space-y-8 p-6 min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div ref={headerRef} className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Home Control</h1>
           <p className="text-sm text-muted-foreground">AI Assistant Panel</p>
+        </div>
+        
+        {/* Operation Mode Segmented Control - Centered */}
+        <div className="flex bg-muted rounded-lg p-1">
+          <button
+            ref={autoButtonRef}
+            onClick={() => handleOperationModeChange('auto')}
+            className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
+              operationMode === 'auto'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            title="Auto (Safe) - Safe actions execute automatically"
+          >
+            <Zap className="h-4 w-4" />
+            {operationMode === 'auto' && (
+              <span className="text-sm font-medium whitespace-nowrap">Auto</span>
+            )}
+          </button>
+          <button
+            ref={manualButtonRef}
+            onClick={() => handleOperationModeChange('manual')}
+            className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
+              operationMode === 'manual'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            title="Manual - All actions require approval"
+          >
+            <Hand className="h-4 w-4" />
+            {operationMode === 'manual' && (
+              <span className="text-sm font-medium whitespace-nowrap">Manual</span>
+            )}
+          </button>
+          <button
+            ref={pausedButtonRef}
+            onClick={() => handleOperationModeChange('paused')}
+            className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
+              operationMode === 'paused'
+                ? 'bg-background text-foreground shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+            title="Paused - All automation disabled"
+          >
+            <Pause className="h-4 w-4" />
+            {operationMode === 'paused' && (
+              <span className="text-sm font-medium whitespace-nowrap">Paused</span>
+            )}
+          </button>
         </div>
         
         <div className="flex items-center gap-3">
@@ -276,12 +389,13 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
         </div>
       </div>
 
-      {/* Operation Mode */}
-      <OperationModeToggle
-        mode={operationMode}
-        onModeChange={setOperationMode}
-        pendingApprovals={approvalQueue.filter(i => i.status === 'pending').length}
-      />
+      {/* Chat Console */}
+      <div ref={chatConsoleRef}>
+        <ChatConsole
+          messages={chatMessages}
+          onSendMessage={handleSendMessage}
+        />
+      </div>
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -289,7 +403,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
         <div className="lg:col-span-3">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center py-8">
             {/* Left Column - Climate Control */}
-            <div className="flex flex-col justify-center items-center space-y-4">
+            <div ref={leftColumnRef} className="flex flex-col justify-center items-center space-y-4">
               {thermostat && (
                 <>
                   {/* Climate Toggle Segmented Control */}
@@ -347,7 +461,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
             </div>
 
             {/* Right Column - Temperature and secondary meters */}
-            <div className="flex flex-col justify-center items-center space-y-4">
+            <div ref={rightColumnRef} className="flex flex-col justify-center items-center space-y-4">
               {/* Temperature - Large */}
               <CircularMeter
                 value={currentTemperature}
@@ -398,14 +512,6 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
 
         </div>
 
-      </div>
-
-      {/* Chat Console */}
-      <div className="mt-8">
-        <ChatConsole
-          messages={chatMessages}
-          onSendMessage={handleSendMessage}
-        />
       </div>
     </div>
   );

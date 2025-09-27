@@ -1,0 +1,13 @@
+{
+  "living_room": {
+    "light": "light.living_room_main",
+    "fan": "fan.living_room_ceiling"
+  },
+  "kitchen": {
+    "light": "light.kitchen_ceiling",
+    "coffee": "switch.kitchen_coffee_maker"
+  },
+  "downstairs": {
+    "thermostat": "climate.downstairs"
+  }
+}
