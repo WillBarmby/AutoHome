@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { gsap } from "gsap";
+import { motion, AnimatePresence } from "motion/react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -45,7 +46,7 @@ const Guardrail = () => {
   const [selectedDevice, setSelectedDevice] = useState<DeviceCarouselItem | null>({
     title: 'Hall Thermostat',
     description: 'Climate control for hallway',
-    id: 'hall-thermostat',
+    id: 'climate.thermostat_hall',
     type: 'climate',
     icon: null
   });
@@ -250,9 +251,18 @@ const Guardrail = () => {
               <div className="w-full max-w-md space-y-4" style={{ width: '580px' }}>
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                  <h3 className="text-base font-semibold tracking-wide text-foreground">
-                    {selectedDevice.title}
-                  </h3>
+                  <AnimatePresence mode="wait">
+                    <motion.h3 
+                      key={selectedDevice.title}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      transition={{ duration: 0.2, ease: "easeInOut" }}
+                      className="text-base font-semibold tracking-wide text-foreground"
+                    >
+                      {selectedDevice.title}
+                    </motion.h3>
+                  </AnimatePresence>
                   <div className="flex items-center gap-2">
                     {getCurrentGuardrail()?.requireConfirmation && (
                       <Badge variant="destructive" className="text-xs">

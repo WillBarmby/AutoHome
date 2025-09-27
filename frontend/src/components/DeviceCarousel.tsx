@@ -38,7 +38,7 @@ const DEFAULT_DEVICES: DeviceCarouselItem[] = [
   {
     title: 'Hall Thermostat',
     description: 'Climate control for hallway',
-    id: 'hall-thermostat',
+    id: 'climate.thermostat_hall',
     type: 'climate',
     icon: <Thermometer className="h-[16px] w-[16px] text-white" />,
     image: '/imgs/hall-thermo.jpg'
@@ -46,7 +46,7 @@ const DEFAULT_DEVICES: DeviceCarouselItem[] = [
   {
     title: 'Coffee Machine',
     description: 'Smart coffee brewing system',
-    id: 'coffee-machine',
+    id: 'switch.coffee_machine',
     type: 'appliance',
     icon: <Coffee className="h-[16px] w-[16px] text-white" />,
     image: '/imgs/coffee-machine.webp'
@@ -54,7 +54,7 @@ const DEFAULT_DEVICES: DeviceCarouselItem[] = [
   {
     title: 'Office Fan',
     description: 'Air circulation control',
-    id: 'office-fan',
+    id: 'fan.office_fan',
     type: 'fan',
     icon: <Fan className="h-[16px] w-[16px] text-white" />,
     image: '/imgs/office-fan.jpg'
@@ -62,7 +62,7 @@ const DEFAULT_DEVICES: DeviceCarouselItem[] = [
   {
     title: 'Living Room Light',
     description: 'Main living area lighting',
-    id: 'living-room-light',
+    id: 'light.living_room',
     type: 'light',
     icon: <Lightbulb className="h-[16px] w-[16px] text-white" />,
     image: '/imgs/living-room.webp'
@@ -70,7 +70,7 @@ const DEFAULT_DEVICES: DeviceCarouselItem[] = [
   {
     title: 'Bedroom Light',
     description: 'Bedroom lighting control',
-    id: 'bedroom-light',
+    id: 'light.bedroom',
     type: 'light',
     icon: <Lightbulb className="h-[16px] w-[16px] text-white" />,
     image: '/imgs/bedroom-light.webp'
@@ -78,7 +78,7 @@ const DEFAULT_DEVICES: DeviceCarouselItem[] = [
   {
     title: 'Front Door Camera',
     description: 'Security camera monitoring',
-    id: 'front-door-camera',
+    id: 'camera.front_door',
     type: 'security',
     icon: <Camera className="h-[16px] w-[16px] text-white" />,
     image: '/imgs/front-door-camera.jpeg'
@@ -86,7 +86,7 @@ const DEFAULT_DEVICES: DeviceCarouselItem[] = [
   {
     title: 'Garage Door',
     description: 'Garage access control',
-    id: 'garage-door',
+    id: 'cover.garage',
     type: 'security',
     icon: <Car className="h-[16px] w-[16px] text-white" />,
     image: '/imgs/garage-door.webp'
@@ -258,7 +258,7 @@ export default function DeviceCarousel({
               className={`relative shrink-0 flex flex-col ${
                 round
                   ? 'items-center justify-center text-center bg-[#060010] border-0'
-                  : 'items-start justify-between bg-muted/30 border border-card-border rounded-[12px]'
+                  : 'items-start justify-between bg-muted/30 border-0 rounded-[12px]'
               } overflow-hidden cursor-grab active:cursor-grabbing`}
               style={{
                 width: itemWidth,
@@ -276,10 +276,12 @@ export default function DeviceCarousel({
                     src={item.image} 
                     alt={item.title}
                     className="w-full h-full object-cover rounded-[12px]"
+                    style={{
+                      maskImage: 'linear-gradient(to right, transparent 0%, black 70%)',
+                      WebkitMaskImage: 'linear-gradient(to right, transparent 0%, black 70%)'
+                    }}
                   />
                   <div className="absolute inset-0 bg-black/40 rounded-[12px]"></div>
-                  {/* Left fade overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent/10 via-transparent/30 to-transparent rounded-[12px]"></div>
                 </div>
               )}
               
@@ -290,8 +292,8 @@ export default function DeviceCarousel({
                 </span>
               </div>
               <div className="relative z-10 p-5">
-                <div className="mb-1 font-black text-lg text-foreground">{item.title}</div>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <div className="font-black text-lg text-foreground tracking-wide">{item.title}</div>
+                <p className="text-sm text-muted-foreground tracking-wide">{item.description}</p>
               </div>
             </motion.div>
           );
