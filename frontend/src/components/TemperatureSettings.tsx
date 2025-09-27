@@ -77,14 +77,14 @@ const TemperatureSettings = forwardRef<TemperatureSettingsRef, TemperatureSettin
             <div className="flex flex-col ml-4">
               <button
                 type="button"
-                onClick={() => adjustTemp(localAwakeTemp, 1, setLocalAwakeTemp, onAwakeTempChange)}
+                onClick={() => adjustTemp(localAwakeTemp, 0.1, setLocalAwakeTemp, onAwakeTempChange)}
                 className="w-8 h-8 flex items-center justify-center text-white hover:bg-green-700 rounded transition-colors"
               >
                 <ChevronUp className="w-5 h-5" />
               </button>
               <button
                 type="button"
-                onClick={() => adjustTemp(localAwakeTemp, -1, setLocalAwakeTemp, onAwakeTempChange)}
+                onClick={() => adjustTemp(localAwakeTemp, -0.1, setLocalAwakeTemp, onAwakeTempChange)}
                 className="w-8 h-8 flex items-center justify-center text-white hover:bg-green-700 rounded transition-colors"
               >
                 <ChevronDown className="w-5 h-5" />
@@ -113,14 +113,14 @@ const TemperatureSettings = forwardRef<TemperatureSettingsRef, TemperatureSettin
             <div className="flex flex-col ml-4">
               <button
                 type="button"
-                onClick={() => adjustTemp(localSleepTemp, 1, setLocalSleepTemp, onSleepTempChange)}
+                onClick={() => adjustTemp(localSleepTemp, 0.1, setLocalSleepTemp, onSleepTempChange)}
                 className="w-8 h-8 flex items-center justify-center text-white hover:bg-green-700 rounded transition-colors"
               >
                 <ChevronUp className="w-5 h-5" />
               </button>
               <button
                 type="button"
-                onClick={() => adjustTemp(localSleepTemp, -1, setLocalSleepTemp, onSleepTempChange)}
+                onClick={() => adjustTemp(localSleepTemp, -0.1, setLocalSleepTemp, onSleepTempChange)}
                 className="w-8 h-8 flex items-center justify-center text-white hover:bg-green-700 rounded transition-colors"
               >
                 <ChevronDown className="w-5 h-5" />

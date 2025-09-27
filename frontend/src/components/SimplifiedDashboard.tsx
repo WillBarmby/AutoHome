@@ -243,6 +243,14 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     
   const activeDeviceCount = devices.filter(d => d.state).length;
 
+  // Get reactive color based on temperature
+  const getTemperatureColor = (temp: number) => {
+    if (temp >= 60 && temp <= 68) return 'cold'; // Blue
+    if (temp >= 68.1 && temp <= 77) return 'warning'; // Yellow
+    if (temp >= 77.1 && temp <= 85) return 'destructive'; // Red
+    return 'cold'; // Default
+  };
+
   // Close notifications when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -504,7 +512,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
                 min={60}
                 unit="°F"
                 label="Climate"
-                color="warning"
+                color={getTemperatureColor(targetTemperature)}
                 size="lg"
                 showControls={false}
                 isActive={!!thermostat.state}
@@ -517,7 +525,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
                   startingValue={60}
                   maxValue={85}
                   isStepped={true}
-                  stepSize={1}
+                  stepSize={0.1}
                   leftIcon={<Minus className="h-4 w-4" />}
                   rightIcon={<Plus className="h-4 w-4" />}
                   onValueChange={(value) => handleDeviceLevelChange(thermostat.id, value)}

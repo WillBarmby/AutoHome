@@ -198,7 +198,7 @@ const Devices = () => {
                 onValueChange={(value) => handleDeviceLevelChange(device.id, value[0])}
                 max={85}
                 min={60}
-                step={1}
+                step={0.1}
                 className="w-full"
               />
             </div>

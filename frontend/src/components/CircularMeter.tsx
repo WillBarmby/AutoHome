@@ -202,6 +202,8 @@ export function CircularMeter({
       case 'accent': return 'text-accent';
       case 'warning': return 'text-yellow-400';
       case 'success': return 'text-green-400';
+      case 'destructive': return 'text-destructive';
+      case 'cold': return 'text-blue-400';
       default: return 'text-primary';
     }
   };
@@ -212,7 +214,33 @@ export function CircularMeter({
       case 'accent': return 'hsl(var(--accent))';
       case 'warning': return 'hsl(45, 100%, 60%)';
       case 'success': return 'hsl(140, 100%, 60%)';
+      case 'destructive': return 'hsl(var(--destructive))';
+      case 'cold': return 'hsl(220, 70%, 50%)';
       default: return 'hsl(var(--primary))';
+    }
+  };
+
+  const getGlowColor = (colorName: string) => {
+    switch (colorName) {
+      case 'primary': return 'rgba(34, 197, 94, 0.6)';
+      case 'accent': return 'rgba(255, 193, 7, 0.6)';
+      case 'warning': return 'rgba(255, 193, 7, 0.6)';
+      case 'success': return 'rgba(34, 197, 94, 0.6)';
+      case 'destructive': return 'rgba(239, 68, 68, 0.6)';
+      case 'cold': return 'rgba(59, 130, 246, 0.6)';
+      default: return 'rgba(34, 197, 94, 0.6)';
+    }
+  };
+
+  const getGlowColorSecondary = (colorName: string) => {
+    switch (colorName) {
+      case 'primary': return 'rgba(34, 197, 94, 0.3)';
+      case 'accent': return 'rgba(255, 193, 7, 0.3)';
+      case 'warning': return 'rgba(255, 193, 7, 0.3)';
+      case 'success': return 'rgba(34, 197, 94, 0.3)';
+      case 'destructive': return 'rgba(239, 68, 68, 0.3)';
+      case 'cold': return 'rgba(59, 130, 246, 0.3)';
+      default: return 'rgba(34, 197, 94, 0.3)';
     }
   };
 
@@ -300,7 +328,7 @@ export function CircularMeter({
                 strokeWidth="4"
                 strokeLinecap="round"
                 className="transition-all duration-300 ease-out"
-                filter="drop-shadow(0 0 8px rgba(34, 197, 94, 0.6)) drop-shadow(0 0 16px rgba(34, 197, 94, 0.3))"
+                filter={`drop-shadow(0 0 8px ${getGlowColor(color)}) drop-shadow(0 0 16px ${getGlowColorSecondary(color)})`}
               />
               {/* Handle with neumorphic effect */}
               <circle
@@ -314,7 +342,7 @@ export function CircularMeter({
                 )}
                 stroke="white"
                 strokeWidth="2"
-                filter="drop-shadow(0 4px 8px rgba(0,0,0,0.3)) drop-shadow(0 0 12px rgba(34, 197, 94, 0.4))"
+                filter={`drop-shadow(0 4px 8px rgba(0,0,0,0.3)) drop-shadow(0 0 12px ${getGlowColor(color)})`}
               />
             </>
           ) : (
@@ -330,7 +358,7 @@ export function CircularMeter({
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
               className="transition-all duration-700 ease-out"
-              filter="drop-shadow(0 0 8px rgba(34, 197, 94, 0.6)) drop-shadow(0 0 16px rgba(34, 197, 94, 0.3))"
+              filter={`drop-shadow(0 0 8px ${getGlowColor(color)}) drop-shadow(0 0 16px ${getGlowColorSecondary(color)})`}
             />
           )}
         </svg>
