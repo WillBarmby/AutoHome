@@ -56,3 +56,16 @@ Real mode posts to the HA REST API using each device `id` (override with `ha_ent
 - `frontend/` – existing UI (unchanged here).
 - `reference/` – scratch calculations and legacy scripts.
 - `archive/` – historical assets kept for reference.
+
+## Data Contract (Frontend–Backend)
+
+### Entity (device state snapshot)
+- `entity_id` (string) — unique identifier, matches HA (`light.living_room`)
+- `state` (string) — current state ("on", "off", "72.5")
+- `attributes` (dict) — metadata like brightness, friendly_name, hvac_mode
+- `icon` (optional string) — Material Design Icon (e.g. "mdi:lightbulb")
+
+### Command (action to perform)
+- `entity_id` (string) — device target
+- `service` (string) — HA service call (`light.turn_on`, `climate.set_temperature`)
+- `data` (optional dict) — additional arguments (`{"brightness": 150}`)

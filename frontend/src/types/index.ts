@@ -1,5 +1,18 @@
 // Core types for the Home Assistant AI Panel
 
+export interface Entity {
+  entity_id: string;
+  state: string;
+  attributes: Record<string, any>;
+  icon?: string;
+}
+
+export interface Command {
+  entity_id: string;
+  service: string;
+  data?: Record<string, any>;
+}
+
 export interface DeviceEntity {
   id: string;
   name: string;
