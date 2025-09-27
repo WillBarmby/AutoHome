@@ -1,0 +1,11 @@
+{
+  "rooms": ["bedroom", "living_room"],
+  "devices": [
+    {"id": "bedroom_light", "room": "bedroom", "type": "light", "name": "Bedroom Light"},
+    {"id": "bedroom_fan", "room": "bedroom", "type": "fan", "name": "Bedroom Fan"},
+    {"id": "bedroom_thermostat", "room": "bedroom", "type": "thermostat", "name": "Bedroom Thermostat"},
+    {"id": "living_light", "room": "living_room", "type": "light", "name": "Living Room Light"},
+    {"id": "living_fan", "room": "living_room", "type": "fan", "name": "Living Room Fan"},
+    {"id": "living_thermostat", "room": "living_room", "type": "thermostat", "name": "Living Room Thermostat"}
+  ]
+}
