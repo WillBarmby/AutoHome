@@ -155,7 +155,7 @@ const KillSwitch = () => {
         {/* Main Kill Switch */}
         <Card className={`border-2 ${killSwitchActive ? 'border-destructive bg-destructive/5' : 'border-card-border bg-gradient-card'}`}>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg">
+            <CardTitle className="flex items-center gap-2 text-lg tracking-wide">
               <Power className={`h-6 w-6 ${killSwitchActive ? 'text-destructive' : 'text-primary'}`} />
               Main Kill Switch
             </CardTitle>
@@ -217,7 +217,7 @@ const KillSwitch = () => {
         {/* Emergency Stop */}
         <Card className="border-2 border-destructive bg-destructive/5">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-lg text-destructive">
+            <CardTitle className="flex items-center gap-2 text-lg text-destructive tracking-wide">
               <AlertTriangle className="h-6 w-6" />
               Emergency Stop
             </CardTitle>
@@ -261,7 +261,7 @@ const KillSwitch = () => {
       <div ref={systemStatusRef}>
         <Card className="bg-gradient-card border-card-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 tracking-wide">
             <Shield className="h-5 w-5" />
             System Status
           </CardTitle>
@@ -318,7 +318,7 @@ const KillSwitch = () => {
         {killSwitchActive && (
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <Activity className="h-5 w-5" />
               Recovery Options
             </CardTitle>

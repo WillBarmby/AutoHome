@@ -160,7 +160,7 @@ const Settings = () => {
         {/* User Preferences */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <SettingsIcon className="h-5 w-5" />
               System Preferences
             </CardTitle>
@@ -219,7 +219,7 @@ const Settings = () => {
         {/* Appearance */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <Palette className="h-5 w-5" />
               Appearance
             </CardTitle>
@@ -278,7 +278,7 @@ const Settings = () => {
         {/* Notifications */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <Bell className="h-5 w-5" />
               Notifications
             </CardTitle>
@@ -321,7 +321,7 @@ const Settings = () => {
         {/* AI Assistant */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <Wifi className="h-5 w-5" />
               AI Assistant
             </CardTitle>
@@ -370,7 +370,7 @@ const Settings = () => {
         {/* System */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <Database className="h-5 w-5" />
               System
             </CardTitle>
@@ -420,7 +420,7 @@ const Settings = () => {
         {/* Security */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <Shield className="h-5 w-5" />
               Security
             </CardTitle>
