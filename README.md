@@ -76,7 +76,7 @@ Real mode posts to the HA REST API using each device `id` (override with `ha_ent
 curl http://localhost:8000/devices
 ```
 
-Example response:
+Example response (backed by `backend/state/devices.json`):
 
 ```
 [
@@ -135,3 +135,7 @@ VITE_USE_MOCKS=true
 - `VITE_USE_MOCKS` controls whether the UI talks to local mock data (`true`, default) or the backend API (`false`).
 
 Flip `VITE_USE_MOCKS` to `false` and restart `npm run dev` to exercise the real `/devices` and `/execute` endpoints. Set it back to `true` to restore the self-contained demo mode.
+
+The backend `/devices` endpoint now reads directly from `backend/state/devices.json`; edit this file to stage different device states for demos without touching code.
+
+The `/execute` endpoint mutates the same file—toggling a light via the UI (or `curl`) will flip its `state` inside `backend/state/devices.json`, and the next `/devices` call reflects the updated snapshot.

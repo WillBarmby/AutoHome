@@ -1,11 +1,20 @@
-{
-  "rooms": ["bedroom", "living_room"],
-  "devices": [
-    {"id": "bedroom_light", "room": "bedroom", "type": "light", "name": "Bedroom Light"},
-    {"id": "bedroom_fan", "room": "bedroom", "type": "fan", "name": "Bedroom Fan"},
-    {"id": "bedroom_thermostat", "room": "bedroom", "type": "thermostat", "name": "Bedroom Thermostat"},
-    {"id": "living_light", "room": "living_room", "type": "light", "name": "Living Room Light"},
-    {"id": "living_fan", "room": "living_room", "type": "fan", "name": "Living Room Fan"},
-    {"id": "living_thermostat", "room": "living_room", "type": "thermostat", "name": "Living Room Thermostat"}
-  ]
-}
+[
+  {
+    "entity_id": "light.living_room",
+    "state": "on",
+    "attributes": {
+      "friendly_name": "Living Room Lamp",
+      "brightness": 200
+    },
+    "icon": "mdi:lightbulb"
+  },
+  {
+    "entity_id": "climate.bedroom",
+    "state": "72.5",
+    "attributes": {
+      "friendly_name": "Bedroom Thermostat",
+      "hvac_mode": "cool"
+    },
+    "icon": "mdi:thermometer"
+  }
+]

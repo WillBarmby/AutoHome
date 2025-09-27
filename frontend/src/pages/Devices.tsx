@@ -2,12 +2,14 @@ import { useCallback, useEffect, useState } from "react";
 
 import type { Entity } from "@/types";
 import { haAdapter } from "@/services/adapters";
+import { useToast } from "@/hooks/use-toast";
 
 const Devices = () => {
   const [devices, setDevices] = useState<Entity[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [executingId, setExecutingId] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const loadDevices = useCallback(async (showSpinner = false) => {
     if (showSpinner) {
@@ -41,12 +43,45 @@ const Devices = () => {
       const response = await haAdapter.callService(domain, "toggle", {
         entity_id: device.entity_id,
       });
-      console.log("Command response", response);
+
+      let nextState: string | undefined;
+      if (response && typeof response === "object") {
+        const payload = response as Record<string, unknown>;
+        const candidate = (() => {
+          const entityValue = payload.entity;
+          if (entityValue && typeof entityValue === "object") {
+            return entityValue;
+          }
+          const stateValue = payload.state;
+          if (stateValue && typeof stateValue === "object") {
+            return stateValue;
+          }
+          return null;
+        })();
+        if (candidate && typeof candidate === "object") {
+          const raw = (candidate as Record<string, unknown>).state;
+          if (typeof raw === "string") {
+            nextState = raw;
+          }
+        }
+      }
+
       await loadDevices();
+
+      const friendlyName = device.attributes.friendly_name ?? device.entity_id;
+      toast({
+        title: "Command sent",
+        description: nextState
+          ? `${friendlyName} is now ${nextState}.`
+          : `${friendlyName} was updated successfully.`,
+      });
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
-      console.error("Failed to execute command", err);
-      setError(message);
+      toast({
+        title: "Command failed",
+        description: message,
+        variant: "destructive",
+      });
     } finally {
       setExecutingId(null);
     }
