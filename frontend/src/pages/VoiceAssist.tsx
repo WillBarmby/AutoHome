@@ -204,7 +204,7 @@ const VoiceAssist = () => {
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Voice Assistant</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-wide">Voice Assistant</h1>
           <p className="text-sm text-muted-foreground">Control your home with voice commands</p>
         </div>
         
@@ -267,7 +267,7 @@ const VoiceAssist = () => {
 
           {/* Settings */}
           <div ref={settingsRef}>
-            <Card className="bg-gradient-card border-card-border">
+            <Card className="bg-gradient-card border-card-border h-[400px]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Settings className="h-5 w-5" />

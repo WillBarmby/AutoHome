@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import Devices from "./pages/Devices";
 import Guardrail from "./pages/Guardrail";
 import Settings from "./pages/Settings";
+import UserProfile from "./pages/UserProfile";
 import KillSwitch from "./pages/KillSwitch";
 import VoiceAssist from "./pages/VoiceAssist";
 import NotFound from "./pages/NotFound";
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/devices" element={<Devices />} />
             <Route path="/guardrail" element={<Guardrail />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/user-profile" element={<UserProfile />} />
             <Route path="/kill-switch" element={<KillSwitch />} />
             <Route path="/voice-assist" element={<VoiceAssist />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

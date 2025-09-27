@@ -134,7 +134,7 @@ const KillSwitch = () => {
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Kill Switch</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-wide">Kill Switch</h1>
           <p className="text-sm text-muted-foreground">Emergency system control and safety override</p>
         </div>
         

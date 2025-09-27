@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { gsap } from "gsap";
+import { motion } from "framer-motion";
 import { CircularMeter } from "./CircularMeter";
 import { ChatConsole } from "./ChatConsole";
 import { OperationModeToggle } from "./OperationModeToggle";
@@ -285,57 +286,120 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Home Control</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-wide">Home Control</h1>
           <p className="text-sm text-muted-foreground">AI Assistant Panel</p>
         </div>
         
         {/* Operation Mode Segmented Control - Centered */}
         <div className="flex bg-muted rounded-lg p-1">
-          <button
+          <motion.button
             ref={autoButtonRef}
             onClick={() => handleOperationModeChange('auto')}
             className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
               operationMode === 'auto'
-                ? 'bg-background text-foreground shadow-sm'
+                ? 'bg-green-500 text-white shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
             title="Auto (Safe) - Safe actions execute automatically"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            animate={{
+              rotate: operationMode === 'auto' ? [0, -10, 10, -10, 0] : 0,
+              transition: { duration: 0.5, ease: "easeInOut" }
+            }}
           >
-            <Zap className="h-4 w-4" />
+            <motion.div
+              animate={{
+                scale: operationMode === 'auto' ? [1, 1.2, 1] : 1,
+                transition: { duration: 0.3, ease: "easeInOut" }
+              }}
+            >
+              <Zap className="h-4 w-4" />
+            </motion.div>
             {operationMode === 'auto' && (
-              <span className="text-sm font-medium whitespace-nowrap">Auto</span>
+              <motion.span 
+                className="text-sm font-medium whitespace-nowrap"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                Auto
+              </motion.span>
             )}
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             ref={manualButtonRef}
             onClick={() => handleOperationModeChange('manual')}
             className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
               operationMode === 'manual'
-                ? 'bg-background text-foreground shadow-sm'
+                ? 'bg-yellow-500 text-white shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
             title="Manual - All actions require approval"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            animate={{
+              rotate: operationMode === 'manual' ? [0, -5, 5, -5, 0] : 0,
+              transition: { duration: 0.5, ease: "easeInOut" }
+            }}
           >
-            <Hand className="h-4 w-4" />
+            <motion.div
+              animate={{
+                scale: operationMode === 'manual' ? [1, 1.2, 1] : 1,
+                transition: { duration: 0.3, ease: "easeInOut" }
+              }}
+            >
+              <Hand className="h-4 w-4" />
+            </motion.div>
             {operationMode === 'manual' && (
-              <span className="text-sm font-medium whitespace-nowrap">Manual</span>
+              <motion.span 
+                className="text-sm font-medium whitespace-nowrap"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                Manual
+              </motion.span>
             )}
-          </button>
-          <button
+          </motion.button>
+          <motion.button
             ref={pausedButtonRef}
             onClick={() => handleOperationModeChange('paused')}
             className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
               operationMode === 'paused'
-                ? 'bg-background text-foreground shadow-sm'
+                ? 'bg-red-500 text-white shadow-sm'
                 : 'text-muted-foreground hover:text-foreground'
             }`}
             title="Paused - All automation disabled"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            animate={{
+              rotate: operationMode === 'paused' ? [0, -15, 15, -15, 0] : 0,
+              transition: { duration: 0.5, ease: "easeInOut" }
+            }}
           >
-            <Pause className="h-4 w-4" />
+            <motion.div
+              animate={{
+                scale: operationMode === 'paused' ? [1, 1.2, 1] : 1,
+                transition: { duration: 0.3, ease: "easeInOut" }
+              }}
+            >
+              <Pause className="h-4 w-4" />
+            </motion.div>
             {operationMode === 'paused' && (
-              <span className="text-sm font-medium whitespace-nowrap">Paused</span>
+              <motion.span 
+                className="text-sm font-medium whitespace-nowrap"
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                transition={{ duration: 0.2 }}
+              >
+                Paused
+              </motion.span>
             )}
-          </button>
+          </motion.button>
         </div>
         
         <div className="flex items-center gap-3">
@@ -357,34 +421,6 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
             >
               <Bell className="h-4 w-4" />
             </Button>
-            
-            {/* Notifications Popup */}
-            {notificationsOpen && (
-              <div className="absolute right-0 top-10 w-80 bg-background border border-border rounded-lg shadow-lg z-50">
-                <div className="p-4 border-b border-border">
-                  <h3 className="font-medium text-sm">Notifications</h3>
-                </div>
-                <div className="max-h-96 overflow-y-auto">
-                  <div className="p-3 border-b border-border/50">
-                    <div className="text-xs font-medium mb-1">Energy Optimization</div>
-                    <div className="text-xs text-muted-foreground mb-2">Pre-cooling started for peak hours</div>
-                    <div className="text-xs text-green-400">2 min ago</div>
-                  </div>
-                  
-                  <div className="p-3 border-b border-border/50">
-                    <div className="text-xs font-medium mb-1">Device Status</div>
-                    <div className="text-xs text-muted-foreground mb-2">Living room lights dimmed to 35%</div>
-                    <div className="text-xs text-blue-400">5 min ago</div>
-                  </div>
-                  
-                  <div className="p-3">
-                    <div className="text-xs font-medium mb-1">Security Alert</div>
-                    <div className="text-xs text-muted-foreground mb-2">Front door camera motion detected</div>
-                    <div className="text-xs text-yellow-400">12 min ago</div>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
@@ -396,6 +432,40 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
           onSendMessage={handleSendMessage}
         />
       </div>
+
+      {/* Notifications Popup - Fixed positioning to appear above everything */}
+      {notificationsOpen && (
+        <motion.div 
+          initial={{ opacity: 0, scale: 0.95, y: -10 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.95, y: -10 }}
+          transition={{ duration: 0.2, ease: "easeOut" }}
+          className="fixed top-12 right-6 w-80 bg-background border border-border rounded-lg shadow-lg z-[9999]"
+        >
+          <div className="p-4 border-b border-border">
+            <h3 className="font-medium text-sm">Notifications</h3>
+          </div>
+          <div className="max-h-96 overflow-y-auto">
+            <div className="p-3 border-b border-border/50">
+              <div className="text-xs font-medium mb-1">Energy Optimization</div>
+              <div className="text-xs text-muted-foreground mb-2">Pre-cooling started for peak hours</div>
+              <div className="text-xs text-green-400">2 min ago</div>
+            </div>
+            
+            <div className="p-3 border-b border-border/50">
+              <div className="text-xs font-medium mb-1">Device Status</div>
+              <div className="text-xs text-muted-foreground mb-2">Living room lights dimmed to 35%</div>
+              <div className="text-xs text-blue-400">5 min ago</div>
+            </div>
+            
+            <div className="p-3">
+              <div className="text-xs font-medium mb-1">Security Alert</div>
+              <div className="text-xs text-muted-foreground mb-2">Front door camera motion detected</div>
+              <div className="text-xs text-yellow-400">12 min ago</div>
+            </div>
+          </div>
+        </motion.div>
+      )}
 
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
