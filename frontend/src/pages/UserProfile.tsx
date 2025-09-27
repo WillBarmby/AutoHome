@@ -15,6 +15,7 @@ import { gsap } from 'gsap';
 import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import NumberFlow from '@number-flow/react';
 
 export default function UserProfile() {
   const [isSaving, setIsSaving] = useState(false);
@@ -166,11 +167,6 @@ export default function UserProfile() {
             <ArrowLeft className="h-4 w-4" />
             Back to Settings
           </Button>
-          {hasUnsavedChanges && (
-            <Badge variant="outline" className="text-orange-500 border-orange-500 text-xs">
-              Unsaved Changes
-            </Badge>
-          )}
           {lastUpdated && (
             <Badge variant="secondary" className="text-xs">
               Last updated: {new Date(lastUpdated).toLocaleDateString()}
@@ -182,11 +178,16 @@ export default function UserProfile() {
       <div className="space-y-6">
         {/* Form */}
         <Card ref={formRef} className="bg-gradient-card border-card-border">
-          <CardHeader>
+          <CardHeader className="relative">
             <CardTitle className="tracking-wide">Preferences</CardTitle>
             <CardDescription>
               Set your daily schedule and temperature preferences
             </CardDescription>
+            {hasUnsavedChanges && (
+              <Badge variant="outline" className="absolute top-4 right-4 text-orange-500 border-orange-500 text-xs">
+                Unsaved Changes
+              </Badge>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -338,8 +339,20 @@ export default function UserProfile() {
               <div className="p-4 bg-muted/20 rounded-lg">
                 <p className="font-medium mb-2">Temperature Settings:</p>
                 <p>
-                  Keep house at <span className="font-semibold text-primary">{watchedValues.tempAwakeF}°F</span> when awake, 
-                  <span className="font-semibold text-primary"> {watchedValues.tempSleepF}°F</span> when sleeping
+                  Keep house at <span className="font-semibold text-primary">
+                    <NumberFlow 
+                      value={watchedValues.tempAwakeF} 
+                      duration={800}
+                      ease="easeOut"
+                    />°F
+                  </span> when awake, 
+                  <span className="font-semibold text-primary"> 
+                    <NumberFlow 
+                      value={watchedValues.tempSleepF} 
+                      duration={800}
+                      ease="easeOut"
+                    />°F
+                  </span> when sleeping
                 </p>
               </div>
 

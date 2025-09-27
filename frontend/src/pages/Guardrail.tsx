@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { DeviceEntity } from "@/types";
 import { mockDevices } from "@/services/mockData";
+import DeviceCarousel, { DeviceCarouselItem } from "@/components/DeviceCarousel";
 
 interface GuardrailSettings {
   deviceId: string;
@@ -38,6 +39,16 @@ const Guardrail = () => {
   // Animation refs
   const headerRef = useRef<HTMLDivElement>(null);
   const cardsRef = useRef<HTMLDivElement>(null);
+  const carouselRef = useRef<HTMLDivElement>(null);
+  const settingsRef = useRef<HTMLDivElement>(null);
+  
+  const [selectedDevice, setSelectedDevice] = useState<DeviceCarouselItem | null>({
+    title: 'Hall Thermostat',
+    description: 'Climate control for hallway',
+    id: 'hall-thermostat',
+    type: 'climate',
+    icon: null
+  });
   const [guardrails, setGuardrails] = useState<GuardrailSettings[]>(
     devices.map(device => ({
       deviceId: device.id,
@@ -96,11 +107,37 @@ const Guardrail = () => {
   const enabledGuardrails = guardrails.filter(g => g.enabled).length;
   const highSecurityDevices = guardrails.filter(g => g.requireConfirmation).length;
 
+  const handleDeviceSelect = (device: DeviceCarouselItem) => {
+    setSelectedDevice(device);
+  };
+
+  const handleIndexChange = (index: number, device: DeviceCarouselItem) => {
+    setSelectedDevice(device);
+  };
+
+  const getCurrentGuardrail = () => {
+    if (!selectedDevice) return null;
+    return guardrails.find(g => g.deviceId === selectedDevice.id);
+  };
+
+  const updateCurrentGuardrail = (updates: Partial<GuardrailSettings>) => {
+    if (!selectedDevice) return;
+    setGuardrails(prev => 
+      prev.map(g => 
+        g.deviceId === selectedDevice.id 
+          ? { ...g, ...updates }
+          : g
+      )
+    );
+  };
+
   // Animate elements on mount
   useEffect(() => {
     const elements = [
       headerRef.current,
-      cardsRef.current
+      cardsRef.current,
+      carouselRef.current,
+      settingsRef.current
     ].filter(Boolean);
 
     gsap.fromTo(elements, 
@@ -195,138 +232,154 @@ const Guardrail = () => {
         </CardContent>
         </Card>
 
-        {/* Device Guardrails */}
-        <div className="space-y-4 mt-6">
-        <h2 className="text-lg font-semibold text-foreground">Device-Specific Rules</h2>
-        
-        {guardrails.map((guardrail) => (
-          <Card key={guardrail.deviceId} className="bg-gradient-card border-card-border">
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-base tracking-wide">{guardrail.deviceName}</CardTitle>
-                <div className="flex items-center gap-2">
-                  {guardrail.requireConfirmation && (
-                    <Badge variant="destructive" className="text-xs">
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                      High Security
-                    </Badge>
-                  )}
-                  <Switch
-                    checked={guardrail.enabled}
-                    onCheckedChange={(checked) => 
-                      updateGuardrail(guardrail.deviceId, { enabled: checked })
-                    }
-                  />
+        {/* Device Carousel and Settings */}
+        <div ref={carouselRef} className="mt-6">
+          <h2 className="text-lg font-semibold text-foreground mb-4">Device-Specific Rules</h2>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+            {/* Carousel */}
+            <div className="flex justify-center lg:justify-start">
+              <DeviceCarousel
+                baseWidth={580}
+                onDeviceSelect={handleDeviceSelect}
+                onIndexChange={handleIndexChange}
+              />
+            </div>
+
+            {/* Device Settings */}
+            <div ref={settingsRef} className="flex justify-center">
+              <div className="w-full max-w-md space-y-4" style={{ width: '580px' }}>
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                  <h3 className="text-base font-semibold tracking-wide text-foreground">
+                    {selectedDevice.title}
+                  </h3>
+                  <div className="flex items-center gap-2">
+                    {getCurrentGuardrail()?.requireConfirmation && (
+                      <Badge variant="destructive" className="text-xs">
+                        <AlertTriangle className="h-3 w-3 mr-1" />
+                        High Security
+                      </Badge>
+                    )}
+                    <Switch
+                      checked={getCurrentGuardrail()?.enabled || false}
+                      onCheckedChange={(checked) => 
+                        updateCurrentGuardrail({ enabled: checked })
+                      }
+                      disabled={false}
+                    />
+                  </div>
+                </div>
+                
+                {/* Settings Content */}
+                <div className="space-y-4">
+              {/* Value Limits */}
+              <div className="space-y-2">
+                <Label className="text-sm">Value Limits</Label>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <Label className="text-xs text-muted-foreground">Min</Label>
+                    <Input
+                      type="number"
+                      value={getCurrentGuardrail()?.minValue || 0}
+                      onChange={(e) => 
+                        updateCurrentGuardrail({ 
+                          minValue: parseInt(e.target.value) 
+                        })
+                      }
+                      className="h-8"
+  disabled={false}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Label className="text-xs text-muted-foreground">Max</Label>
+                    <Input
+                      type="number"
+                      value={getCurrentGuardrail()?.maxValue || 100}
+                      onChange={(e) => 
+                        updateCurrentGuardrail({ 
+                          maxValue: parseInt(e.target.value) 
+                        })
+                      }
+                      className="h-8"
+  disabled={false}
+                    />
+                  </div>
                 </div>
               </div>
-            </CardHeader>
-            
-            {guardrail.enabled && (
-              <CardContent className="space-y-4">
-                {/* Value Limits */}
-                {(guardrail.minValue !== undefined && guardrail.maxValue !== undefined) && (
-                  <div className="space-y-2">
-                    <Label className="text-sm">Value Limits</Label>
-                    <div className="flex items-center gap-4">
-                      <div className="flex-1">
-                        <Label className="text-xs text-muted-foreground">Min</Label>
-                        <Input
-                          type="number"
-                          value={guardrail.minValue}
-                          onChange={(e) => 
-                            updateGuardrail(guardrail.deviceId, { 
-                              minValue: parseInt(e.target.value) 
-                            })
-                          }
-                          className="h-8"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <Label className="text-xs text-muted-foreground">Max</Label>
-                        <Input
-                          type="number"
-                          value={guardrail.maxValue}
-                          onChange={(e) => 
-                            updateGuardrail(guardrail.deviceId, { 
-                              maxValue: parseInt(e.target.value) 
-                            })
-                          }
-                          className="h-8"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                )}
 
-                {/* Quiet Hours */}
-                <div className="space-y-2">
-                  <Label className="text-sm flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
-                    Quiet Hours
-                  </Label>
-                  <div className="flex items-center gap-4">
-                    <div className="flex-1">
-                      <Label className="text-xs text-muted-foreground">Start</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        max="23"
-                        value={guardrail.quietHoursStart}
-                        onChange={(e) => 
-                          updateGuardrail(guardrail.deviceId, { 
-                            quietHoursStart: parseInt(e.target.value) 
-                          })
-                        }
-                        className="h-8"
-                      />
-                    </div>
-                    <div className="flex-1">
-                      <Label className="text-xs text-muted-foreground">End</Label>
-                      <Input
-                        type="number"
-                        min="0"
-                        max="23"
-                        value={guardrail.quietHoursEnd}
-                        onChange={(e) => 
-                          updateGuardrail(guardrail.deviceId, { 
-                            quietHoursEnd: parseInt(e.target.value) 
-                          })
-                        }
-                        className="h-8"
-                      />
-                    </div>
+              {/* Quiet Hours */}
+              <div className="space-y-2">
+                <Label className="text-sm flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Quiet Hours
+                </Label>
+                <div className="flex items-center gap-4">
+                  <div className="flex-1">
+                    <Label className="text-xs text-muted-foreground">Start</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="23"
+                      value={getCurrentGuardrail()?.quietHoursStart || 22}
+                      onChange={(e) => 
+                        updateCurrentGuardrail({ 
+                          quietHoursStart: parseInt(e.target.value) 
+                        })
+                      }
+                      className="h-8"
+  disabled={false}
+                    />
+                  </div>
+                  <div className="flex-1">
+                    <Label className="text-xs text-muted-foreground">End</Label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="23"
+                      value={getCurrentGuardrail()?.quietHoursEnd || 7}
+                      onChange={(e) => 
+                        updateCurrentGuardrail({ 
+                          quietHoursEnd: parseInt(e.target.value) 
+                        })
+                      }
+                      className="h-8"
+  disabled={false}
+                    />
                   </div>
                 </div>
+              </div>
 
-                {/* Rate Limiting */}
-                <div className="space-y-2">
-                  <Label className="text-sm">Max Actions per Hour: {guardrail.maxActionsPerHour}</Label>
-                  <Slider
-                    value={[guardrail.maxActionsPerHour]}
-                    onValueChange={([value]) => 
-                      updateGuardrail(guardrail.deviceId, { maxActionsPerHour: value })
-                    }
-                    max={20}
-                    min={1}
-                    step={1}
-                    className="flex-1"
-                  />
-                </div>
+              {/* Rate Limiting */}
+              <div className="space-y-2">
+                <Label className="text-sm">Max Actions per Hour: {getCurrentGuardrail()?.maxActionsPerHour || 10}</Label>
+                <Slider
+                  value={[getCurrentGuardrail()?.maxActionsPerHour || 10]}
+                  onValueChange={([value]) => 
+                    updateCurrentGuardrail({ maxActionsPerHour: value })
+                  }
+                  max={20}
+                  min={1}
+                  step={1}
+                  className="flex-1"
+                  disabled={!selectedDevice}
+                />
+              </div>
 
-                {/* Confirmation Required */}
-                <div className="flex items-center justify-between">
-                  <Label className="text-sm">Require Confirmation</Label>
-                  <Switch
-                    checked={guardrail.requireConfirmation}
-                    onCheckedChange={(checked) => 
-                      updateGuardrail(guardrail.deviceId, { requireConfirmation: checked })
-                    }
-                  />
+                  {/* Confirmation Required */}
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm">Require Confirmation</Label>
+                    <Switch
+                      checked={getCurrentGuardrail()?.requireConfirmation || false}
+                      onCheckedChange={(checked) => 
+                        updateCurrentGuardrail({ requireConfirmation: checked })
+                      }
+                      disabled={!selectedDevice}
+                    />
+                  </div>
                 </div>
-              </CardContent>
-            )}
-          </Card>
-        ))}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

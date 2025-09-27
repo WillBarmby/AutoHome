@@ -1,130 +1,251 @@
-Cursor Prompt — “User Profile (Settings) with Wheel Time Pickers + File Storage”
+npm install motion
 
-Build a Settings → User Profile page for our Home Assistant AI panel.
+import Carousel from './Carousel'
 
-Tech/Structure
+<div style={{ height: '600px', position: 'relative' }}>
+  <Carousel
+    baseWidth={300}
+    autoplay={true}
+    autoplayDelay={3000}
+    pauseOnHover={true}
+    loop={true}
+    round={false}
+  />
+</div>
 
-Framework: Next.js (App Router) + TypeScript.
+import { useEffect, useState, useRef } from 'react';
+import { motion, PanInfo, useMotionValue, useTransform } from 'motion/react';
+import React, { JSX } from 'react';
 
-UI: Tailwind + shadcn/ui. Keep styles minimal/clean.
-
-Time picker: iOS-style wheel/scroll selector (hours/minutes + AM/PM) for each time field.
-
-Validation: Zod.
-
-Persistence: file-based JSON at ./data/user_profile.json (create folder if missing). Provide API routes under /api/user-profile.
-
-State: React Hook Form with zodResolver; optimistic UI (save button shows success/error).
-
-Fields (model what the LLM “should know”)
-
-leaveTime (time)
-
-returnTime (time)
-
-tempAwakeF (number, °F; min 60, max 80)
-
-tempSleepF (number, °F; min 60, max 80)
-
-notes (multiline string; optional, free-form “things the model should know”)
-
-updatedAt (ISO string; set server-side)
-
-Schema
-const UserProfileSchema = z.object({
-  leaveTime: z.string().regex(/^([0]?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/), // “7:15 AM”
-  returnTime: z.string().regex(/^([0]?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/),
-  tempAwakeF: z.number().min(60).max(80),
-  tempSleepF: z.number().min(60).max(80),
-  notes: z.string().max(2000).optional().default(""),
-  updatedAt: z.string().optional()
-});
-
-Pages & API
-
-UI route: /settings/user-profile
-
-Header: “User Profile”
-
-Help text: “Tell the assistant what to assume by default.”
-
-Controls:
-
-Wheel time pickers for “What time do you usually leave?” and “When are you usually back?”
-
-Number inputs (with steppers) for temps (Awake/Sleep).
-
-Textarea for Notes.
-
-Buttons: Save, Reset, Use Example.
-
-Inline preview card: “Today I’ll leave at X, back at Y; keep house at A°F awake, B°F asleep.”
-
-GET /api/user-profile → returns current JSON or sensible defaults.
-
-PUT /api/user-profile → validates with Zod, writes to ./data/user_profile.json, returns saved object with updatedAt.
-
-Wheel Time Picker requirements
-
-Reusable component <WheelTimePicker value onChange />
-
-Three columns: hour (1–12), minute (00–59), AM/PM.
-
-Mouse wheel, trackpad, and keyboard accessible (↑/↓ to scroll; Tab cycles columns).
-
-Snap to nearest value; announce selection via ARIA live region.
-
-File I/O
-
-Create helper lib/userProfileStore.ts:
-
-readUserProfile(): Promise<UserProfile>
-
-writeUserProfile(data: UserProfile): Promise<void>
-
-Ensure atomic writes (write temp file then rename) and create ./data if missing.
-
-Defaults (if file missing)
-{
-  "leaveTime": "8:00 AM",
-  "returnTime": "6:00 PM",
-  "tempAwakeF": 72,
-  "tempSleepF": 70,
-  "notes": ""
+// replace icons with your own if needed
+import { FiCircle, FiCode, FiFileText, FiLayers, FiLayout } from 'react-icons/fi';
+export interface CarouselItem {
+  title: string;
+  description: string;
+  id: number;
+  icon: React.ReactNode;
 }
 
-UX details
+export interface CarouselProps {
+  items?: CarouselItem[];
+  baseWidth?: number;
+  autoplay?: boolean;
+  autoplayDelay?: number;
+  pauseOnHover?: boolean;
+  loop?: boolean;
+  round?: boolean;
+}
 
-Show unsaved changes badge when form dirtied.
+const DEFAULT_ITEMS: CarouselItem[] = [
+  {
+    title: 'Text Animations',
+    description: 'Cool text animations for your projects.',
+    id: 1,
+    icon: <FiFileText className="h-[16px] w-[16px] text-white" />
+  },
+  {
+    title: 'Animations',
+    description: 'Smooth animations for your projects.',
+    id: 2,
+    icon: <FiCircle className="h-[16px] w-[16px] text-white" />
+  },
+  {
+    title: 'Components',
+    description: 'Reusable components for your projects.',
+    id: 3,
+    icon: <FiLayers className="h-[16px] w-[16px] text-white" />
+  },
+  {
+    title: 'Backgrounds',
+    description: 'Beautiful backgrounds and patterns for your projects.',
+    id: 4,
+    icon: <FiLayout className="h-[16px] w-[16px] text-white" />
+  },
+  {
+    title: 'Common UI',
+    description: 'Common UI components are coming soon!',
+    id: 5,
+    icon: <FiCode className="h-[16px] w-[16px] text-white" />
+  }
+];
 
-Save: disable while pending; show toast “Preferences saved”.
+const DRAG_BUFFER = 0;
+const VELOCITY_THRESHOLD = 500;
+const GAP = 16;
+const SPRING_OPTIONS = { type: 'spring', stiffness: 300, damping: 30 };
 
-Reset: reload from server file.
+export default function Carousel({
+  items = DEFAULT_ITEMS,
+  baseWidth = 300,
+  autoplay = false,
+  autoplayDelay = 3000,
+  pauseOnHover = false,
+  loop = false,
+  round = false
+}: CarouselProps): JSX.Element {
+  const containerPadding = 16;
+  const itemWidth = baseWidth - containerPadding * 2;
+  const trackItemOffset = itemWidth + GAP;
 
-Use Example: fills with 7:30 AM / 5:30 PM / 72 / 69 and a sample note.
+  const carouselItems = loop ? [...items, items[0]] : items;
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
+  const x = useMotionValue(0);
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+  const [isResetting, setIsResetting] = useState<boolean>(false);
 
-On save, write updatedAt server-side and render it under the header.
+  const containerRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (pauseOnHover && containerRef.current) {
+      const container = containerRef.current;
+      const handleMouseEnter = () => setIsHovered(true);
+      const handleMouseLeave = () => setIsHovered(false);
+      container.addEventListener('mouseenter', handleMouseEnter);
+      container.addEventListener('mouseleave', handleMouseLeave);
+      return () => {
+        container.removeEventListener('mouseenter', handleMouseEnter);
+        container.removeEventListener('mouseleave', handleMouseLeave);
+      };
+    }
+  }, [pauseOnHover]);
 
-Accessibility
+  useEffect(() => {
+    if (autoplay && (!pauseOnHover || !isHovered)) {
+      const timer = setInterval(() => {
+        setCurrentIndex(prev => {
+          if (prev === items.length - 1 && loop) {
+            return prev + 1;
+          }
+          if (prev === carouselItems.length - 1) {
+            return loop ? 0 : prev;
+          }
+          return prev + 1;
+        });
+      }, autoplayDelay);
+      return () => clearInterval(timer);
+    }
+  }, [autoplay, autoplayDelay, isHovered, loop, items.length, carouselItems.length, pauseOnHover]);
 
-Labels + descriptions for each field.
+  const effectiveTransition = isResetting ? { duration: 0 } : SPRING_OPTIONS;
 
-Wheel columns have role="listbox" with aria-activedescendant for the selected option.
+  const handleAnimationComplete = () => {
+    if (loop && currentIndex === carouselItems.length - 1) {
+      setIsResetting(true);
+      x.set(0);
+      setCurrentIndex(0);
+      setTimeout(() => setIsResetting(false), 50);
+    }
+  };
 
-Form is fully keyboard navigable.
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo): void => {
+    const offset = info.offset.x;
+    const velocity = info.velocity.x;
+    if (offset < -DRAG_BUFFER || velocity < -VELOCITY_THRESHOLD) {
+      if (loop && currentIndex === items.length - 1) {
+        setCurrentIndex(currentIndex + 1);
+      } else {
+        setCurrentIndex(prev => Math.min(prev + 1, carouselItems.length - 1));
+      }
+    } else if (offset > DRAG_BUFFER || velocity > VELOCITY_THRESHOLD) {
+      if (loop && currentIndex === 0) {
+        setCurrentIndex(items.length - 1);
+      } else {
+        setCurrentIndex(prev => Math.max(prev - 1, 0));
+      }
+    }
+  };
 
-Tests / Acceptance
+  const dragProps = loop
+    ? {}
+    : {
+        dragConstraints: {
+          left: -trackItemOffset * (carouselItems.length - 1),
+          right: 0
+        }
+      };
 
-Saving creates ./data/user_profile.json if absent.
-
-Invalid data (e.g., tempAwakeF: 85) shows inline error and blocks save.
-
-Refreshing page reloads saved values.
-
-Wheel picker snaps correctly and emits canonical “7:05 PM” strings.
-
-Exports (for other modules)
-
-Export the Zod schema and UserProfile type from a shared types module so our LLM/optimizer can import the same contract.
-
-Deliver: Full page, components, API routes, store helpers, and minimal unit tests for the store.
+  return (
+    <div
+      ref={containerRef}
+      className={`relative overflow-hidden p-4 ${
+        round ? 'rounded-full border border-white' : 'rounded-[24px] border border-[#222]'
+      }`}
+      style={{
+        width: `${baseWidth}px`,
+        ...(round && { height: `${baseWidth}px` })
+      }}
+    >
+      <motion.div
+        className="flex"
+        drag="x"
+        {...dragProps}
+        style={{
+          width: itemWidth,
+          gap: `${GAP}px`,
+          perspective: 1000,
+          perspectiveOrigin: `${currentIndex * trackItemOffset + itemWidth / 2}px 50%`,
+          x
+        }}
+        onDragEnd={handleDragEnd}
+        animate={{ x: -(currentIndex * trackItemOffset) }}
+        transition={effectiveTransition}
+        onAnimationComplete={handleAnimationComplete}
+      >
+        {carouselItems.map((item, index) => {
+          const range = [-(index + 1) * trackItemOffset, -index * trackItemOffset, -(index - 1) * trackItemOffset];
+          const outputRange = [90, 0, -90];
+          const rotateY = useTransform(x, range, outputRange, { clamp: false });
+          return (
+            <motion.div
+              key={index}
+              className={`relative shrink-0 flex flex-col ${
+                round
+                  ? 'items-center justify-center text-center bg-[#060010] border-0'
+                  : 'items-start justify-between bg-[#222] border border-[#222] rounded-[12px]'
+              } overflow-hidden cursor-grab active:cursor-grabbing`}
+              style={{
+                width: itemWidth,
+                height: round ? itemWidth : '100%',
+                rotateY: rotateY,
+                ...(round && { borderRadius: '50%' })
+              }}
+              transition={effectiveTransition}
+            >
+              <div className={`${round ? 'p-0 m-0' : 'mb-4 p-5'}`}>
+                <span className="flex h-[28px] w-[28px] items-center justify-center rounded-full bg-[#060010]">
+                  {item.icon}
+                </span>
+              </div>
+              <div className="p-5">
+                <div className="mb-1 font-black text-lg text-white">{item.title}</div>
+                <p className="text-sm text-white">{item.description}</p>
+              </div>
+            </motion.div>
+          );
+        })}
+      </motion.div>
+      <div className={`flex w-full justify-center ${round ? 'absolute z-20 bottom-12 left-1/2 -translate-x-1/2' : ''}`}>
+        <div className="mt-4 flex w-[150px] justify-between px-8">
+          {items.map((_, index) => (
+            <motion.div
+              key={index}
+              className={`h-2 w-2 rounded-full cursor-pointer transition-colors duration-150 ${
+                currentIndex % items.length === index
+                  ? round
+                    ? 'bg-white'
+                    : 'bg-[#333333]'
+                  : round
+                    ? 'bg-[#555]'
+                    : 'bg-[rgba(51,51,51,0.4)]'
+              }`}
+              animate={{
+                scale: currentIndex % items.length === index ? 1.2 : 1
+              }}
+              onClick={() => setCurrentIndex(index)}
+              transition={{ duration: 0.15 }}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
