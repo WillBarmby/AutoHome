@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { gsap } from "gsap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -22,6 +23,10 @@ import {
 } from "lucide-react";
 
 const Settings = () => {
+  // Animation refs
+  const headerRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
+  
   const [settings, setSettings] = useState({
     // User Preferences
     username: "Admin",
@@ -94,10 +99,32 @@ const Settings = () => {
     }
   };
 
+  // Animate elements on mount
+  useEffect(() => {
+    const elements = [
+      headerRef.current,
+      cardsRef.current
+    ].filter(Boolean);
+
+    gsap.fromTo(elements, 
+      { 
+        y: 30, 
+        opacity: 0 
+      },
+      { 
+        y: 0, 
+        opacity: 1, 
+        duration: 0.8, 
+        stagger: 0.15,
+        ease: 'power2.out'
+      }
+    );
+  }, []);
+
   return (
     <div className="space-y-6 p-6 min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div ref={headerRef} className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Settings</h1>
           <p className="text-sm text-muted-foreground">Configure your AI Home Assistant</p>
@@ -122,7 +149,7 @@ const Settings = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div ref={cardsRef} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* User Preferences */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>

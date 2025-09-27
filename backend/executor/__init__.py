@@ -1,1 +1,5 @@
-"""Package placeholder for future implementation."""
+"""Command executor service."""
+
+from .service import CommandExecutor
+
+__all__ = ["CommandExecutor"]

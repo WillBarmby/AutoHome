@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { gsap } from "gsap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -19,6 +20,11 @@ import { DeviceEntity } from "@/types";
 import { mockDevices } from "@/services/mockData";
 
 const KillSwitch = () => {
+  // Animation refs
+  const headerRef = useRef<HTMLDivElement>(null);
+  const emergencyControlsRef = useRef<HTMLDivElement>(null);
+  const systemStatusRef = useRef<HTMLDivElement>(null);
+  
   const [devices] = useState<DeviceEntity[]>(mockDevices);
   const [killSwitchActive, setKillSwitchActive] = useState(false);
   const [emergencyMode, setEmergencyMode] = useState(false);
@@ -100,10 +106,33 @@ const KillSwitch = () => {
     d.id.includes('garage')
   ).length;
 
+  // Animate elements on mount
+  useEffect(() => {
+    const elements = [
+      headerRef.current,
+      emergencyControlsRef.current,
+      systemStatusRef.current
+    ].filter(Boolean);
+
+    gsap.fromTo(elements, 
+      { 
+        y: 30, 
+        opacity: 0 
+      },
+      { 
+        y: 0, 
+        opacity: 1, 
+        duration: 0.8, 
+        stagger: 0.15,
+        ease: 'power2.out'
+      }
+    );
+  }, []);
+
   return (
     <div className="space-y-6 p-6 min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div ref={headerRef} className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Kill Switch</h1>
           <p className="text-sm text-muted-foreground">Emergency system control and safety override</p>
@@ -122,7 +151,7 @@ const KillSwitch = () => {
       </div>
 
       {/* Emergency Controls */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div ref={emergencyControlsRef} className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Main Kill Switch */}
         <Card className={`border-2 ${killSwitchActive ? 'border-destructive bg-destructive/5' : 'border-card-border bg-gradient-card'}`}>
           <CardHeader>
@@ -229,7 +258,8 @@ const KillSwitch = () => {
       </div>
 
       {/* System Status */}
-      <Card className="bg-gradient-card border-card-border">
+      <div ref={systemStatusRef}>
+        <Card className="bg-gradient-card border-card-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
@@ -251,10 +281,10 @@ const KillSwitch = () => {
             ))}
           </div>
         </CardContent>
-      </Card>
+        </Card>
 
-      {/* Device Overview */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Device Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
         <Card className="bg-gradient-card border-card-border">
           <CardContent className="p-4 text-center">
             <Cpu className="h-8 w-8 mx-auto mb-2 text-primary" />
@@ -282,10 +312,10 @@ const KillSwitch = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
+        </div>
 
-      {/* Recovery Actions */}
-      {killSwitchActive && (
+        {/* Recovery Actions */}
+        {killSwitchActive && (
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -320,7 +350,8 @@ const KillSwitch = () => {
             </div>
           </CardContent>
         </Card>
-      )}
+        )}
+      </div>
     </div>
   );
 };

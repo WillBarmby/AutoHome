@@ -1,1 +1,5 @@
-"""Package placeholder for future implementation."""
+"""Mock Home Assistant integration."""
+
+from .client import MockHomeAssistantClient
+
+__all__ = ["MockHomeAssistantClient"]
