@@ -4,7 +4,8 @@ import {
   Shield, 
   Settings, 
   Power,
-  Mic 
+  Mic,
+  User
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -24,6 +25,7 @@ const navItems = [
   { title: "Devices", url: "/devices", icon: Cpu },
   { title: "Guardrail", url: "/guardrail", icon: Shield },
   { title: "Settings", url: "/settings", icon: Settings },
+  { title: "User Profile", url: "/user-profile", icon: User },
   { title: "Voice Assist", url: "/voice-assist", icon: Mic },
   { title: "Kill Switch", url: "/kill-switch", icon: Power },
 ];

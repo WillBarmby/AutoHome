@@ -13,18 +13,35 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { gsap } from 'gsap';
 import { useToast } from '@/hooks/use-toast';
+import { ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import NumberFlow from '@number-flow/react';
 
 export default function UserProfile() {
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
   
   const headerRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const temperatureSettingsRef = useRef<TemperatureSettingsRef>(null);
+
+  // Load user profile synchronously
+  const getInitialProfile = (): UserProfile => {
+    try {
+      const stored = localStorage.getItem('userProfile');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return { ...defaultUserProfile, ...parsed };
+      }
+    } catch (error) {
+      console.error('Failed to load user profile:', error);
+    }
+    return defaultUserProfile;
+  };
 
   const {
     register,
@@ -36,7 +53,7 @@ export default function UserProfile() {
     formState: { errors, isDirty }
   } = useForm<UserProfile>({
     resolver: zodResolver(UserProfileSchema),
-    defaultValues: defaultUserProfile
+    defaultValues: getInitialProfile()
   });
 
   const watchedValues = watch();
@@ -59,28 +76,11 @@ export default function UserProfile() {
     }
   }, []);
 
-  // Load user profile on mount
+  // Set last updated timestamp on mount
   useEffect(() => {
-    const loadProfile = async () => {
-      try {
-        const { getUserProfile } = await import('@/services/userProfileService');
-        const profile = await getUserProfile();
-        reset(profile);
-        setLastUpdated(profile.updatedAt || '');
-      } catch (error) {
-        console.error('Failed to load user profile:', error);
-        toast({
-          title: "Error",
-          description: "Failed to load user profile",
-          variant: "destructive"
-        });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadProfile();
-  }, [reset, toast]);
+    const profile = getInitialProfile();
+    setLastUpdated(profile.updatedAt || '');
+  }, []);
 
   // Track unsaved changes
   useEffect(() => {
@@ -96,9 +96,13 @@ export default function UserProfile() {
     
     setIsSaving(true);
     try {
-      const { saveUserProfile } = await import('@/services/userProfileService');
-      const savedProfile = await saveUserProfile(updatedData);
-      setLastUpdated(savedProfile.updatedAt);
+      const profileWithTimestamp = {
+        ...updatedData,
+        updatedAt: new Date().toISOString()
+      };
+      
+      localStorage.setItem('userProfile', JSON.stringify(profileWithTimestamp));
+      setLastUpdated(profileWithTimestamp.updatedAt);
       setHasUnsavedChanges(false);
       reset(updatedData);
       
@@ -143,50 +147,47 @@ export default function UserProfile() {
     return timeStr;
   };
 
-  if (isLoading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="text-muted-foreground">Loading...</div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="space-y-6 p-6 min-h-screen">
       {/* Header */}
-      <div ref={headerRef} className="space-y-2">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-wide">User Profile</h1>
-            <p className="text-muted-foreground">
-              Tell the assistant what to assume by default.
-            </p>
-          </div>
-          <div className="flex flex-col items-end space-y-2">
-            {hasUnsavedChanges && (
-              <Badge variant="outline" className="text-orange-500 border-orange-500">
-                Unsaved Changes
-              </Badge>
-            )}
-            {lastUpdated && (
-              <p className="text-xs text-muted-foreground">
-                Last updated: {new Date(lastUpdated).toLocaleString()}
-              </p>
-            )}
-          </div>
+      <div ref={headerRef} className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-foreground tracking-wide">User Profile</h1>
+          <p className="text-sm text-muted-foreground">Tell the assistant what to assume by default</p>
+        </div>
+        
+        <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/settings')}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Settings
+          </Button>
+          {lastUpdated && (
+            <Badge variant="secondary" className="text-xs">
+              Last updated: {new Date(lastUpdated).toLocaleDateString()}
+            </Badge>
+          )}
         </div>
       </div>
 
       <div className="space-y-6">
         {/* Form */}
-        <Card ref={formRef}>
-          <CardHeader>
-            <CardTitle>Preferences</CardTitle>
+        <Card ref={formRef} className="bg-gradient-card border-card-border">
+          <CardHeader className="relative">
+            <CardTitle className="tracking-wide">Preferences</CardTitle>
             <CardDescription>
               Set your daily schedule and temperature preferences
             </CardDescription>
+            {hasUnsavedChanges && (
+              <Badge variant="outline" className="absolute top-4 right-4 text-orange-500 border-orange-500 text-xs">
+                Unsaved Changes
+              </Badge>
+            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -310,9 +311,9 @@ export default function UserProfile() {
         </Card>
 
         {/* Preview */}
-        <Card ref={previewRef}>
+        <Card ref={previewRef} className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle>Preview</CardTitle>
+            <CardTitle className="tracking-wide">Preview</CardTitle>
             <CardDescription>
               How the assistant will interpret your preferences
             </CardDescription>
@@ -338,8 +339,20 @@ export default function UserProfile() {
               <div className="p-4 bg-muted/20 rounded-lg">
                 <p className="font-medium mb-2">Temperature Settings:</p>
                 <p>
-                  Keep house at <span className="font-semibold text-primary">{watchedValues.tempAwakeF}°F</span> when awake, 
-                  <span className="font-semibold text-primary"> {watchedValues.tempSleepF}°F</span> when sleeping
+                  Keep house at <span className="font-semibold text-primary">
+                    <NumberFlow 
+                      value={watchedValues.tempAwakeF} 
+                      duration={800}
+                      ease="easeOut"
+                    />°F
+                  </span> when awake, 
+                  <span className="font-semibold text-primary"> 
+                    <NumberFlow 
+                      value={watchedValues.tempSleepF} 
+                      duration={800}
+                      ease="easeOut"
+                    />°F
+                  </span> when sleeping
                 </p>
               </div>
 

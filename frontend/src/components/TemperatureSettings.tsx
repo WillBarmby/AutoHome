@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronUp, ChevronDown, Sun, Moon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import NumberFlow from '@number-flow/react';
 
 interface TemperatureSettingsProps {
   awakeTemp: number;
@@ -49,16 +50,28 @@ const TemperatureSettings = forwardRef<TemperatureSettingsRef, TemperatureSettin
   }));
 
   return (
-    <div className={cn("bg-green-600 rounded-lg p-6 flex flex-col items-center justify-center", className)}>
+    <div className={cn("bg-green-600/20 backdrop-blur-sm border border-green-500/30 rounded-lg p-6 flex flex-col items-center justify-center", className)}>
       <h3 className="text-white text-center text-xl font-medium mb-6">Temperature Settings</h3>
       
-      <div className="grid grid-cols-2 gap-6 w-full">
+      <div className="grid grid-cols-2 gap-6 w-full relative">
+        {/* Divider */}
+        <div className="absolute left-1/2 top-8 bottom-8 w-px bg-white/10 transform -translate-x-1/2"></div>
+        
         {/* When Awake */}
         <div className="flex flex-col items-center justify-center h-full">
-          <p className="text-white text-sm mb-3">when awake</p>
+          <div className="flex items-center gap-2 text-white text-sm mb-3">
+            <Sun className="w-4 h-4" />
+            <span>when awake</span>
+          </div>
           <div className="flex items-center justify-center">
             <div className="flex items-baseline w-[140px] justify-center">
-              <span className="text-white text-8xl font-bold">{localAwakeTemp}</span>
+              <span className="text-white text-8xl font-bold">
+                <NumberFlow 
+                  value={localAwakeTemp} 
+                  duration={400}
+                  ease="easeOut"
+                />
+              </span>
               <span className="text-white text-2xl ml-2">°F</span>
             </div>
             <div className="flex flex-col ml-4">
@@ -82,10 +95,19 @@ const TemperatureSettings = forwardRef<TemperatureSettingsRef, TemperatureSettin
 
         {/* When Sleeping */}
         <div className="flex flex-col items-center justify-center h-full">
-          <p className="text-white text-sm mb-3">when sleeping</p>
+          <div className="flex items-center gap-2 text-white text-sm mb-3">
+            <Moon className="w-4 h-4" />
+            <span>when sleeping</span>
+          </div>
           <div className="flex items-center justify-center">
             <div className="flex items-baseline w-[140px] justify-center">
-              <span className="text-white text-8xl font-bold">{localSleepTemp}</span>
+              <span className="text-white text-8xl font-bold">
+                <NumberFlow 
+                  value={localSleepTemp} 
+                  duration={400}
+                  ease="easeOut"
+                />
+              </span>
               <span className="text-white text-2xl ml-2">°F</span>
             </div>
             <div className="flex flex-col ml-4">
