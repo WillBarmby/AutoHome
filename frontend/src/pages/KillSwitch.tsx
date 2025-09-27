@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Power, 
   AlertTriangle, 
@@ -14,7 +15,8 @@ import {
   Activity,
   StopCircle,
   Bell,
-  Wifi
+  Wifi,
+  Info
 } from "lucide-react";
 import { DeviceEntity } from "@/types";
 import { mockDevices } from "@/services/mockData";
@@ -130,12 +132,21 @@ const KillSwitch = () => {
   }, []);
 
   return (
-    <div className="space-y-6 p-6 min-h-screen">
+    <div className="space-y-6 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold text-foreground tracking-wide">Kill Switch</h1>
-          <p className="text-sm text-muted-foreground">Emergency system control and safety override</p>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Emergency system control and safety override</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         
         <div className="flex items-center gap-3">

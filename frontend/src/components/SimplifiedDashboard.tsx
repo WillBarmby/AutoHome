@@ -243,6 +243,14 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     
   const activeDeviceCount = devices.filter(d => d.state).length;
 
+  // Get reactive color based on temperature
+  const getTemperatureColor = (temp: number) => {
+    if (temp >= 60 && temp <= 68) return 'cold'; // Blue
+    if (temp >= 68.1 && temp <= 77) return 'warning'; // Yellow
+    if (temp >= 77.1 && temp <= 85) return 'destructive'; // Red
+    return 'cold'; // Default
+  };
+
   // Close notifications when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -282,7 +290,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
   }, []);
 
   return (
-    <div className="space-y-8 p-6 min-h-screen">
+    <div className="space-y-8 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
         <div>
@@ -425,14 +433,6 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
         </div>
       </div>
 
-      {/* Chat Console */}
-      <div ref={chatConsoleRef}>
-        <ChatConsole
-          messages={chatMessages}
-          onSendMessage={handleSendMessage}
-        />
-      </div>
-
       {/* Notifications Popup - Fixed positioning to appear above everything */}
       {notificationsOpen && (
         <motion.div 
@@ -468,83 +468,101 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
       )}
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Circular Meters - Condensed Layout */}
-        <div className="lg:col-span-3">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center py-8">
-            {/* Left Column - Climate Control */}
-            <div ref={leftColumnRef} className="flex flex-col justify-center items-center space-y-4">
-              {thermostat && (
-                <>
-                  {/* Climate Toggle Segmented Control */}
-                  <div className="flex bg-muted rounded-lg p-1 mb-2">
-                    <button
-                      onClick={() => handleDeviceToggle(thermostat.id)}
-                      className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-                        thermostat.state
-                          ? 'bg-green-500 text-white shadow-sm'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      ON
-                    </button>
-                    <button
-                      onClick={() => handleDeviceToggle(thermostat.id)}
-                      className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-                        !thermostat.state
-                          ? 'bg-red-500 text-white shadow-sm'
-                          : 'text-muted-foreground hover:text-foreground'
-                      }`}
-                    >
-                      OFF
-                    </button>
-                  </div>
-                  
-                  <CircularMeter
-                    value={targetTemperature}
-                    max={85}
-                    min={60}
-                    unit="°F"
-                    label="Climate"
-                    color="warning"
-                    size="lg"
-                    showControls={false}
-                    isActive={!!thermostat.state}
-                    useCircularSlider={false}
-                  />
-                  <div className="flex flex-col items-center space-y-2">
-                    <span className="text-sm text-muted-foreground">Temperature Control</span>
-                    <ElasticSlider
-                      defaultValue={targetTemperature}
-                      startingValue={60}
-                      maxValue={85}
-                      isStepped={true}
-                      stepSize={1}
-                      leftIcon={<Minus className="h-4 w-4" />}
-                      rightIcon={<Plus className="h-4 w-4" />}
-                      onValueChange={(value) => handleDeviceLevelChange(thermostat.id, value)}
-                      className="w-64"
-                    />
-                  </div>
-                </>
-              )}
-            </div>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Left Column - Chat Console */}
+        <div ref={chatConsoleRef}>
+          <ChatConsole
+            messages={chatMessages}
+            onSendMessage={handleSendMessage}
+          />
+        </div>
 
-            {/* Right Column - Temperature and secondary meters */}
-            <div ref={rightColumnRef} className="flex flex-col justify-center items-center space-y-4">
-              {/* Temperature - Large */}
+        {/* Right Column - Temperature and Climate Meters */}
+        <div className="flex flex-col justify-center items-center space-y-6">
+          {/* Climate Control Section */}
+          {thermostat && (
+            <div className="flex flex-col items-center space-y-4">
+              {/* Climate Toggle Segmented Control */}
+              <div className="flex bg-muted rounded-lg p-1 mb-2">
+                <button
+                  onClick={() => handleDeviceToggle(thermostat.id)}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                    thermostat.state
+                      ? 'bg-green-500 text-white shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  ON
+                </button>
+                <button
+                  onClick={() => handleDeviceToggle(thermostat.id)}
+                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                    !thermostat.state
+                      ? 'bg-red-500 text-white shadow-sm'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  OFF
+                </button>
+              </div>
+              
               <CircularMeter
-                value={currentTemperature}
+                value={targetTemperature}
                 max={85}
+                min={60}
                 unit="°F"
-                label="Temperature"
-                color="primary"
+                label="Climate"
+                color={getTemperatureColor(targetTemperature)}
                 size="lg"
+                showControls={false}
+                isActive={!!thermostat.state}
+                useCircularSlider={false}
+              />
+              <div className="flex flex-col items-center space-y-2">
+                <span className="text-sm text-muted-foreground">Temperature Control</span>
+                <ElasticSlider
+                  defaultValue={targetTemperature}
+                  startingValue={60}
+                  maxValue={85}
+                  isStepped={true}
+                  stepSize={0.1}
+                  leftIcon={<Minus className="h-4 w-4" />}
+                  rightIcon={<Plus className="h-4 w-4" />}
+                  onValueChange={(value) => handleDeviceLevelChange(thermostat.id, value)}
+                  className="w-64"
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Temperature and Secondary Meters */}
+          <div className="flex items-center space-x-6">
+            {/* Temperature - Large */}
+            <CircularMeter
+              value={currentTemperature}
+              max={85}
+              unit="°F"
+              label="Temperature"
+              color="primary"
+              size="lg"
+            />
+            
+            {/* Secondary Meters - Triangle layout */}
+            <div className="flex items-center space-x-3">
+              {/* Daily Cost - Left */}
+              <CircularMeter
+                value={vitals.energyCost.daily}
+                max={50}
+                unit="$"
+                label="Daily Cost"
+                color="warning"
+                size="sm"
+                decimalPlaces={2}
               />
               
-              {/* Secondary Meters - Underneath Temperature */}
-              <div className="grid grid-cols-3 gap-3">
-                {/* Humidity */}
+              {/* Right side - Humidity and Devices stacked */}
+              <div className="flex flex-col space-y-3">
+                {/* Humidity - Top */}
                 <CircularMeter
                   value={vitals.humidity}
                   max={100}
@@ -555,18 +573,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
                   decimalPlaces={0}
                 />
                 
-                {/* Energy Cost */}
-                <CircularMeter
-                  value={vitals.energyCost.daily}
-                  max={50}
-                  unit="$"
-                  label="Daily Cost"
-                  color="warning"
-                  size="sm"
-                  decimalPlaces={2}
-                />
-                
-                {/* Active Devices */}
+                {/* Active Devices - Bottom */}
                 <CircularMeter
                   value={activeDeviceCount}
                   max={devices.length}
@@ -579,9 +586,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
               </div>
             </div>
           </div>
-
         </div>
-
       </div>
     </div>
   );

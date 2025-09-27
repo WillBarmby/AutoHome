@@ -87,7 +87,7 @@ export function ChatConsole({ messages, onSendMessage, className }: ChatConsoleP
     <Card className={cn("bg-gradient-card border-card-border shadow-card", className)}>
       <CardContent className="p-4">
         {/* Messages Area */}
-        <ScrollArea ref={scrollAreaRef} className="h-48 mb-4">
+        <ScrollArea ref={scrollAreaRef} className="h-[600px] mb-4">
           <div className="space-y-3">
             {messages.map((message) => (
               <div key={message.id} className={cn(

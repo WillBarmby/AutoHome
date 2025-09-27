@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Mic, 
   MicOff, 
@@ -17,7 +18,8 @@ import {
   MessageSquare,
   Play,
   Pause,
-  RotateCcw
+  RotateCcw,
+  Info
 } from "lucide-react";
 import { ChatMessage, ChatIntent } from "@/types";
 import { llmService } from "@/services/adapters";
@@ -200,12 +202,21 @@ const VoiceAssist = () => {
   }, []);
 
   return (
-    <div className="space-y-6 p-6 min-h-screen">
+    <div className="space-y-6 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold text-foreground tracking-wide">Voice Assistant</h1>
-          <p className="text-sm text-muted-foreground">Control your home with voice commands</p>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Control your home with voice commands</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         
         <div className="flex items-center gap-3">
@@ -222,7 +233,7 @@ const VoiceAssist = () => {
         {/* Voice Controls */}
         <div ref={voiceControlsRef} className="lg:col-span-1 space-y-6">
           {/* Main Controls */}
-          <Card className="bg-gradient-card border-card-border">
+          <Card className="bg-gradient-card border-card-border shadow-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 tracking-wide">
                 <Mic className="h-5 w-5" />
@@ -267,7 +278,7 @@ const VoiceAssist = () => {
 
           {/* Settings */}
           <div ref={settingsRef}>
-            <Card className="bg-gradient-card border-card-border h-[400px]">
+            <Card className="bg-gradient-card border-card-border shadow-card h-[400px]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 tracking-wide">
                 <Settings className="h-5 w-5" />
@@ -345,7 +356,7 @@ const VoiceAssist = () => {
 
         {/* Conversation History */}
         <div ref={conversationHistoryRef} className="lg:col-span-2">
-          <Card className="bg-gradient-card border-card-border h-[600px]">
+          <Card className="bg-gradient-card border-card-border shadow-card h-[600px]">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2 tracking-wide">
                 <MessageSquare className="h-5 w-5" />
@@ -402,7 +413,7 @@ const VoiceAssist = () => {
 
       {/* Quick Commands */}
       <div ref={quickCommandsRef}>
-        <Card className="bg-gradient-card border-card-border">
+        <Card className="bg-gradient-card border-card-border shadow-card">
         <CardHeader>
           <CardTitle className="tracking-wide">Voice Command Examples</CardTitle>
         </CardHeader>
