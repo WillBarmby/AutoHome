@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import { gsap } from "gsap";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -33,6 +34,10 @@ interface GuardrailSettings {
 
 const Guardrail = () => {
   const [devices] = useState<DeviceEntity[]>(mockDevices);
+  
+  // Animation refs
+  const headerRef = useRef<HTMLDivElement>(null);
+  const cardsRef = useRef<HTMLDivElement>(null);
   const [guardrails, setGuardrails] = useState<GuardrailSettings[]>(
     devices.map(device => ({
       deviceId: device.id,
@@ -91,10 +96,32 @@ const Guardrail = () => {
   const enabledGuardrails = guardrails.filter(g => g.enabled).length;
   const highSecurityDevices = guardrails.filter(g => g.requireConfirmation).length;
 
+  // Animate elements on mount
+  useEffect(() => {
+    const elements = [
+      headerRef.current,
+      cardsRef.current
+    ].filter(Boolean);
+
+    gsap.fromTo(elements, 
+      { 
+        y: 30, 
+        opacity: 0 
+      },
+      { 
+        y: 0, 
+        opacity: 1, 
+        duration: 0.8, 
+        stagger: 0.15,
+        ease: 'power2.out'
+      }
+    );
+  }, []);
+
   return (
     <div className="space-y-6 p-6 min-h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div ref={headerRef} className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-foreground">Guardrails</h1>
           <p className="text-sm text-muted-foreground">Configure safety limits and restrictions</p>
@@ -111,7 +138,8 @@ const Guardrail = () => {
       </div>
 
       {/* Global Settings */}
-      <Card className="bg-gradient-card border-card-border">
+      <div ref={cardsRef}>
+        <Card className="bg-gradient-card border-card-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg">
             <Settings className="h-5 w-5" />
@@ -165,10 +193,10 @@ const Guardrail = () => {
             </div>
           </div>
         </CardContent>
-      </Card>
+        </Card>
 
-      {/* Device Guardrails */}
-      <div className="space-y-4">
+        {/* Device Guardrails */}
+        <div className="space-y-4 mt-6">
         <h2 className="text-lg font-semibold text-foreground">Device-Specific Rules</h2>
         
         {guardrails.map((guardrail) => (
@@ -299,6 +327,7 @@ const Guardrail = () => {
             )}
           </Card>
         ))}
+        </div>
       </div>
 
       {/* Action Buttons */}
