@@ -1,24 +1,31 @@
-def execute_command(cmd: dict):
-    device = cmd.get("device")
-    action = cmd.get("action")
-    value = cmd.get("value")
+"""HTTP client that forwards commands to the AutoHome backend."""
 
-    if device == "thermostat":
-        if action == "set":
-            print(f"🌡️ Setting thermostat to {value}°")
-        elif action == "increase":
-            print("🌡️ Increasing thermostat")
-        elif action == "decrease":
-            print("🌡️ Decreasing thermostat")
-    elif device == "fan":
-        if action == "on":
-            print("🌀 Turning fan on")
-        elif action == "off":
-            print("🌀 Turning fan off")
-    elif device == "lights":
-        if action == "on":
-            print("💡 Lights on")
-        elif action == "off":
-            print("💡 Lights off")
-    else:
-        print(f"⚠️ Unknown device/action: {cmd}")
+from __future__ import annotations
+
+import httpx
+
+from backend.db import Command
+
+
+class BackendExecutor:
+    """Simple HTTP client used by the parser microservice to execute commands."""
+
+    def __init__(self, base_url: str) -> None:
+        self._base_url = base_url.rstrip("/")
+        self._client = httpx.AsyncClient(base_url=self._base_url)
+
+    async def submit(self, command: Command) -> dict:
+        payload = {
+            "device_id": command.device_id,
+            "action": command.action,
+            "parameters": command.parameters,
+        }
+        response = await self._client.post("/api/commands", json=payload)
+        response.raise_for_status()
+        return response.json()
+
+    async def aclose(self) -> None:
+        await self._client.aclose()
+
+
+__all__ = ["BackendExecutor"]

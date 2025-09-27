@@ -1,1 +1,5 @@
-"""Package placeholder for future implementation."""
+"""Command scheduling utilities."""
+
+from .service import CommandScheduler
+
+__all__ = ["CommandScheduler"]
