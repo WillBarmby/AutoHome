@@ -204,7 +204,7 @@ const VoiceAssist = () => {
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Voice Assistant</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-wide">Voice Assistant</h1>
           <p className="text-sm text-muted-foreground">Control your home with voice commands</p>
         </div>
         
@@ -224,7 +224,7 @@ const VoiceAssist = () => {
           {/* Main Controls */}
           <Card className="bg-gradient-card border-card-border">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 tracking-wide">
                 <Mic className="h-5 w-5" />
                 Voice Control
               </CardTitle>
@@ -267,9 +267,9 @@ const VoiceAssist = () => {
 
           {/* Settings */}
           <div ref={settingsRef}>
-            <Card className="bg-gradient-card border-card-border">
+            <Card className="bg-gradient-card border-card-border h-[400px]">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 tracking-wide">
                 <Settings className="h-5 w-5" />
                 Settings
               </CardTitle>
@@ -347,7 +347,7 @@ const VoiceAssist = () => {
         <div ref={conversationHistoryRef} className="lg:col-span-2">
           <Card className="bg-gradient-card border-card-border h-[600px]">
             <CardHeader className="flex flex-row items-center justify-between">
-              <CardTitle className="flex items-center gap-2">
+              <CardTitle className="flex items-center gap-2 tracking-wide">
                 <MessageSquare className="h-5 w-5" />
                 Conversation History
               </CardTitle>
@@ -404,7 +404,7 @@ const VoiceAssist = () => {
       <div ref={quickCommandsRef}>
         <Card className="bg-gradient-card border-card-border">
         <CardHeader>
-          <CardTitle>Voice Command Examples</CardTitle>
+          <CardTitle className="tracking-wide">Voice Command Examples</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">

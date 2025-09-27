@@ -295,7 +295,7 @@ const Devices = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Device Control</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-wide">Device Control</h1>
           <p className="text-sm text-muted-foreground">Click on any device to view details and controls</p>
         </div>
         

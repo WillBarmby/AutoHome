@@ -1,13 +1,6 @@
 # AutoHome
 
-A smart home automation project. The backend now exposes device, command, guardrail, and parser APIs that can be wired into the frontend experience.
-
-## Project Structure
-
-- `backend/` - FastAPI service providing device management, guardrails, automation command execution, and a rule-based parser endpoint.
-- `parser-backend/` - Companion FastAPI microservice that reuses the shared parser and can forward commands to the backend.
-- `frontend/` - React application (untouched in this change set).
-- `archive/` - Legacy prototypes, duplicated docs, and sample scripts retained for reference.
+Minimal home automation backend + frontend scaffold for hackathon demos.
 
 ## Backend Quickstart
 
@@ -16,29 +9,50 @@ cd backend
 python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn app:app --app-dir backend --reload
 ```
 
-### Key Endpoints
+The FastAPI app boots with mock Home Assistant integration by default. Use the endpoints below for manual testing or to wire in the frontend.
 
-- `GET /api/health` - Service health status.
-- `GET /api/devices` - List registered devices.
-- `POST /api/commands` - Queue a command after guardrail validation.
-- `GET /api/guardrails` - Inspect active guardrails.
-- `POST /api/parser/parse` - Convert natural language into a structured command.
+## API Endpoints
 
-## Parser Service Quickstart
+- `GET /health` – service heartbeat.
+- `GET /devices` – rooms and devices from `backend/state/devices.json`.
+- `POST /parse` – `{"text": "turn on the bedroom light"}` → structured commands via the minstrel parser wrapper.
+- `POST /execute` – `{ "commands": [Command, ...] }` execute immediately (mock HA logs + history write).
+- `POST /commands/schedule` – enqueue future commands (requires `run_at`).
+- `GET /commands/pending` – inspect the queue.
+- `GET /commands/history` – execution history.
+- `POST /preferences` – persist preferences and rebuild scheduled thermostat commands.
+- `POST /run-due` – manually execute all due commands (handy without a scheduler loop).
+
+`Command` objects follow the schema in `backend/app/models/schema.py`.
+
+## File-based State
+
+State lives entirely in JSON for easy hacking:
+
+- `backend/state/devices.json` – rooms + device registry.
+- `backend/state/preferences.json` – latest user preferences.
+- `backend/state/commands.json` – pending queue + execution history.
+
+The backend automatically seeds these files if they are missing.
+
+## Mock vs Real Home Assistant
+
+The default mock adapter simply logs actions and records them in history. To talk to a real Home Assistant instance set the following environment variables before starting uvicorn:
 
 ```bash
-cd parser-backend
-python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8001
+export MOCK_HA=false
+export HA_BASE_URL="http://homeassistant.local:8123"
+export HA_TOKEN="<long-lived-access-token>"
 ```
 
-The parser service exposes `/parse` and `/parse-and-execute` endpoints. The latter forwards validated commands to the backend running at `http://localhost:8000`.
+Real mode posts to the HA REST API using each device `id` (override with `ha_entity_id` fields in `devices.json` if needed).
 
-## Frontend
+## Repo Structure
 
-The frontend continues to run against mock data. Once it is wired to the backend APIs above the project will support end-to-end device automation.
+- `backend/` – FastAPI app + services.
+- `frontend/` – existing UI (unchanged here).
+- `reference/` – scratch calculations and legacy scripts.
+- `archive/` – historical assets kept for reference.

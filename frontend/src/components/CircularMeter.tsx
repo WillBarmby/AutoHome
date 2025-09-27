@@ -255,17 +255,20 @@ export function CircularMeter({
   return (
     <div className={cn("flex flex-col items-center space-y-3", className)}>
       <div className={cn("relative", sizes[size])}>
+        {/* Neumorphic background circle */}
+        <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-800 to-gray-900 shadow-[inset_-8px_-8px_16px_rgba(0,0,0,0.3),inset_8px_8px_16px_rgba(255,255,255,0.1)]"></div>
+        
         <svg 
           ref={svgRef}
           className={cn(
-            "w-full h-full transform -rotate-90",
+            "w-full h-full transform -rotate-90 relative z-10 overflow-visible",
             useCircularSlider ? "cursor-pointer" : ""
           )}
           viewBox="0 0 100 100"
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}
         >
-          {/* Background circle */}
+          {/* Background circle with neumorphic effect */}
           <circle
             cx="50"
             cy="50"
@@ -273,7 +276,8 @@ export function CircularMeter({
             stroke="currentColor"
             strokeWidth="4"
             fill="none"
-            className="text-muted/20"
+            className="text-muted/10"
+            filter="drop-shadow(0 4px 8px rgba(0,0,0,0.3))"
           />
           
           {/* Progress circle or slider arc */}
@@ -288,31 +292,33 @@ export function CircularMeter({
                 strokeLinecap="round"
                 className="text-muted/40"
               />
-              {/* Active slider arc */}
+              {/* Active slider arc with neumorphic glow */}
               <path
                 d={getArcPath(0, currentAngle)}
                 fill="none"
                 stroke={getStrokeColor(color)}
                 strokeWidth="4"
                 strokeLinecap="round"
-                className="transition-all duration-300 ease-out drop-shadow-glow"
+                className="transition-all duration-300 ease-out"
+                filter="drop-shadow(0 0 8px rgba(34, 197, 94, 0.6)) drop-shadow(0 0 16px rgba(34, 197, 94, 0.3))"
               />
-              {/* Handle */}
+              {/* Handle with neumorphic effect */}
               <circle
                 cx={handlePos.x}
                 cy={handlePos.y}
                 r="8"
                 fill={getStrokeColor(color)}
                 className={cn(
-                  "cursor-grab active:cursor-grabbing drop-shadow-glow transition-all duration-200",
+                  "cursor-grab active:cursor-grabbing transition-all duration-200",
                   isDragging ? "scale-110" : "hover:scale-105"
                 )}
                 stroke="white"
                 strokeWidth="2"
+                filter="drop-shadow(0 4px 8px rgba(0,0,0,0.3)) drop-shadow(0 0 12px rgba(34, 197, 94, 0.4))"
               />
             </>
           ) : (
-            /* Regular progress circle */
+            /* Regular progress circle with neumorphic glow */
             <circle
               cx="50"
               cy="50"
@@ -323,31 +329,33 @@ export function CircularMeter({
               strokeDasharray={strokeDasharray}
               strokeDashoffset={strokeDashoffset}
               strokeLinecap="round"
-              className="transition-all duration-700 ease-out drop-shadow-glow"
+              className="transition-all duration-700 ease-out"
+              filter="drop-shadow(0 0 8px rgba(34, 197, 94, 0.6)) drop-shadow(0 0 16px rgba(34, 197, 94, 0.3))"
             />
           )}
         </svg>
         
         {/* Center content */}
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <div className={cn("font-bold", textSizes[size], getColorClass(color))}>
-            {typeof value === 'number' ? value.toFixed(decimalPlaces) : value}
+          <div className={cn("font-bold flex items-baseline gap-1", textSizes[size], getColorClass(color))}>
+            {unit === "$" ? (
+              <>
+                <span className="text-xs text-muted-foreground">{unit}</span>
+                <span>{typeof value === 'number' ? value.toFixed(decimalPlaces) : value}</span>
+              </>
+            ) : (
+              <>
+                <span>{typeof value === 'number' ? value.toFixed(decimalPlaces) : value}</span>
+                <span className="text-xs text-muted-foreground">{unit}</span>
+              </>
+            )}
           </div>
-          <div className="text-xs text-muted-foreground">{unit}</div>
         </div>
       </div>
 
       {/* Label */}
       <div className="text-center">
         <div className="text-sm font-medium text-foreground">{label}</div>
-        {isActive !== undefined && (
-          <div className={cn(
-            "text-xs mt-1",
-            isActive ? "text-green-400" : "text-muted-foreground"
-          )}>
-            {isActive ? "ON" : "OFF"}
-          </div>
-        )}
       </div>
 
       {/* Controls */}
