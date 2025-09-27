@@ -1,14 +1,88 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  background-color: #f5f5f5;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
+
+@layer base {
+  :root {
+    /* Green gradient background inspired by reference */
+    --background: 158 25% 8%;
+    --foreground: 0 0% 100%;
+
+    /* Glassmorphic cards with green tones */
+    --card: 158 20% 12%;
+    --card-foreground: 0 0% 100%;
+    --card-glow: 158 25% 8%;
+    --card-border: 158 30% 20%;
+
+    --popover: 158 20% 12%;
+    --popover-foreground: 0 0% 100%;
+
+    /* Primary green from gradient */
+    --primary: 158 50% 45%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 158 60% 60%;
+
+    /* Secondary lighter green */
+    --secondary: 158 40% 35%;
+    --secondary-foreground: 0 0% 100%;
+
+    /* Muted green tones */
+    --muted: 158 20% 16%;
+    --muted-foreground: 158 10% 70%;
+
+    /* Golden accent for nav icons */
+    --accent: 43 96% 56%;
+    --accent-foreground: 158 25% 8%;
+    --accent-glow: 43 100% 70%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Green-toned borders */
+    --border: 158 25% 25%;
+    --input: 158 20% 18%;
+    --ring: 43 96% 56%;
+
+    --radius: 0.75rem;
+
+    /* Sidebar - deep green with gradient */
+    --sidebar-background: 158 35% 6%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 43 96% 56%;
+    --sidebar-primary-foreground: 158 25% 8%;
+    --sidebar-accent: 158 30% 10%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 158 40% 15%;
+    --sidebar-ring: 43 96% 56%;
+
+    /* Enhanced gradients matching reference */
+    --gradient-primary: linear-gradient(180deg, hsl(158 50% 45%), hsl(158 40% 35%));
+    --gradient-accent: linear-gradient(135deg, hsl(43 96% 56%), hsl(38 92% 50%));
+    --gradient-card: linear-gradient(135deg, hsl(158 20% 12%), hsl(158 25% 14%));
+    --gradient-sidebar: linear-gradient(180deg, hsl(158 35% 6%), hsl(158 30% 8%));
+    --gradient-main: linear-gradient(135deg, hsl(158 25% 8%), hsl(158 20% 12%));
+
+    /* Enhanced shadows and glows */
+    --shadow-card: 0 8px 32px hsla(158, 25%, 4%, 0.6);
+    --shadow-glow: 0 0 30px hsla(158, 50%, 45%, 0.3);
+    --shadow-accent-glow: 0 0 25px hsla(43, 96%, 56%, 0.4);
+
+    /* Animations */
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-gradient-main text-foreground;
+  }
 }

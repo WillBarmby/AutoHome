@@ -5,59 +5,38 @@
   text-align: center;
 }
 
-.App {
-  text-align: center;
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
 }
 
-.App-header {
-  background-color: #282c34;
-  padding: 20px;
-  color: white;
-  margin-bottom: 20px;
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
-.App-header h1 {
-  margin: 0 0 20px 0;
-  font-size: 2.5rem;
-}
-
-.App-header nav {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-.App-header nav a {
-  color: #61dafb;
-  text-decoration: none;
-  font-size: 1.2rem;
-  padding: 10px 20px;
-  border-radius: 5px;
-  transition: background-color 0.3s;
-}
-
-.App-header nav a:hover {
-  background-color: rgba(97, 218, 251, 0.1);
-}
-
-main {
-  padding: 20px;
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
 }
 
 .card {
-  background: white;
-  border-radius: 8px;
-  padding: 20px;
-  margin: 20px 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  padding: 2em;
 }
 
-.card h2 {
-  color: #333;
-  margin-bottom: 15px;
-}
-
-.card p {
-  color: #666;
-  line-height: 1.6;
+.read-the-docs {
+  color: #888;
 }
