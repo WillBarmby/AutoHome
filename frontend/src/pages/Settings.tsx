@@ -126,11 +126,18 @@ const Settings = () => {
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Settings</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-wide">Settings</h1>
           <p className="text-sm text-muted-foreground">Configure your AI Home Assistant</p>
         </div>
         
         <div className="flex items-center gap-3">
+          <Button 
+            variant="outline" 
+            onClick={() => window.location.href = '/user-profile'}
+          >
+            <User className="h-4 w-4 mr-2" />
+            Configure User Profile
+          </Button>
           <Button variant="outline" onClick={() => document.getElementById('import-file')?.click()}>
             <Upload className="h-4 w-4 mr-2" />
             Import
@@ -153,9 +160,9 @@ const Settings = () => {
         {/* User Preferences */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              User Preferences
+            <CardTitle className="flex items-center gap-2 tracking-wide">
+              <SettingsIcon className="h-5 w-5" />
+              System Preferences
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -212,7 +219,7 @@ const Settings = () => {
         {/* Appearance */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <Palette className="h-5 w-5" />
               Appearance
             </CardTitle>
@@ -271,7 +278,7 @@ const Settings = () => {
         {/* Notifications */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <Bell className="h-5 w-5" />
               Notifications
             </CardTitle>
@@ -314,7 +321,7 @@ const Settings = () => {
         {/* AI Assistant */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <Wifi className="h-5 w-5" />
               AI Assistant
             </CardTitle>
@@ -363,7 +370,7 @@ const Settings = () => {
         {/* System */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <Database className="h-5 w-5" />
               System
             </CardTitle>
@@ -413,7 +420,7 @@ const Settings = () => {
         {/* Security */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 tracking-wide">
               <Shield className="h-5 w-5" />
               Security
             </CardTitle>

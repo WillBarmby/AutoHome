@@ -150,7 +150,7 @@ const Slider: React.FC<SliderProps> = ({
 
         <div
           ref={sliderRef}
-          className="relative flex w-full max-w-xs flex-grow cursor-grab touch-none select-none items-center py-4"
+          className="relative flex w-full max-w-xs flex-grow cursor-grab touch-none select-none items-center py-4 overflow-visible"
           onPointerMove={handlePointerMove}
           onPointerDown={handlePointerDown}
           onPointerUp={handlePointerUp}
@@ -178,8 +178,11 @@ const Slider: React.FC<SliderProps> = ({
             }}
             className="flex flex-grow"
           >
-            <div className="relative h-full flex-grow overflow-hidden rounded-full bg-gray-400">
-              <div className="absolute h-full bg-gray-500 rounded-full" style={{ width: `${getRangePercentage()}%` }} />
+            <div className="relative h-full flex-grow overflow-hidden rounded-full bg-gradient-to-br from-gray-700 to-gray-800 shadow-[inset_-2px_-2px_4px_rgba(0,0,0,0.3),inset_2px_2px_4px_rgba(255,255,255,0.1)]">
+              <div 
+                className="absolute h-full bg-gradient-to-r from-green-400 to-green-500 rounded-full shadow-[0_0_8px_rgba(34,197,94,0.6)]" 
+                style={{ width: `${getRangePercentage()}%` }} 
+              />
             </div>
           </motion.div>
         </div>

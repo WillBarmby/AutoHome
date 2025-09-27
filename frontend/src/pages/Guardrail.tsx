@@ -123,7 +123,7 @@ const Guardrail = () => {
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-foreground">Guardrails</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-wide">Guardrails</h1>
           <p className="text-sm text-muted-foreground">Configure safety limits and restrictions</p>
         </div>
         
@@ -141,7 +141,7 @@ const Guardrail = () => {
       <div ref={cardsRef}>
         <Card className="bg-gradient-card border-card-border">
         <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-lg">
+          <CardTitle className="flex items-center gap-2 text-lg tracking-wide">
             <Settings className="h-5 w-5" />
             Global Settings
           </CardTitle>
@@ -203,7 +203,7 @@ const Guardrail = () => {
           <Card key={guardrail.deviceId} className="bg-gradient-card border-card-border">
             <CardHeader>
               <div className="flex items-center justify-between">
-                <CardTitle className="text-base">{guardrail.deviceName}</CardTitle>
+                <CardTitle className="text-base tracking-wide">{guardrail.deviceName}</CardTitle>
                 <div className="flex items-center gap-2">
                   {guardrail.requireConfirmation && (
                     <Badge variant="destructive" className="text-xs">

@@ -1,221 +1,130 @@
-npm install motion
+Cursor Prompt — “User Profile (Settings) with Wheel Time Pickers + File Storage”
 
-import ElasticSlider from './ElasticSlider'
-  
-<ElasticSlider
-  leftIcon={<>...your icon...</>}
-  rightIcon={<>...your icon...</>}
-  startingValue={500}
-  defaultValue={750}
-  maxValue={1000}
-  isStepped
-  stepSize={10}
-/>
+Build a Settings → User Profile page for our Home Assistant AI panel.
 
-import React, { useEffect, useRef, useState } from 'react';
-import { animate, motion, useMotionValue, useMotionValueEvent, useTransform } from 'motion/react';
+Tech/Structure
 
-const MAX_OVERFLOW = 50;
+Framework: Next.js (App Router) + TypeScript.
 
-interface ElasticSliderProps {
-  defaultValue?: number;
-  startingValue?: number;
-  maxValue?: number;
-  className?: string;
-  isStepped?: boolean;
-  stepSize?: number;
-  leftIcon?: React.ReactNode;
-  rightIcon?: React.ReactNode;
+UI: Tailwind + shadcn/ui. Keep styles minimal/clean.
+
+Time picker: iOS-style wheel/scroll selector (hours/minutes + AM/PM) for each time field.
+
+Validation: Zod.
+
+Persistence: file-based JSON at ./data/user_profile.json (create folder if missing). Provide API routes under /api/user-profile.
+
+State: React Hook Form with zodResolver; optimistic UI (save button shows success/error).
+
+Fields (model what the LLM “should know”)
+
+leaveTime (time)
+
+returnTime (time)
+
+tempAwakeF (number, °F; min 60, max 80)
+
+tempSleepF (number, °F; min 60, max 80)
+
+notes (multiline string; optional, free-form “things the model should know”)
+
+updatedAt (ISO string; set server-side)
+
+Schema
+const UserProfileSchema = z.object({
+  leaveTime: z.string().regex(/^([0]?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/), // “7:15 AM”
+  returnTime: z.string().regex(/^([0]?[1-9]|1[0-2]):[0-5][0-9]\s?(AM|PM)$/),
+  tempAwakeF: z.number().min(60).max(80),
+  tempSleepF: z.number().min(60).max(80),
+  notes: z.string().max(2000).optional().default(""),
+  updatedAt: z.string().optional()
+});
+
+Pages & API
+
+UI route: /settings/user-profile
+
+Header: “User Profile”
+
+Help text: “Tell the assistant what to assume by default.”
+
+Controls:
+
+Wheel time pickers for “What time do you usually leave?” and “When are you usually back?”
+
+Number inputs (with steppers) for temps (Awake/Sleep).
+
+Textarea for Notes.
+
+Buttons: Save, Reset, Use Example.
+
+Inline preview card: “Today I’ll leave at X, back at Y; keep house at A°F awake, B°F asleep.”
+
+GET /api/user-profile → returns current JSON or sensible defaults.
+
+PUT /api/user-profile → validates with Zod, writes to ./data/user_profile.json, returns saved object with updatedAt.
+
+Wheel Time Picker requirements
+
+Reusable component <WheelTimePicker value onChange />
+
+Three columns: hour (1–12), minute (00–59), AM/PM.
+
+Mouse wheel, trackpad, and keyboard accessible (↑/↓ to scroll; Tab cycles columns).
+
+Snap to nearest value; announce selection via ARIA live region.
+
+File I/O
+
+Create helper lib/userProfileStore.ts:
+
+readUserProfile(): Promise<UserProfile>
+
+writeUserProfile(data: UserProfile): Promise<void>
+
+Ensure atomic writes (write temp file then rename) and create ./data if missing.
+
+Defaults (if file missing)
+{
+  "leaveTime": "8:00 AM",
+  "returnTime": "6:00 PM",
+  "tempAwakeF": 72,
+  "tempSleepF": 70,
+  "notes": ""
 }
 
-const ElasticSlider: React.FC<ElasticSliderProps> = ({
-  defaultValue = 50,
-  startingValue = 0,
-  maxValue = 100,
-  className = '',
-  isStepped = false,
-  stepSize = 1,
-  leftIcon = <>-</>,
-  rightIcon = <>+</>
-}) => {
-  return (
-    <div className={`flex flex-col items-center justify-center gap-4 w-48 ${className}`}>
-      <Slider
-        defaultValue={defaultValue}
-        startingValue={startingValue}
-        maxValue={maxValue}
-        isStepped={isStepped}
-        stepSize={stepSize}
-        leftIcon={leftIcon}
-        rightIcon={rightIcon}
-      />
-    </div>
-  );
-};
+UX details
 
-interface SliderProps {
-  defaultValue: number;
-  startingValue: number;
-  maxValue: number;
-  isStepped: boolean;
-  stepSize: number;
-  leftIcon: React.ReactNode;
-  rightIcon: React.ReactNode;
-}
+Show unsaved changes badge when form dirtied.
 
-const Slider: React.FC<SliderProps> = ({
-  defaultValue,
-  startingValue,
-  maxValue,
-  isStepped,
-  stepSize,
-  leftIcon,
-  rightIcon
-}) => {
-  const [value, setValue] = useState<number>(defaultValue);
-  const sliderRef = useRef<HTMLDivElement>(null);
-  const [region, setRegion] = useState<'left' | 'middle' | 'right'>('middle');
-  const clientX = useMotionValue(0);
-  const overflow = useMotionValue(0);
-  const scale = useMotionValue(1);
+Save: disable while pending; show toast “Preferences saved”.
 
-  useEffect(() => {
-    setValue(defaultValue);
-  }, [defaultValue]);
+Reset: reload from server file.
 
-  useMotionValueEvent(clientX, 'change', (latest: number) => {
-    if (sliderRef.current) {
-      const { left, right } = sliderRef.current.getBoundingClientRect();
-      let newValue: number;
-      if (latest < left) {
-        setRegion('left');
-        newValue = left - latest;
-      } else if (latest > right) {
-        setRegion('right');
-        newValue = latest - right;
-      } else {
-        setRegion('middle');
-        newValue = 0;
-      }
-      overflow.jump(decay(newValue, MAX_OVERFLOW));
-    }
-  });
+Use Example: fills with 7:30 AM / 5:30 PM / 72 / 69 and a sample note.
 
-  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
-    if (e.buttons > 0 && sliderRef.current) {
-      const { left, width } = sliderRef.current.getBoundingClientRect();
-      let newValue = startingValue + ((e.clientX - left) / width) * (maxValue - startingValue);
-      if (isStepped) {
-        newValue = Math.round(newValue / stepSize) * stepSize;
-      }
-      newValue = Math.min(Math.max(newValue, startingValue), maxValue);
-      setValue(newValue);
-      clientX.jump(e.clientX);
-    }
-  };
+On save, write updatedAt server-side and render it under the header.
 
-  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    handlePointerMove(e);
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
+Accessibility
 
-  const handlePointerUp = () => {
-    animate(overflow, 0, { type: 'spring', bounce: 0.5 });
-  };
+Labels + descriptions for each field.
 
-  const getRangePercentage = (): number => {
-    const totalRange = maxValue - startingValue;
-    if (totalRange === 0) return 0;
-    return ((value - startingValue) / totalRange) * 100;
-  };
+Wheel columns have role="listbox" with aria-activedescendant for the selected option.
 
-  return (
-    <>
-      <motion.div
-        onHoverStart={() => animate(scale, 1.2)}
-        onHoverEnd={() => animate(scale, 1)}
-        onTouchStart={() => animate(scale, 1.2)}
-        onTouchEnd={() => animate(scale, 1)}
-        style={{
-          scale,
-          opacity: useTransform(scale, [1, 1.2], [0.7, 1])
-        }}
-        className="flex w-full touch-none select-none items-center justify-center gap-4"
-      >
-        <motion.div
-          animate={{
-            scale: region === 'left' ? [1, 1.4, 1] : 1,
-            transition: { duration: 0.25 }
-          }}
-          style={{
-            x: useTransform(() => (region === 'left' ? -overflow.get() / scale.get() : 0))
-          }}
-        >
-          {leftIcon}
-        </motion.div>
+Form is fully keyboard navigable.
 
-        <div
-          ref={sliderRef}
-          className="relative flex w-full max-w-xs flex-grow cursor-grab touch-none select-none items-center py-4"
-          onPointerMove={handlePointerMove}
-          onPointerDown={handlePointerDown}
-          onPointerUp={handlePointerUp}
-        >
-          <motion.div
-            style={{
-              scaleX: useTransform(() => {
-                if (sliderRef.current) {
-                  const { width } = sliderRef.current.getBoundingClientRect();
-                  return 1 + overflow.get() / width;
-                }
-                return 1;
-              }),
-              scaleY: useTransform(overflow, [0, MAX_OVERFLOW], [1, 0.8]),
-              transformOrigin: useTransform(() => {
-                if (sliderRef.current) {
-                  const { left, width } = sliderRef.current.getBoundingClientRect();
-                  return clientX.get() < left + width / 2 ? 'right' : 'left';
-                }
-                return 'center';
-              }),
-              height: useTransform(scale, [1, 1.2], [6, 12]),
-              marginTop: useTransform(scale, [1, 1.2], [0, -3]),
-              marginBottom: useTransform(scale, [1, 1.2], [0, -3])
-            }}
-            className="flex flex-grow"
-          >
-            <div className="relative h-full flex-grow overflow-hidden rounded-full bg-gray-400">
-              <div className="absolute h-full bg-gray-500 rounded-full" style={{ width: `${getRangePercentage()}%` }} />
-            </div>
-          </motion.div>
-        </div>
+Tests / Acceptance
 
-        <motion.div
-          animate={{
-            scale: region === 'right' ? [1, 1.4, 1] : 1,
-            transition: { duration: 0.25 }
-          }}
-          style={{
-            x: useTransform(() => (region === 'right' ? overflow.get() / scale.get() : 0))
-          }}
-        >
-          {rightIcon}
-        </motion.div>
-      </motion.div>
-      <p className="absolute text-gray-400 transform -translate-y-4 text-xs font-medium tracking-wide">
-        {Math.round(value)}
-      </p>
-    </>
-  );
-};
+Saving creates ./data/user_profile.json if absent.
 
-function decay(value: number, max: number): number {
-  if (max === 0) {
-    return 0;
-  }
-  const entry = value / max;
-  const sigmoid = 2 * (1 / (1 + Math.exp(-entry)) - 0.5);
-  return sigmoid * max;
-}
+Invalid data (e.g., tempAwakeF: 85) shows inline error and blocks save.
 
-export default ElasticSlider;
+Refreshing page reloads saved values.
+
+Wheel picker snaps correctly and emits canonical “7:05 PM” strings.
+
+Exports (for other modules)
+
+Export the Zod schema and UserProfile type from a shared types module so our LLM/optimizer can import the same contract.
+
+Deliver: Full page, components, API routes, store helpers, and minimal unit tests for the store.

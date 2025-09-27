@@ -24,8 +24,8 @@ const navItems = [
   { title: "Devices", url: "/devices", icon: Cpu },
   { title: "Guardrail", url: "/guardrail", icon: Shield },
   { title: "Settings", url: "/settings", icon: Settings },
-  { title: "Kill Switch", url: "/kill-switch", icon: Power },
   { title: "Voice Assist", url: "/voice-assist", icon: Mic },
+  { title: "Kill Switch", url: "/kill-switch", icon: Power },
 ];
 
 export function AppSidebar() {
