@@ -38,7 +38,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar
-      className="bg-transparent bg-dot-grid border-none [&_[data-sidebar=sidebar]]:!bg-transparent [&_[data-sidebar=sidebar]]:!border-none"
+      className="bg-transparent bg-dot-grid border-r border-white/5 [&_[data-sidebar=sidebar]]:!bg-transparent [&_[data-sidebar=sidebar]]:!border-r [&_[data-sidebar=sidebar]]:!border-white/10"
       collapsible="icon"
       style={{
         backgroundColor: 'transparent',

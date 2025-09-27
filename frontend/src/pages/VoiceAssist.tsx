@@ -233,7 +233,7 @@ const VoiceAssist = () => {
         {/* Voice Controls */}
         <div ref={voiceControlsRef} className="lg:col-span-1 space-y-6">
           {/* Main Controls */}
-          <Card className="bg-gradient-card border-card-border">
+          <Card className="bg-gradient-card border-card-border shadow-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 tracking-wide">
                 <Mic className="h-5 w-5" />
@@ -278,7 +278,7 @@ const VoiceAssist = () => {
 
           {/* Settings */}
           <div ref={settingsRef}>
-            <Card className="bg-gradient-card border-card-border h-[400px]">
+            <Card className="bg-gradient-card border-card-border shadow-card h-[400px]">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 tracking-wide">
                 <Settings className="h-5 w-5" />
@@ -356,7 +356,7 @@ const VoiceAssist = () => {
 
         {/* Conversation History */}
         <div ref={conversationHistoryRef} className="lg:col-span-2">
-          <Card className="bg-gradient-card border-card-border h-[600px]">
+          <Card className="bg-gradient-card border-card-border shadow-card h-[600px]">
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2 tracking-wide">
                 <MessageSquare className="h-5 w-5" />
@@ -413,7 +413,7 @@ const VoiceAssist = () => {
 
       {/* Quick Commands */}
       <div ref={quickCommandsRef}>
-        <Card className="bg-gradient-card border-card-border">
+        <Card className="bg-gradient-card border-card-border shadow-card">
         <CardHeader>
           <CardTitle className="tracking-wide">Voice Command Examples</CardTitle>
         </CardHeader>
