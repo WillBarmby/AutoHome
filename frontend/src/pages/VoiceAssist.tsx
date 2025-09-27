@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
   Mic, 
   MicOff, 
@@ -17,7 +18,8 @@ import {
   MessageSquare,
   Play,
   Pause,
-  RotateCcw
+  RotateCcw,
+  Info
 } from "lucide-react";
 import { ChatMessage, ChatIntent } from "@/types";
 import { llmService } from "@/services/adapters";
@@ -200,12 +202,21 @@ const VoiceAssist = () => {
   }, []);
 
   return (
-    <div className="space-y-6 p-6 min-h-screen">
+    <div className="space-y-6 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-2">
           <h1 className="text-2xl font-bold text-foreground tracking-wide">Voice Assistant</h1>
-          <p className="text-sm text-muted-foreground">Control your home with voice commands</p>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Control your home with voice commands</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         
         <div className="flex items-center gap-3">
