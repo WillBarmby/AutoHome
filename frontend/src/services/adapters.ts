@@ -1,51 +1,106 @@
-// Adapter interfaces and mock implementations
-import { DeviceEntity, PriceData, PresenceData, ChatIntent } from '@/types';
+// Adapter interfaces with optional mock fallback
+import { Entity, PriceData, PresenceData, ChatIntent } from '@/types';
+import { fetchDevices, executeCommand } from './api';
 import { mockDevices, mockPricing, mockPresence } from './mockData';
+
+const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'true').toLowerCase() !== 'false';
+
+type ServicePayload = Record<string, unknown> | undefined;
+
+console.log("Home Assistant Adapter running in", USE_MOCKS ? "MOCK" : "API", "mode");
 
 // Home Assistant Adapter
 export interface HomeAssistantAdapter {
-  listEntities(): Promise<DeviceEntity[]>;
-  getState(entityId: string): Promise<DeviceEntity | null>;
-  callService(domain: string, service: string, payload: any): Promise<void>;
+  listEntities(): Promise<Entity[]>;
+  getState(entityId: string): Promise<Entity | null>;
+  callService(domain: string, service: string, payload?: ServicePayload): Promise<unknown>;
 }
 
-export class MockHomeAssistantAdapter implements HomeAssistantAdapter {
-  private entities = new Map(mockDevices.map(d => [d.id, d]));
+const toEntity = (device: (typeof mockDevices)[number]): Entity => ({
+  entity_id: device.id,
+  state: String(device.state),
+  attributes: {
+    friendly_name: device.name,
+    ...device.attributes,
+  },
+  icon: device.icon,
+});
 
-  async listEntities(): Promise<DeviceEntity[]> {
+class MockHomeAssistantAdapter implements HomeAssistantAdapter {
+  private entities = new Map(mockDevices.map((device) => [device.id, toEntity(device)]));
+
+  async listEntities(): Promise<Entity[]> {
     return Array.from(this.entities.values());
   }
 
-  async getState(entityId: string): Promise<DeviceEntity | null> {
-    return this.entities.get(entityId) || null;
+  async getState(entityId: string): Promise<Entity | null> {
+    return this.entities.get(entityId) ?? null;
   }
 
-  async callService(domain: string, service: string, payload: any): Promise<void> {
-    console.log(`[HA] Calling ${domain}.${service}`, payload);
-    
-    if (payload.entity_id) {
-      const entity = this.entities.get(payload.entity_id);
-      if (entity) {
-        // Simulate state changes
-        if (service === 'turn_on') {
-          entity.state = true;
-        } else if (service === 'turn_off') {
-          entity.state = false;
-        } else if (service === 'set_temperature' && payload.temperature) {
-          entity.state = payload.temperature;
-          (entity as any).attributes.target_temperature = payload.temperature;
-          // Simulate gradual temperature change
-          setTimeout(() => {
-            (entity as any).attributes.current_temperature = payload.temperature;
-            this.entities.set(entity.id, entity);
-          }, 1000);
-        } else if (service === 'turn_on' && payload.brightness) {
-          entity.state = payload.brightness;
-          (entity as any).attributes.brightness = payload.brightness;
-        }
-        this.entities.set(entity.id, entity);
+  async callService(domain: string, service: string, payload?: ServicePayload): Promise<unknown> {
+    const entityId = (payload as Record<string, unknown> | undefined)?.entity_id as string | undefined;
+    if (!entityId) {
+      throw new Error('entity_id is required for mock service calls');
+    }
+
+    const entity = this.entities.get(entityId);
+    if (!entity) {
+      throw new Error(`Entity ${entityId} not found in mock store`);
+    }
+
+    // naively update state for demo purposes
+    const next = { ...entity };
+    if (service === 'turn_on') {
+      next.state = 'on';
+    } else if (service === 'turn_off') {
+      next.state = 'off';
+    } else if (service === 'toggle') {
+      next.state = entity.state === 'on' ? 'off' : 'on';
+    } else if (service === 'set_temperature') {
+      const temperature = (payload as Record<string, unknown> | undefined)?.temperature;
+      if (typeof temperature === 'number') {
+        next.state = String(temperature);
+        next.attributes = { ...next.attributes, target_temperature: temperature };
       }
     }
+
+    this.entities.set(entityId, next);
+
+    return {
+      status: 'mocked',
+      domain,
+      service,
+      payload,
+      state: next,
+    };
+  }
+}
+
+class ApiHomeAssistantAdapter implements HomeAssistantAdapter {
+  async listEntities(): Promise<Entity[]> {
+    return fetchDevices();
+  }
+
+  async getState(entityId: string): Promise<Entity | null> {
+    const entities = await this.listEntities();
+    return entities.find((entity) => entity.entity_id === entityId) ?? null;
+  }
+
+  async callService(domain: string, service: string, payload?: ServicePayload): Promise<unknown> {
+    const data = (payload as Record<string, unknown> | undefined) ?? {};
+    const entityId = data.entity_id as string | undefined;
+
+    if (!entityId) {
+      throw new Error('entity_id is required to execute a command');
+    }
+
+    const { entity_id: _ignored, ...rest } = data;
+
+    return executeCommand({
+      entity_id: entityId,
+      service: `${domain}.${service}`,
+      data: Object.keys(rest).length ? (rest as Record<string, unknown>) : undefined,
+    });
   }
 }
 
@@ -87,39 +142,39 @@ export class MockLLMService implements LLMService {
   async parse(text: string): Promise<ChatIntent> {
     // Simple pattern matching for demo
     const lowerText = text.toLowerCase();
-    
+
     if (lowerText.includes('turn on') || lowerText.includes('turn off')) {
       const state = lowerText.includes('turn on');
       const device = this.extractDevice(lowerText);
       return {
         type: 'ToggleDevice',
         device,
-        state
+        state,
       };
     }
-    
+
     if (lowerText.includes('set') && lowerText.includes('%')) {
       const level = this.extractPercentage(lowerText);
       const device = this.extractDevice(lowerText);
       return {
         type: 'SetLevel',
         device,
-        level
+        level,
       };
     }
-    
+
     if (lowerText.includes('temperature') || lowerText.includes('degrees')) {
       const temp = this.extractTemperature(lowerText);
       return {
         type: 'SetLevel',
         device: 'climate.thermostat_hall',
-        temperature: temp
+        temperature: temp,
       };
     }
-    
+
     return {
       type: 'QueryStatus',
-      parameters: { query: text }
+      parameters: { query: text },
     };
   }
 
@@ -149,17 +204,21 @@ export class MockLLMService implements LLMService {
 
   private extractPercentage(text: string): number {
     const match = text.match(/(\d+)%/);
-    return match ? parseInt(match[1]) : 50;
+    return match ? parseInt(match[1], 10) : 50;
   }
 
   private extractTemperature(text: string): number {
     const match = text.match(/(\d+)(?:°|degrees)/);
-    return match ? parseInt(match[1]) : 72;
+    return match ? parseInt(match[1], 10) : 72;
   }
 }
 
 // Service instances
-export const haAdapter = new MockHomeAssistantAdapter();
+export const haAdapter: HomeAssistantAdapter = USE_MOCKS
+  ? new MockHomeAssistantAdapter()
+  : new ApiHomeAssistantAdapter();
 export const pricingAdapter = new MockPricingAdapter();
 export const presenceAdapter = new MockPresenceAdapter();
 export const llmService = new MockLLMService();
+
+export { USE_MOCKS };

@@ -1,0 +1,20 @@
+[
+  {
+    "entity_id": "light.living_room",
+    "state": "on",
+    "attributes": {
+      "friendly_name": "Living Room Lamp",
+      "brightness": 200
+    },
+    "icon": "mdi:lightbulb"
+  },
+  {
+    "entity_id": "climate.bedroom",
+    "state": "on",
+    "attributes": {
+      "friendly_name": "Bedroom Thermostat",
+      "hvac_mode": "cool"
+    },
+    "icon": "mdi:thermometer"
+  }
+]
