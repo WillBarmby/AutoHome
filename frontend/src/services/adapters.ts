@@ -32,7 +32,16 @@ export class MockHomeAssistantAdapter implements HomeAssistantAdapter {
         } else if (service === 'turn_off') {
           entity.state = false;
         } else if (service === 'set_temperature' && payload.temperature) {
+          entity.state = payload.temperature;
           (entity as any).attributes.target_temperature = payload.temperature;
+          // Simulate gradual temperature change
+          setTimeout(() => {
+            (entity as any).attributes.current_temperature = payload.temperature;
+            this.entities.set(entity.id, entity);
+          }, 1000);
+        } else if (service === 'turn_on' && payload.brightness) {
+          entity.state = payload.brightness;
+          (entity as any).attributes.brightness = payload.brightness;
         }
         this.entities.set(entity.id, entity);
       }

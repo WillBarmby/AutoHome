@@ -1,7 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { CircularMeter } from "./CircularMeter";
 import { ChatConsole } from "./ChatConsole";
 import { OperationModeToggle } from "./OperationModeToggle";
+import ElasticSlider from "./ElasticSlider";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,9 @@ import {
   CheckCircle, 
   XCircle,
   DollarSign,
-  Bell
+  Bell,
+  Minus,
+  Plus
 } from "lucide-react";
 import { 
   DeviceEntity, 
@@ -38,6 +41,8 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
   const [operationMode, setOperationMode] = useState<OperationMode>('auto');
   const [approvalQueue, setApprovalQueue] = useState<ApprovalQueueItem[]>(mockApprovalQueue);
   const [vitals] = useState(mockVitals);
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
+  const notificationsRef = useRef<HTMLDivElement>(null);
 
   const handleDeviceToggle = async (deviceId: string) => {
     const device = devices.find(d => d.id === deviceId);
@@ -65,18 +70,46 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
 
   const handleDeviceLevelChange = async (deviceId: string, level: number) => {
     try {
-      await haAdapter.callService('light', 'turn_on', {
-        entity_id: deviceId,
-        brightness: level
-      });
-      
-      setDevices(prev => 
-        prev.map(d => 
-          d.id === deviceId 
-            ? { ...d, state: level, attributes: { ...d.attributes, brightness: level }}
-            : d
-        )
-      );
+      const device = devices.find(d => d.id === deviceId);
+      if (!device) return;
+
+      if (device.type === 'climate') {
+        // For climate devices, set temperature
+        await haAdapter.callService('climate', 'set_temperature', {
+          entity_id: deviceId,
+          temperature: level
+        });
+        
+        setDevices(prev => 
+          prev.map(d => 
+            d.id === deviceId 
+              ? { 
+                  ...d, 
+                  state: level, 
+                  attributes: { 
+                    ...d.attributes, 
+                    target_temperature: level,
+                    current_temperature: d.attributes?.current_temperature || level
+                  }
+                }
+              : d
+          )
+        );
+      } else {
+        // For lights and other devices, set brightness/level
+        await haAdapter.callService('light', 'turn_on', {
+          entity_id: deviceId,
+          brightness: level
+        });
+        
+        setDevices(prev => 
+          prev.map(d => 
+            d.id === deviceId 
+              ? { ...d, state: level, attributes: { ...d.attributes, brightness: level }}
+              : d
+          )
+        );
+      }
     } catch (error) {
       console.error('Failed to change device level:', error);
     }
@@ -145,7 +178,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
   const peakHours = mockPricing.filter(p => p.is_peak).map(p => p.hour);
   const isCurrentlyPeak = peakHours.includes(new Date().getHours());
 
-  // Get key devices for circular meters
+  // Get key devices for circular meters - reactive to device state changes
   const thermostat = devices.find(d => d.type === 'climate');
   const lights = devices.filter(d => d.type === 'light');
   const totalLightBrightness = lights.reduce((sum, light) => {
@@ -155,6 +188,33 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     return sum + (light.state ? 100 : 0);
   }, 0);
   const avgLightBrightness = lights.length > 0 ? totalLightBrightness / lights.length : 0;
+  
+  // Calculate reactive values for meters
+  const currentTemperature = thermostat ? 
+    (typeof thermostat.state === 'number' ? thermostat.state : 
+     thermostat.attributes?.current_temperature || vitals.temperature.current) : 
+    vitals.temperature.current;
+    
+  const targetTemperature = thermostat ? 
+    (typeof thermostat.state === 'number' ? thermostat.state : 
+     thermostat.attributes?.target_temperature || vitals.temperature.target) : 
+    vitals.temperature.target;
+    
+  const activeDeviceCount = devices.filter(d => d.state).length;
+
+  // Close notifications when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (notificationsRef.current && !notificationsRef.current.contains(event.target as Node)) {
+        setNotificationsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="space-y-8 p-6 min-h-screen">
@@ -173,6 +233,46 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
             <DollarSign className="h-3 w-3" />
             {currentPrice.toFixed(1)}¢/kWh
           </div>
+          
+          {/* Notifications Bell */}
+          <div className="relative" ref={notificationsRef}>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-8 w-8 p-0 rounded-full hover:bg-muted"
+              onClick={() => setNotificationsOpen(!notificationsOpen)}
+            >
+              <Bell className="h-4 w-4" />
+            </Button>
+            
+            {/* Notifications Popup */}
+            {notificationsOpen && (
+              <div className="absolute right-0 top-10 w-80 bg-background border border-border rounded-lg shadow-lg z-50">
+                <div className="p-4 border-b border-border">
+                  <h3 className="font-medium text-sm">Notifications</h3>
+                </div>
+                <div className="max-h-96 overflow-y-auto">
+                  <div className="p-3 border-b border-border/50">
+                    <div className="text-xs font-medium mb-1">Energy Optimization</div>
+                    <div className="text-xs text-muted-foreground mb-2">Pre-cooling started for peak hours</div>
+                    <div className="text-xs text-green-400">2 min ago</div>
+                  </div>
+                  
+                  <div className="p-3 border-b border-border/50">
+                    <div className="text-xs font-medium mb-1">Device Status</div>
+                    <div className="text-xs text-muted-foreground mb-2">Living room lights dimmed to 35%</div>
+                    <div className="text-xs text-blue-400">5 min ago</div>
+                  </div>
+                  
+                  <div className="p-3">
+                    <div className="text-xs font-medium mb-1">Security Alert</div>
+                    <div className="text-xs text-muted-foreground mb-2">Front door camera motion detected</div>
+                    <div className="text-xs text-yellow-400">12 min ago</div>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -184,160 +284,120 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
       />
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        {/* Circular Meters */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Circular Meters - Condensed Layout */}
         <div className="lg:col-span-3">
-          <div className="grid grid-cols-3 gap-6">
-            {/* Temperature */}
-            <CircularMeter
-              value={vitals.temperature.current}
-              max={30}
-              unit="°C"
-              label="Temperature"
-              color="primary"
-              size="md"
-            />
-            
-            {/* Humidity */}
-            <CircularMeter
-              value={vitals.humidity}
-              max={100}
-              unit="%"
-              label="Humidity"
-              color="accent"
-              size="md"
-            />
-            
-            {/* Heating/Cooling */}
-            {thermostat && (
-              <CircularMeter
-                value={typeof thermostat.state === 'number' ? thermostat.state : vitals.temperature.target}
-                max={30}
-                unit="°C"
-                label="Climate"
-                color="warning"
-                size="md"
-                showControls={true}
-                isActive={!!thermostat.state}
-                onToggle={() => handleDeviceToggle(thermostat.id)}
-                onIncrease={() => {
-                  const currentTemp = typeof thermostat.state === 'number' ? thermostat.state : vitals.temperature.target;
-                  handleDeviceLevelChange(thermostat.id, Math.min(currentTemp + 1, 30));
-                }}
-                onDecrease={() => {
-                  const currentTemp = typeof thermostat.state === 'number' ? thermostat.state : vitals.temperature.target;
-                  handleDeviceLevelChange(thermostat.id, Math.max(currentTemp - 1, 15));
-                }}
-              />
-            )}
-            
-            {/* All Lights Average */}
-            <CircularMeter
-              value={avgLightBrightness}
-              max={100}
-              unit="%"
-              label="All Lights"
-              color="success"
-              size="md"
-              showControls={true}
-              isActive={lights.some(l => l.state)}
-              onToggle={() => {
-                const anyLightOn = lights.some(l => l.state);
-                lights.forEach(light => {
-                  if (anyLightOn) {
-                    handleDeviceToggle(light.id);
-                  } else if (!light.state) {
-                    handleDeviceToggle(light.id);
-                  }
-                });
-              }}
-            />
-            
-            {/* Energy Cost */}
-            <CircularMeter
-              value={vitals.energyCost.daily}
-              max={50}
-              unit="$"
-              label="Daily Cost"
-              color="warning"
-              size="md"
-            />
-            
-            {/* Active Devices */}
-            <CircularMeter
-              value={devices.filter(d => d.state).length}
-              max={devices.length}
-              unit="on"
-              label="Devices"
-              color="accent"
-              size="md"
-            />
-          </div>
-        </div>
-
-        {/* Sidebar - Notifications */}
-        <div className="space-y-4">
-          <Card className="bg-gradient-card border-card-border shadow-card">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <Bell className="h-4 w-4" />
-                Notifications
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {/* Recent Notifications */}
-              <div className="p-3 bg-muted/30 rounded-lg">
-                <div className="text-xs font-medium mb-1">Energy Optimization</div>
-                <div className="text-xs text-muted-foreground mb-2">Pre-cooling started for peak hours</div>
-                <div className="text-xs text-green-400">2 min ago</div>
-              </div>
-              
-              <div className="p-3 bg-muted/30 rounded-lg">
-                <div className="text-xs font-medium mb-1">Device Status</div>
-                <div className="text-xs text-muted-foreground mb-2">Living room lights dimmed to 35%</div>
-                <div className="text-xs text-blue-400">5 min ago</div>
-              </div>
-              
-              <div className="p-3 bg-muted/30 rounded-lg">
-                <div className="text-xs font-medium mb-1">Security Alert</div>
-                <div className="text-xs text-muted-foreground mb-2">Front door camera motion detected</div>
-                <div className="text-xs text-yellow-400">12 min ago</div>
-              </div>
-
-              {/* Pending Approvals if any */}
-              {approvalQueue.filter(i => i.status === 'pending').length > 0 && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-center py-8">
+            {/* Left Column - Climate Control */}
+            <div className="flex flex-col justify-center items-center space-y-4">
+              {thermostat && (
                 <>
-                  <div className="border-t pt-3 mt-3">
-                    <div className="text-xs font-medium text-orange-400 mb-2">Pending Approvals</div>
-                    {approvalQueue.filter(i => i.status === 'pending').slice(0, 1).map((item) => (
-                      <div key={item.id} className="p-2 bg-orange-400/10 rounded-lg">
-                        <div className="text-xs font-medium mb-2 line-clamp-2">{item.summary}</div>
-                        <div className="flex gap-1">
-                          <Button
-                            size="sm"
-                            variant="default"
-                            className="h-5 px-2 text-xs"
-                            onClick={() => handleApprovalAction(item.id, 'approve')}
-                          >
-                            <CheckCircle className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="h-5 px-2 text-xs"
-                            onClick={() => handleApprovalAction(item.id, 'reject')}
-                          >
-                            <XCircle className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                  {/* Climate Toggle Segmented Control */}
+                  <div className="flex bg-muted rounded-lg p-1 mb-2">
+                    <button
+                      onClick={() => handleDeviceToggle(thermostat.id)}
+                      className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                        thermostat.state
+                          ? 'bg-green-500 text-white shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      ON
+                    </button>
+                    <button
+                      onClick={() => handleDeviceToggle(thermostat.id)}
+                      className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                        !thermostat.state
+                          ? 'bg-red-500 text-white shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      OFF
+                    </button>
+                  </div>
+                  
+                  <CircularMeter
+                    value={targetTemperature}
+                    max={85}
+                    min={60}
+                    unit="°F"
+                    label="Climate"
+                    color="warning"
+                    size="lg"
+                    showControls={false}
+                    isActive={!!thermostat.state}
+                    useCircularSlider={false}
+                  />
+                  <div className="flex flex-col items-center space-y-2">
+                    <span className="text-sm text-muted-foreground">Temperature Control</span>
+                    <ElasticSlider
+                      defaultValue={targetTemperature}
+                      startingValue={60}
+                      maxValue={85}
+                      isStepped={true}
+                      stepSize={1}
+                      leftIcon={<Minus className="h-4 w-4" />}
+                      rightIcon={<Plus className="h-4 w-4" />}
+                      onValueChange={(value) => handleDeviceLevelChange(thermostat.id, value)}
+                      className="w-64"
+                    />
                   </div>
                 </>
               )}
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Right Column - Temperature and secondary meters */}
+            <div className="flex flex-col justify-center items-center space-y-4">
+              {/* Temperature - Large */}
+              <CircularMeter
+                value={currentTemperature}
+                max={85}
+                unit="°F"
+                label="Temperature"
+                color="primary"
+                size="lg"
+              />
+              
+              {/* Secondary Meters - Underneath Temperature */}
+              <div className="grid grid-cols-3 gap-3">
+                {/* Humidity */}
+                <CircularMeter
+                  value={vitals.humidity}
+                  max={100}
+                  unit="%"
+                  label="Humidity"
+                  color="accent"
+                  size="sm"
+                  decimalPlaces={0}
+                />
+                
+                {/* Energy Cost */}
+                <CircularMeter
+                  value={vitals.energyCost.daily}
+                  max={50}
+                  unit="$"
+                  label="Daily Cost"
+                  color="warning"
+                  size="sm"
+                  decimalPlaces={2}
+                />
+                
+                {/* Active Devices */}
+                <CircularMeter
+                  value={activeDeviceCount}
+                  max={devices.length}
+                  unit="on"
+                  label="Devices"
+                  color="accent"
+                  size="sm"
+                  decimalPlaces={0}
+                />
+              </div>
+            </div>
+          </div>
+
         </div>
+
       </div>
 
       {/* Chat Console */}

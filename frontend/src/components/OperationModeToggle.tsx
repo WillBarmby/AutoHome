@@ -20,18 +20,18 @@ export function OperationModeToggle({ mode, onModeChange, pendingApprovals = 0 }
     color: string;
   }[] = [
     {
-      key: 'manual',
-      label: 'Manual',
-      icon: Hand,
-      description: 'All actions require approval',
-      color: 'bg-amber-500/20 text-amber-500 border-amber-500/30'
-    },
-    {
       key: 'auto',
       label: 'Auto (Safe)',
       icon: Zap,
       description: 'Safe actions execute automatically',
       color: 'bg-primary/20 text-primary border-primary/30'
+    },
+    {
+      key: 'manual',
+      label: 'Manual',
+      icon: Hand,
+      description: 'All actions require approval',
+      color: 'bg-amber-500/20 text-amber-500 border-amber-500/30'
     },
     {
       key: 'paused',
@@ -62,13 +62,13 @@ export function OperationModeToggle({ mode, onModeChange, pendingApprovals = 0 }
             return (
               <Button
                 key={modeConfig.key}
-                variant="ghost"
+                variant={isActive ? "outline" : "ghost"}
                 onClick={() => onModeChange(modeConfig.key)}
                 className={cn(
                   "flex flex-col items-center p-4 h-auto gap-2 transition-all duration-200",
                   isActive 
-                    ? cn("border-2", modeConfig.color)
-                    : "border-2 border-transparent hover:border-border"
+                    ? cn("border-2", modeConfig.color, "hover:bg-transparent hover:text-current hover:border-current pointer-events-none")
+                    : "border-2 border-transparent hover:bg-primary/10 hover:border-primary/20 hover:text-foreground"
                 )}
               >
                 <Icon className="h-5 w-5" />

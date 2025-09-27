@@ -67,7 +67,7 @@ export function AppSidebar() {
                             "hover:scale-110 hover:shadow-accent-glow hover:border-accent/60",
                             "hover:bg-gradient-to-br hover:from-accent/50 hover:to-accent/30"
                           ],
-                          // Active state
+                          // Active state - no hover effects
                           isActive && [
                             "bg-gradient-to-br from-primary to-primary-glow text-white scale-110",
                             "border-primary ring-2 ring-primary/30",
@@ -88,8 +88,10 @@ export function AppSidebar() {
                           isActive ? "text-white drop-shadow-sm" : "text-accent-foreground group-hover:text-accent"
                         )} />
                         
-                        {/* Ripple effect on hover */}
-                        <div className="absolute inset-0 rounded-full bg-accent/20 scale-0 group-hover:scale-150 transition-transform duration-500 opacity-0 group-hover:opacity-100" />
+                        {/* Ripple effect on hover - exclude active button */}
+                        {!isActive && (
+                          <div className="absolute inset-0 rounded-full bg-accent/20 scale-0 group-hover:scale-150 transition-transform duration-500 opacity-0 group-hover:opacity-100" />
+                        )}
                       </NavLink>
                     </SidebarMenuButton>
                   </SidebarMenuItem>

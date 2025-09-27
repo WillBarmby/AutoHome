@@ -5,7 +5,7 @@ export const mockDevices: DeviceEntity[] = [
     id: 'climate.thermostat_hall',
     name: 'Hall Thermostat',
     type: 'climate',
-    state: 'cool',
+    state: 72,
     attributes: {
       current_temperature: 72,
       target_temperature: 72,
