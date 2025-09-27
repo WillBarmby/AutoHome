@@ -136,7 +136,7 @@ const Settings = () => {
             onClick={() => window.location.href = '/user-profile'}
           >
             <User className="h-4 w-4 mr-2" />
-            Configure User Profile
+            User Profile
           </Button>
           <Button variant="outline" onClick={() => document.getElementById('import-file')?.click()}>
             <Upload className="h-4 w-4 mr-2" />
