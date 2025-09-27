@@ -1,46 +1,71 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import type { Entity } from "@/types";
-import { executeCommand, fetchDevices } from "@/services/api";
+import { haAdapter } from "@/services/adapters";
 
 const Devices = () => {
   const [devices, setDevices] = useState<Entity[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [executingId, setExecutingId] = useState<string | null>(null);
+
+  const loadDevices = useCallback(async (showSpinner = false) => {
+    if (showSpinner) {
+      setLoading(true);
+    }
+    try {
+      const data = await haAdapter.listEntities();
+      setDevices(data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      if (showSpinner) {
+        setLoading(false);
+      }
+    }
+  }, []);
 
   useEffect(() => {
-    let isMounted = true;
+    loadDevices(true).catch((err) => {
+      console.error("Failed to fetch devices", err);
+    });
+  }, [loadDevices]);
 
-    const loadDevices = async () => {
-      try {
-        const data = await fetchDevices();
-        if (isMounted) {
-          setDevices(data);
-        }
-      } catch (err) {
-        if (isMounted) {
-          setError(err instanceof Error ? err.message : "Unknown error");
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
+  const handleToggle = async (device: Entity) => {
+    const [domain] = device.entity_id.split(".");
 
-    loadDevices();
+    setExecutingId(device.entity_id);
 
-    return () => {
-      isMounted = false;
-    };
-  }, []);
+    try {
+      const response = await haAdapter.callService(domain, "toggle", {
+        entity_id: device.entity_id,
+      });
+      console.log("Command response", response);
+      await loadDevices();
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      console.error("Failed to execute command", err);
+      setError(message);
+    } finally {
+      setExecutingId(null);
+    }
+  };
 
   if (loading) {
     return <p>Loading devices…</p>;
   }
 
   if (error) {
-    return <p role="alert">Failed to load devices: {error}</p>;
+    return (
+      <div role="alert">
+        <p>Failed to load devices.</p>
+        <p>{error}</p>
+        <button type="button" onClick={() => loadDevices(true)}>
+          Retry
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -54,19 +79,10 @@ const Devices = () => {
           {" "}
           <button
             type="button"
-            onClick={async () => {
-              try {
-                const response = await executeCommand({
-                  entity_id: device.entity_id,
-                  service: "light.toggle",
-                });
-                console.log("Command response", response);
-              } catch (err) {
-                console.error("Failed to execute command", err);
-              }
-            }}
+            onClick={() => handleToggle(device)}
+            disabled={executingId === device.entity_id}
           >
-            Toggle
+            {executingId === device.entity_id ? "Toggling…" : "Toggle"}
           </button>
         </li>
       ))}

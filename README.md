@@ -121,3 +121,17 @@ Expected response:
   }
 }
 ```
+
+## Frontend Environment Flags
+
+Create a `.env` file in `frontend/` (or use `.env.local`) with the following keys:
+
+```
+VITE_API_BASE_URL=http://localhost:8000
+VITE_USE_MOCKS=true
+```
+
+- `VITE_API_BASE_URL` points the frontend at the FastAPI server.
+- `VITE_USE_MOCKS` controls whether the UI talks to local mock data (`true`, default) or the backend API (`false`).
+
+Flip `VITE_USE_MOCKS` to `false` and restart `npm run dev` to exercise the real `/devices` and `/execute` endpoints. Set it back to `true` to restore the self-contained demo mode.
