@@ -1,34 +1,30 @@
-import subprocess
-import json
+"""Thin wrapper around the shared backend parser service."""
 
-def parse_command(command: str):
-    result = subprocess.run(
-        ["ollama", "run", "smartparser", command],
-        capture_output=True,
-        text=True
-    )
-    output = result.stdout.strip()
-    
-    try:
-        parsed = json.loads(output)
-        for cmd in parsed:
-            if "value" in cmd:
-                try:
-                    cmd["value"] = int(cmd["value"])
-                except (ValueError, TypeError):
-                    pass
-        if isinstance(parsed, dict):
-            return [parsed]
-        elif isinstance(parsed, list):
-            return parsed
-        else:
-            print("⚠️ Unexpected type:", type(parsed))
-            return []
-    except json.JSONDecodeError:
-        print("⚠️ Invalid JSON:", output)
-        return []
+from __future__ import annotations
 
-# Example
-cmd = "set thermostat to 70 and turn off the fan"
-parsed = parse_command(cmd)
-print(parsed)
+from typing import Optional
+
+from backend.parser import CommandParser
+
+from .schema import ParsedCommand
+
+
+class ParserService:
+    """Expose the shared rule-based parser behind a service interface."""
+
+    def __init__(self) -> None:
+        self._parser = CommandParser()
+
+    def parse(self, utterance: str) -> Optional[ParsedCommand]:
+        intent = self._parser.parse(utterance)
+        if intent is None:
+            return None
+        command = self._parser.to_command(intent)
+        return ParsedCommand(
+            device_id=command.device_id,
+            action=command.action,
+            parameters=command.parameters,
+        )
+
+
+__all__ = ["ParserService"]
