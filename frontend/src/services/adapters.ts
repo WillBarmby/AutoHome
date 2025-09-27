@@ -7,6 +7,8 @@ const USE_MOCKS = (import.meta.env.VITE_USE_MOCKS ?? 'true').toLowerCase() !== '
 
 type ServicePayload = Record<string, unknown> | undefined;
 
+console.log("Home Assistant Adapter running in", USE_MOCKS ? "MOCK" : "API", "mode");
+
 // Home Assistant Adapter
 export interface HomeAssistantAdapter {
   listEntities(): Promise<Entity[]>;

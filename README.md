@@ -127,8 +127,8 @@ Expected response:
 Create a `.env` file in `frontend/` (or use `.env.local`) with the following keys:
 
 ```
-VITE_API_BASE_URL=http://localhost:8000
-VITE_USE_MOCKS=true
+VITE_API_BASE_URL=http://127.0.0.1:8000
+VITE_USE_MOCKS=false
 ```
 
 - `VITE_API_BASE_URL` points the frontend at the FastAPI server.
