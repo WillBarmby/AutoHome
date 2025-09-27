@@ -11,3 +11,15 @@ export async function fetchDevices(): Promise<Entity[]> {
   }
   return res.json();
 }
+
+export async function executeCommand(cmd: Command): Promise<unknown> {
+  const res = await fetch(`${API_BASE}/execute`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(cmd),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to execute command");
+  }
+  return res.json();
+}

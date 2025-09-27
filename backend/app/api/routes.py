@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from fastapi import APIRouter
 
-from ..models.schema import Entity
+from ..models.schema import Command, Entity
 
 router = APIRouter()
 
@@ -28,6 +28,11 @@ async def get_devices() -> list[Entity]:
             icon="mdi:thermometer",
         ),
     ]
+
+
+@router.post("/execute")
+async def execute_command(cmd: Command) -> dict[str, object]:
+    return {"status": "ok", "received": cmd.dict()}
 
 
 __all__ = ["router"]

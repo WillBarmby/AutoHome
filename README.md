@@ -100,3 +100,24 @@ Example response:
   }
 ]
 ```
+
+Call the `/execute` endpoint with:
+
+```
+curl -X POST http://localhost:8000/execute \
+  -H "Content-Type: application/json" \
+  -d '{"entity_id":"light.living_room","service":"light.turn_off"}'
+```
+
+Expected response:
+
+```
+{
+  "status": "ok",
+  "received": {
+    "entity_id": "light.living_room",
+    "service": "light.turn_off",
+    "data": null
+  }
+}
+```

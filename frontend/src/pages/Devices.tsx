@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 import type { Entity } from "@/types";
-import { fetchDevices } from "@/services/api";
+import { executeCommand, fetchDevices } from "@/services/api";
 
 const Devices = () => {
   const [devices, setDevices] = useState<Entity[]>([]);
@@ -51,6 +51,23 @@ const Devices = () => {
           {" — "}
           <span>{device.state}</span>
           {device.icon ? ` (${device.icon})` : null}
+          {" "}
+          <button
+            type="button"
+            onClick={async () => {
+              try {
+                const response = await executeCommand({
+                  entity_id: device.entity_id,
+                  service: "light.toggle",
+                });
+                console.log("Command response", response);
+              } catch (err) {
+                console.error("Failed to execute command", err);
+              }
+            }}
+          >
+            Toggle
+          </button>
         </li>
       ))}
     </ul>
