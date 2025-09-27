@@ -132,7 +132,7 @@ class InMemoryDatabase:
             name="Thermostat safety",
             description="Restrict thermostat commands to temperature adjustments only.",
             allowed_actions=["set_temperature"],
-            blocked_devices=[thermostat.id],
+            target_devices=[thermostat.id],
         )
 
         self._devices = {

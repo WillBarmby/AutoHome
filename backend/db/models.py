@@ -64,12 +64,20 @@ class Guardrail(BaseModel):
     allowed_actions: Optional[List[str]] = None
     blocked_actions: Optional[List[str]] = None
     blocked_devices: Optional[List[str]] = None
+    target_devices: Optional[List[str]] = None
     max_brightness: Optional[int] = None
 
     def enforce(self, command: Command, device: Device) -> None:
         """Validate a command against the rule, raising when violated."""
 
-        if self.allowed_actions is not None and command.action not in self.allowed_actions:
+        applies_to_device = (
+            self.target_devices is None or device.id in self.target_devices
+        )
+        if (
+            self.allowed_actions is not None
+            and applies_to_device
+            and command.action not in self.allowed_actions
+        ):
             raise GuardrailViolation(
                 self.id,
                 f"Action '{command.action}' is not permitted by guardrail '{self.name}'.",

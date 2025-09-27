@@ -19,6 +19,7 @@ class GuardrailCreate(BaseModel):
     allowed_actions: Optional[list[str]] = None
     blocked_actions: Optional[list[str]] = None
     blocked_devices: Optional[list[str]] = None
+    target_devices: Optional[list[str]] = None
     max_brightness: Optional[int] = None
 
 
