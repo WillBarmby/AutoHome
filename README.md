@@ -69,3 +69,34 @@ Real mode posts to the HA REST API using each device `id` (override with `ha_ent
 - `entity_id` (string) — device target
 - `service` (string) — HA service call (`light.turn_on`, `climate.set_temperature`)
 - `data` (optional dict) — additional arguments (`{"brightness": 150}`)
+
+## Try the Devices Endpoint
+
+```
+curl http://localhost:8000/devices
+```
+
+Example response:
+
+```
+[
+  {
+    "entity_id": "light.living_room",
+    "state": "on",
+    "attributes": {
+      "friendly_name": "Living Room Lamp",
+      "brightness": 200
+    },
+    "icon": "mdi:lightbulb"
+  },
+  {
+    "entity_id": "climate.bedroom",
+    "state": "72.5",
+    "attributes": {
+      "friendly_name": "Bedroom Thermostat",
+      "hvac_mode": "cool"
+    },
+    "icon": "mdi:thermometer"
+  }
+]
+```
