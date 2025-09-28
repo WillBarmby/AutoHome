@@ -349,5 +349,5 @@
       "status": "pending"
     }
   ],
-  "operation_mode": "manual"
+  "operation_mode": "auto"
 }

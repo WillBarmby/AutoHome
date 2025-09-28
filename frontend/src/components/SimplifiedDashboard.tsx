@@ -537,7 +537,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
 
       {/* Main Content */}
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="dashboard" className="flex items-center gap-2">
             <Home className="h-4 w-4" />
             Dashboard
@@ -545,10 +545,6 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
           <TabsTrigger value="home-assistant" className="flex items-center gap-2">
             <Settings className="h-4 w-4" />
             Home Assistant
-          </TabsTrigger>
-          <TabsTrigger value="advanced" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            Advanced
           </TabsTrigger>
         </TabsList>
 
@@ -678,22 +674,6 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
 
         <TabsContent value="home-assistant" className="space-y-6 pt-6">
           <SmartThermostat />
-        </TabsContent>
-
-        <TabsContent value="advanced" className="space-y-6 pt-6">
-          <Card className="bg-gradient-card border-card-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 tracking-wide">
-                <Database className="h-5 w-5" />
-                Advanced Configuration
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Advanced configuration options will be available here in future updates.
-              </p>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>

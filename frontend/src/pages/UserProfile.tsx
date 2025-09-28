@@ -194,15 +194,10 @@ export default function UserProfile() {
         {/* Form */}
         <Card ref={formRef} className="bg-gradient-card border-card-border">
           <CardHeader className="relative">
-            <CardTitle className="tracking-wide">Your preferences</CardTitle>
+            <CardTitle className="tracking-wide">Preferences</CardTitle>
             <CardDescription>
               Tune your day-to-day rhythm and comfort settings.
             </CardDescription>
-            {hasUnsavedChanges && (
-              <Badge variant="outline" className="absolute top-4 right-4 text-orange-500 border-orange-500 text-xs">
-                Unsaved changes
-              </Badge>
-            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -323,7 +318,12 @@ export default function UserProfile() {
                     setValue('tempSleepF', temp, { shouldDirty: true });
                     setHasUnsavedChanges(true);
                   }}
-                  className="w-full max-w-3xl mx-auto"
+                  onSave={handleSubmit(onSubmit)}
+                  onReset={handleReset}
+                  onLoadExample={handleUseExample}
+                  isSaving={isSaving}
+                  hasUnsavedChanges={hasUnsavedChanges}
+                  className="w-full"
                 />
 
                 {/* Notes UI temporarily disabled
@@ -350,32 +350,6 @@ export default function UserProfile() {
                 */}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3 pt-4">
-                <Button 
-                  type="submit" 
-                  disabled={isSaving || !hasUnsavedChanges}
-                  className="flex-1 min-w-24"
-                >
-                  {isSaving ? 'Saving…' : 'Save changes'}
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={handleReset}
-                  disabled={isSaving}
-                >
-                  Reset all
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={handleUseExample}
-                  disabled={isSaving}
-                >
-                  Load example
-                </Button>
-              </div>
             </form>
           </CardContent>
         </Card>
@@ -429,9 +403,9 @@ export default function UserProfile() {
               <div className="p-4 bg-muted/20 rounded-lg">
                 <p className="font-medium mb-2">Home snapshot</p>
                 <p>
-                  Based in <span className="font-semibold text-primary">{watchedValues.location}</span>, roughly
-                  <span className="font-semibold text-primary"> {watchedValues.squareFootage.toLocaleString()} sq. ft.</span> with
-                  <span className="font-semibold text-primary"> {watchedValues.coolingUnits}</span> HVAC unit{watchedValues.coolingUnits > 1 ? 's' : ''}.
+                  Based in <span className="font-semibold text-primary">{watchedValues.location || 'Unknown'}</span>, roughly
+                  <span className="font-semibold text-primary"> {watchedValues.squareFootage?.toLocaleString() || 'Unknown'} sq. ft.</span> with
+                  <span className="font-semibold text-primary"> {watchedValues.coolingUnits || 'Unknown'}</span> HVAC unit{(watchedValues.coolingUnits || 1) > 1 ? 's' : ''}.
                 </p>
               </div>
 

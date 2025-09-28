@@ -146,14 +146,14 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything about your smart home..."
-              className="pr-12"
+              className="pr-12 h-10"
               disabled={isProcessing}
             />
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8",
+                "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-transparent hover:text-primary",
                 isListening && "bg-destructive text-destructive-foreground animate-pulse"
               )}
               onClick={toggleVoiceInput}
