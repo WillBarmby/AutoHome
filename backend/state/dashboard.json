@@ -302,6 +302,32 @@
       "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
       "timestamp": "2025-09-28T12:34:44.010678+00:00",
       "intent": null
+    },
+    {
+      "id": "1759063426345",
+      "type": "user",
+      "content": "Turn off all lights",
+      "timestamp": "2025-09-28T12:43:46.345340+00:00",
+      "intent": {
+        "type": "ToggleDevice",
+        "device": "unknown",
+        "state": false,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": null
+      }
+    },
+    {
+      "id": "1759063426346",
+      "type": "assistant",
+      "content": "I've turned off the unknown.",
+      "timestamp": "2025-09-28T12:43:46.345340+00:00",
+      "intent": null
     }
   ],
   "approval_queue": [
@@ -323,5 +349,5 @@
       "status": "pending"
     }
   ],
-  "operation_mode": "auto"
+  "operation_mode": "manual"
 }

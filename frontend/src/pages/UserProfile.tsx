@@ -102,14 +102,14 @@ export default function UserProfile() {
       reset(savedProfile);
       
       toast({
-        title: "Success",
-        description: "Preferences saved successfully",
+        title: "Saved",
+        description: "Your preferences are locked in.",
       });
     } catch (error) {
       console.error('Failed to save user profile:', error);
       toast({
-        title: "Error",
-        description: "Failed to save preferences",
+        title: "Couldn't save",
+        description: "Please try again in a moment.",
         variant: "destructive"
       });
     } finally {
@@ -148,7 +148,7 @@ export default function UserProfile() {
   if (isLoading) {
     return (
       <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid text-muted-foreground">
-        Loading profile…
+        Loading your profile…
       </div>
     );
   }
@@ -159,14 +159,14 @@ export default function UserProfile() {
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-foreground tracking-wide">User Profile</h1>
+          <h1 className="text-2xl font-bold text-foreground tracking-wide">Your Profile</h1>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Info className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent side="right">
-                <p>Tell the assistant what to assume by default</p>
+                <p>Set the defaults your assistant should assume.</p>
               </TooltipContent>
             </Tooltip>
           </TooltipProvider>
@@ -180,11 +180,11 @@ export default function UserProfile() {
             className="flex items-center gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Back to Settings
+            Back to settings
           </Button>
           {lastUpdated && (
             <Badge variant="secondary" className="text-xs">
-              Last updated: {new Date(lastUpdated).toLocaleDateString()}
+              Updated {new Date(lastUpdated).toLocaleDateString()}
             </Badge>
           )}
         </div>
@@ -194,13 +194,13 @@ export default function UserProfile() {
         {/* Form */}
         <Card ref={formRef} className="bg-gradient-card border-card-border">
           <CardHeader className="relative">
-            <CardTitle className="tracking-wide">Preferences</CardTitle>
+            <CardTitle className="tracking-wide">Your preferences</CardTitle>
             <CardDescription>
-              Set your daily schedule and temperature preferences
+              Tune your day-to-day rhythm and comfort settings.
             </CardDescription>
             {hasUnsavedChanges && (
               <Badge variant="outline" className="absolute top-4 right-4 text-orange-500 border-orange-500 text-xs">
-                Unsaved Changes
+                Unsaved changes
               </Badge>
             )}
           </CardHeader>
@@ -209,7 +209,7 @@ export default function UserProfile() {
               {/* Time Schedule */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="leaveTime">What time do you usually leave?</Label>
+                  <Label htmlFor="leaveTime">When do you head out?</Label>
                   <WheelTimePicker
                     value={watchedValues.leaveTime}
                     onChange={(value) => setValue('leaveTime', value, { shouldDirty: true })}
@@ -220,7 +220,7 @@ export default function UserProfile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="returnTime">When are you usually back?</Label>
+                  <Label htmlFor="returnTime">When are you back home?</Label>
                   <WheelTimePicker
                     value={watchedValues.returnTime}
                     onChange={(value) => setValue('returnTime', value, { shouldDirty: true })}
@@ -231,7 +231,7 @@ export default function UserProfile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="bedTime">What time do you usually go to bed?</Label>
+                  <Label htmlFor="bedTime">When do you wind down?</Label>
                   <WheelTimePicker
                     value={watchedValues.bedTime}
                     onChange={(value) => setValue('bedTime', value, { shouldDirty: true })}
@@ -242,7 +242,7 @@ export default function UserProfile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="wakeTime">What time do you usually wake up?</Label>
+                  <Label htmlFor="wakeTime">When do you wake up?</Label>
                   <WheelTimePicker
                     value={watchedValues.wakeTime}
                     onChange={(value) => setValue('wakeTime', value, { shouldDirty: true })}
@@ -258,7 +258,7 @@ export default function UserProfile() {
               {/* Home Context */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="location">Where is home located?</Label>
+                  <Label htmlFor="location">Where's home?</Label>
                   <Input
                     id="location"
                     placeholder="e.g. San Francisco"
@@ -272,7 +272,7 @@ export default function UserProfile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="squareFootage">Home size (sq ft)</Label>
+                  <Label htmlFor="squareFootage">Home size (sq. ft.)</Label>
                   <Input
                     id="squareFootage"
                     type="number"
@@ -289,7 +289,7 @@ export default function UserProfile() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="coolingUnits">Number of HVAC units</Label>
+                  <Label htmlFor="coolingUnits">HVAC units</Label>
                   <Input
                     id="coolingUnits"
                     type="number"
@@ -309,7 +309,7 @@ export default function UserProfile() {
               <Separator />
 
               {/* Temperature Settings and Notes */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 gap-6">
                 {/* Temperature Settings */}
                 <TemperatureSettings
                   ref={temperatureSettingsRef}
@@ -323,9 +323,10 @@ export default function UserProfile() {
                     setValue('tempSleepF', temp, { shouldDirty: true });
                     setHasUnsavedChanges(true);
                   }}
+                  className="w-full max-w-3xl mx-auto"
                 />
 
-                {/* Notes */}
+                {/* Notes UI temporarily disabled
                 <div className="space-y-4">
                   <h3 className="text-lg font-medium">Additional Notes</h3>
                   <div className="space-y-2">
@@ -346,6 +347,7 @@ export default function UserProfile() {
                     )}
                   </div>
                 </div>
+                */}
               </div>
 
               {/* Action Buttons */}
@@ -355,7 +357,7 @@ export default function UserProfile() {
                   disabled={isSaving || !hasUnsavedChanges}
                   className="flex-1 min-w-24"
                 >
-                  {isSaving ? 'Saving...' : 'Save'}
+                  {isSaving ? 'Saving…' : 'Save changes'}
                 </Button>
                 <Button 
                   type="button" 
@@ -363,7 +365,7 @@ export default function UserProfile() {
                   onClick={handleReset}
                   disabled={isSaving}
                 >
-                  Reset
+                  Reset all
                 </Button>
                 <Button 
                   type="button" 
@@ -371,7 +373,7 @@ export default function UserProfile() {
                   onClick={handleUseExample}
                   disabled={isSaving}
                 >
-                  Use Example
+                  Load example
                 </Button>
               </div>
             </form>
@@ -383,59 +385,59 @@ export default function UserProfile() {
           <CardHeader>
             <CardTitle className="tracking-wide">Preview</CardTitle>
             <CardDescription>
-              How the assistant will interpret your preferences
+              Here’s what your assistant will assume.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
               <div className="p-4 bg-muted/20 rounded-lg">
-                <p className="font-medium mb-2">Today's Schedule:</p>
+                <p className="font-medium mb-2">Daytime plan</p>
                 <p>
-                  I'll leave at <span className="font-semibold text-primary">{formatTime(watchedValues.leaveTime)}</span>, 
-                  back at <span className="font-semibold text-primary">{formatTime(watchedValues.returnTime)}</span>
+                  Out the door at <span className="font-semibold text-primary">{formatTime(watchedValues.leaveTime)}</span>, 
+                  back home by <span className="font-semibold text-primary">{formatTime(watchedValues.returnTime)}</span>
                 </p>
               </div>
               
               <div className="p-4 bg-muted/20 rounded-lg">
-                <p className="font-medium mb-2">Sleep Schedule:</p>
+                <p className="font-medium mb-2">Sleep routine</p>
                 <p>
-                  I go to bed at <span className="font-semibold text-primary">{formatTime(watchedValues.bedTime)}</span>, 
-                  wake up at <span className="font-semibold text-primary">{formatTime(watchedValues.wakeTime)}</span>
+                  Lights out at <span className="font-semibold text-primary">{formatTime(watchedValues.bedTime)}</span>, 
+                  up at <span className="font-semibold text-primary">{formatTime(watchedValues.wakeTime)}</span>
                 </p>
               </div>
               
               <div className="p-4 bg-muted/20 rounded-lg">
-                <p className="font-medium mb-2">Temperature Settings:</p>
+                <p className="font-medium mb-2">Comfort temps</p>
                 <p>
-                  Keep house at <span className="font-semibold text-primary">
+                  Hold steady at <span className="font-semibold text-primary">
                     <NumberFlow 
                       value={watchedValues.tempAwakeF} 
                       duration={800}
                       ease="easeOut"
                     />°F
-                  </span> when awake, 
+                  </span> while I'm up, 
                   <span className="font-semibold text-primary">
                     <NumberFlow 
                       value={watchedValues.tempSleepF} 
                       duration={800}
                       ease="easeOut"
                     />°F
-                  </span> when sleeping
+                  </span> overnight
                 </p>
               </div>
 
               <div className="p-4 bg-muted/20 rounded-lg">
-                <p className="font-medium mb-2">Home Setup:</p>
+                <p className="font-medium mb-2">Home snapshot</p>
                 <p>
-                  Located in <span className="font-semibold text-primary">{watchedValues.location}</span>, about
-                  <span className="font-semibold text-primary"> {watchedValues.squareFootage.toLocaleString()} sq ft</span> with
+                  Based in <span className="font-semibold text-primary">{watchedValues.location}</span>, roughly
+                  <span className="font-semibold text-primary"> {watchedValues.squareFootage.toLocaleString()} sq. ft.</span> with
                   <span className="font-semibold text-primary"> {watchedValues.coolingUnits}</span> HVAC unit{watchedValues.coolingUnits > 1 ? 's' : ''}.
                 </p>
               </div>
 
               {watchedValues.notes && (
                 <div className="p-4 bg-muted/20 rounded-lg md:col-span-2 lg:col-span-3">
-                  <p className="font-medium mb-2">Additional Context:</p>
+                  <p className="font-medium mb-2">Extra context</p>
                   <p className="text-muted-foreground">{watchedValues.notes}</p>
                 </div>
               )}
