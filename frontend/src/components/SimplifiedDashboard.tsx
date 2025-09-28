@@ -5,9 +5,11 @@ import { CircularMeter } from "./CircularMeter";
 import { ChatConsole } from "./ChatConsole";
 import { OperationModeToggle } from "./OperationModeToggle";
 import ElasticSlider from "./ElasticSlider";
+import { SmartThermostat } from "./SmartThermostat";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Clock, 
   CheckCircle, 
@@ -18,7 +20,10 @@ import {
   Plus,
   Zap,
   Hand,
-  Pause
+  Pause,
+  Home,
+  Settings,
+  Database
 } from "lucide-react";
 import {
   DeviceEntity,
@@ -35,6 +40,7 @@ import {
   sendChatMessage,
   updateApprovalStatus,
   updateOperationMode,
+  clearChatHistory,
 } from "@/services/api";
 import { haAdapter } from "@/services/adapters";
 
@@ -182,6 +188,17 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
       }
     } catch (error) {
       console.error('Failed to process message:', error);
+    }
+  };
+
+  const handleClearMessages = async () => {
+    try {
+      await clearChatHistory();
+      setChatMessages([]);
+    } catch (error) {
+      console.error('Failed to clear chat history:', error);
+      // Fallback to just clearing frontend state
+      setChatMessages([]);
     }
   };
 
@@ -519,126 +536,166 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
       )}
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Left Column - Chat Console */}
-        <div ref={chatConsoleRef}>
-          <ChatConsole
-            messages={chatMessages}
-            onSendMessage={handleSendMessage}
-          />
-        </div>
+      <Tabs defaultValue="dashboard" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="dashboard" className="flex items-center gap-2">
+            <Home className="h-4 w-4" />
+            Dashboard
+          </TabsTrigger>
+          <TabsTrigger value="home-assistant" className="flex items-center gap-2">
+            <Settings className="h-4 w-4" />
+            Home Assistant
+          </TabsTrigger>
+          <TabsTrigger value="advanced" className="flex items-center gap-2">
+            <Database className="h-4 w-4" />
+            Advanced
+          </TabsTrigger>
+        </TabsList>
 
-        {/* Right Column - Temperature and Climate Meters */}
-        <div className="flex flex-col justify-center items-center space-y-6">
-          {/* Climate Control Section */}
-          {thermostat && (
-            <div className="flex flex-col items-center space-y-4">
-              {/* Climate Toggle Segmented Control */}
-              <div className="flex bg-muted rounded-lg p-1 mb-2">
-                <button
-                  onClick={() => handleDeviceToggle(thermostat.id)}
-                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-                    thermostat.state
-                      ? 'bg-green-500 text-white shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  ON
-                </button>
-                <button
-                  onClick={() => handleDeviceToggle(thermostat.id)}
-                  className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
-                    !thermostat.state
-                      ? 'bg-red-500 text-white shadow-sm'
-                      : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  OFF
-                </button>
-              </div>
-              
-              <CircularMeter
-                value={targetTemperature}
-                max={85}
-                min={60}
-                unit="°F"
-                label="Climate"
-                color={getTemperatureColor(targetTemperature)}
-                size="lg"
-                showControls={false}
-                isActive={!!thermostat.state}
-                useCircularSlider={false}
+        <TabsContent value="dashboard" className="space-y-8 pt-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Left Column - Chat Console */}
+            <div ref={chatConsoleRef}>
+              <ChatConsole
+                messages={chatMessages}
+                onSendMessage={handleSendMessage}
+                onClearMessages={handleClearMessages}
               />
-              <div className="flex flex-col items-center space-y-2">
-                <span className="text-sm text-muted-foreground">Temperature Control</span>
-                <ElasticSlider
-                  defaultValue={targetTemperature}
-                  startingValue={60}
-                  maxValue={85}
-                  isStepped={true}
-                  stepSize={0.1}
-                  leftIcon={<Minus className="h-4 w-4" />}
-                  rightIcon={<Plus className="h-4 w-4" />}
-                  onValueChange={(value) => handleDeviceLevelChange(thermostat.id, value)}
-                  className="w-64"
-                />
-              </div>
             </div>
-          )}
 
-          {/* Temperature and Secondary Meters */}
-          <div className="flex items-center space-x-6">
-            {/* Temperature - Large */}
-            <CircularMeter
-              value={currentTemperature}
-              max={85}
-              unit="°F"
-              label="Temperature"
-              color="primary"
-              size="lg"
-            />
-            
-            {/* Secondary Meters - Triangle layout */}
-            <div className="flex items-center space-x-3">
-              {/* Daily Cost - Left */}
-              <CircularMeter
-                value={vitalsData.energyCost.daily}
-                max={50}
-                unit="$"
-                label="Daily Cost"
-                color="warning"
-                size="sm"
-                decimalPlaces={2}
-              />
-              
-              {/* Right side - Humidity and Devices stacked */}
-              <div className="flex flex-col space-y-3">
-                {/* Humidity - Top */}
+            {/* Right Column - Temperature and Climate Meters */}
+            <div className="flex flex-col justify-center items-center space-y-6">
+              {/* Climate Control Section */}
+              {thermostat && (
+                <div className="flex flex-col items-center space-y-4">
+                  {/* Climate Toggle Segmented Control */}
+                  <div className="flex bg-muted rounded-lg p-1 mb-2">
+                    <button
+                      onClick={() => handleDeviceToggle(thermostat.id)}
+                      className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                        thermostat.state
+                          ? 'bg-green-500 text-white shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      ON
+                    </button>
+                    <button
+                      onClick={() => handleDeviceToggle(thermostat.id)}
+                      className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
+                        !thermostat.state
+                          ? 'bg-red-500 text-white shadow-sm'
+                          : 'text-muted-foreground hover:text-foreground'
+                      }`}
+                    >
+                      OFF
+                    </button>
+                  </div>
+                  
+                  <CircularMeter
+                    value={targetTemperature}
+                    max={85}
+                    min={60}
+                    unit="°F"
+                    label="Climate"
+                    color={getTemperatureColor(targetTemperature)}
+                    size="lg"
+                    showControls={false}
+                    isActive={!!thermostat.state}
+                    useCircularSlider={false}
+                  />
+                  <div className="flex flex-col items-center space-y-2">
+                    <span className="text-sm text-muted-foreground">Temperature Control</span>
+                    <ElasticSlider
+                      defaultValue={targetTemperature}
+                      startingValue={60}
+                      maxValue={85}
+                      isStepped={true}
+                      stepSize={0.1}
+                      leftIcon={<Minus className="h-4 w-4" />}
+                      rightIcon={<Plus className="h-4 w-4" />}
+                      onValueChange={(value) => handleDeviceLevelChange(thermostat.id, value)}
+                      className="w-64"
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Temperature and Secondary Meters */}
+              <div className="flex items-center space-x-6">
+                {/* Temperature - Large */}
                 <CircularMeter
-                  value={vitalsData.humidity}
-                  max={100}
-                  unit="%"
-                  label="Humidity"
-                  color="accent"
-                  size="sm"
-                  decimalPlaces={0}
+                  value={currentTemperature}
+                  max={85}
+                  unit="°F"
+                  label="Temperature"
+                  color="primary"
+                  size="lg"
                 />
                 
-                {/* Active Devices - Bottom */}
-                <CircularMeter
-                  value={activeDeviceCount}
-                  max={devices.length}
-                  unit="on"
-                  label="Devices"
-                  color="accent"
-                  size="sm"
-                  decimalPlaces={0}
-                />
+                {/* Secondary Meters - Triangle layout */}
+                <div className="flex items-center space-x-3">
+                  {/* Daily Cost - Left */}
+                  <CircularMeter
+                    value={vitalsData.energyCost.daily}
+                    max={50}
+                    unit="$"
+                    label="Daily Cost"
+                    color="warning"
+                    size="sm"
+                    decimalPlaces={2}
+                  />
+                  
+                  {/* Right side - Humidity and Devices stacked */}
+                  <div className="flex flex-col space-y-3">
+                    {/* Humidity - Top */}
+                    <CircularMeter
+                      value={vitalsData.humidity}
+                      max={100}
+                      unit="%"
+                      label="Humidity"
+                      color="accent"
+                      size="sm"
+                      decimalPlaces={0}
+                    />
+                    
+                    {/* Active Devices - Bottom */}
+                    <CircularMeter
+                      value={activeDeviceCount}
+                      max={devices.length}
+                      unit="on"
+                      label="Devices"
+                      color="accent"
+                      size="sm"
+                      decimalPlaces={0}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
+        </TabsContent>
+
+        <TabsContent value="home-assistant" className="space-y-6 pt-6">
+          <SmartThermostat />
+        </TabsContent>
+
+        <TabsContent value="advanced" className="space-y-6 pt-6">
+          <Card className="bg-gradient-card border-card-border">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 tracking-wide">
+                <Database className="h-5 w-5" />
+                Advanced Configuration
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground">
+                Advanced configuration options will be available here in future updates.
+              </p>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

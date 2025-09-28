@@ -36,9 +36,9 @@ export interface DeviceCarouselProps {
 
 const DEFAULT_DEVICES: DeviceCarouselItem[] = [
   {
-    title: 'Hall Thermostat',
-    description: 'Climate control for hallway',
-    id: 'climate.thermostat_hall',
+    title: 'Bedroom Thermostat',
+    description: 'Climate control for bedroom',
+    id: 'climate.thermostat_bedroom',
     type: 'climate',
     icon: <Thermometer className="h-[16px] w-[16px] text-white" />,
     image: '/imgs/hall-thermo.jpg'

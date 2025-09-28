@@ -65,13 +65,30 @@ const Guardrail = () => {
     }
   };
 
-  const toCarouselItem = (device: DeviceEntity): DeviceCarouselItem => ({
-    title: device.name,
-    description: device.room ? `Located in ${device.room}` : `${device.type} device`,
-    id: device.id,
-    type: device.type,
-    icon: iconForDevice(device),
-  });
+  const toCarouselItem = (device: DeviceEntity): DeviceCarouselItem => {
+    // Map device IDs to their corresponding images
+    const getDeviceImage = (deviceId: string): string | undefined => {
+      const imageMap: Record<string, string> = {
+        'climate.bedroom': '/imgs/hall-thermo.jpg',
+        'light.living_room': '/imgs/living-room.webp',
+        'light.bedroom': '/imgs/bedroom-light.webp',
+        'switch.coffee_machine': '/imgs/coffee-machine.webp',
+        'fan.office_fan': '/imgs/office-fan.jpg',
+        'cover.garage': '/imgs/garage-door.webp',
+        'camera.front_door': '/imgs/front-door-camera.jpeg',
+      };
+      return imageMap[deviceId];
+    };
+
+    return {
+      title: device.name,
+      description: device.room ? `Located in ${device.room}` : `${device.type} device`,
+      id: device.id,
+      type: device.type,
+      icon: iconForDevice(device),
+      image: getDeviceImage(device.id),
+    };
+  };
 
   const buildGuardrailSettings = (device: DeviceEntity): GuardrailSettings => ({
     deviceId: device.id,

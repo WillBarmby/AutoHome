@@ -4,17 +4,18 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Mic, Send, Square, User, Bot } from "lucide-react";
+import { Mic, Send, Square, User, Bot, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ChatMessage } from "@/types";
 
 interface ChatConsoleProps {
   messages: ChatMessage[];
   onSendMessage: (message: string) => void | Promise<void>;
+  onClearMessages?: () => void;
   className?: string;
 }
 
-export function ChatConsole({ messages, onSendMessage, className }: ChatConsoleProps) {
+export function ChatConsole({ messages, onSendMessage, onClearMessages, className }: ChatConsoleProps) {
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -52,7 +53,7 @@ export function ChatConsole({ messages, onSendMessage, className }: ChatConsoleP
       // For now, just simulate
       setTimeout(() => {
         setIsListening(false);
-        setInput("Turn on living room lights to 50%");
+        setInput("What's the current temperature in the living room?");
       }, 2000);
     }
   };
@@ -130,7 +131,7 @@ export function ChatConsole({ messages, onSendMessage, className }: ChatConsoleP
             {isProcessing && (
               <div className="flex items-center justify-center gap-2 text-muted-foreground">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary" />
-                <span className="text-sm">Processing...</span>
+                <span className="text-sm">AI is thinking...</span>
               </div>
             )}
           </div>
@@ -144,7 +145,7 @@ export function ChatConsole({ messages, onSendMessage, className }: ChatConsoleP
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me to control your devices..."
+              placeholder="Ask me anything about your smart home..."
               className="pr-12"
               disabled={isProcessing}
             />
@@ -168,10 +169,22 @@ export function ChatConsole({ messages, onSendMessage, className }: ChatConsoleP
           <Button 
             onClick={handleSend}
             disabled={!input.trim() || isProcessing}
-            size="icon"
+            className="h-10 w-10 p-0"
           >
             <Send className="h-4 w-4" />
           </Button>
+          
+          {onClearMessages && (
+            <Button 
+              onClick={onClearMessages}
+              disabled={messages.length === 0}
+              variant="outline"
+              title="Clear conversation"
+              className="h-10 w-10 p-0"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         {isListening && (

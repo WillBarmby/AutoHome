@@ -163,6 +163,15 @@ export async function sendChatMessage(text: string): Promise<ChatResultPayload> 
   };
 }
 
+export async function clearChatHistory(): Promise<void> {
+  const res = await fetch(`${API_BASE}/chat`, {
+    method: "DELETE",
+  });
+  if (!res.ok) {
+    throw new Error("Failed to clear chat history");
+  }
+}
+
 export async function fetchUserProfile(): Promise<UserProfile> {
   const res = await fetch(`${API_BASE}/user-profile`);
   if (!res.ok) {

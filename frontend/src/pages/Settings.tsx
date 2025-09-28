@@ -9,8 +9,6 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { SmartThermostat } from "@/components/SmartThermostat";
 import { 
   Settings as SettingsIcon, 
   User, 
@@ -24,7 +22,6 @@ import {
   Download,
   Upload,
   Info,
-  Home
 } from "lucide-react";
 
 const Settings = () => {
@@ -170,24 +167,7 @@ const Settings = () => {
         </div>
       </div>
 
-      <Tabs defaultValue="system" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="system" className="flex items-center gap-2">
-            <SettingsIcon className="h-4 w-4" />
-            System
-          </TabsTrigger>
-          <TabsTrigger value="home-assistant" className="flex items-center gap-2">
-            <Home className="h-4 w-4" />
-            Home Assistant
-          </TabsTrigger>
-          <TabsTrigger value="advanced" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            Advanced
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="system" className="space-y-6">
-          <div ref={cardsRef} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div ref={cardsRef} className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* User Preferences */}
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
@@ -495,35 +475,13 @@ const Settings = () => {
         </Card>
       </div>
 
-          {/* Save Button */}
-          <div className="flex justify-end">
-            <Button onClick={saveSettings} size="lg">
-              <Save className="h-4 w-4 mr-2" />
-              Save All Settings
-            </Button>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="home-assistant" className="space-y-6">
-          <SmartThermostat />
-        </TabsContent>
-
-        <TabsContent value="advanced" className="space-y-6">
-          <Card className="bg-gradient-card border-card-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 tracking-wide">
-                <Database className="h-5 w-5" />
-                Advanced Configuration
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Advanced configuration options will be available here in future updates.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+      {/* Save Button */}
+      <div className="flex justify-end">
+        <Button onClick={saveSettings} size="lg">
+          <Save className="h-4 w-4 mr-2" />
+          Save All Settings
+        </Button>
+      </div>
     </div>
   );
 };

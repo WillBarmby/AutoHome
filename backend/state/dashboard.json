@@ -136,25 +136,7 @@
       "monthly": 142.3
     }
   },
-  "chat_history": [
-    {
-      "id": "1",
-      "type": "user",
-      "content": "Turn on the living room light",
-      "timestamp": "2024-08-21T12:01:00Z",
-      "intent": {
-        "type": "ToggleDevice",
-        "device": "light.living_room",
-        "state": true
-      }
-    },
-    {
-      "id": "2",
-      "type": "assistant",
-      "content": "I've turned on the living room light.",
-      "timestamp": "2024-08-21T12:01:01Z"
-    }
-  ],
+  "chat_history": [],
   "approval_queue": [
     {
       "id": "1",
@@ -174,5 +156,5 @@
       "status": "pending"
     }
   ],
-  "operation_mode": "manual"
+  "operation_mode": "auto"
 }

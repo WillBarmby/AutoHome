@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { CircularMeter } from './CircularMeter';
+import ElasticSlider from './ElasticSlider';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Thermometer, 
@@ -16,7 +18,9 @@ import {
   Settings,
   CheckCircle,
   AlertCircle,
-  Loader2
+  Loader2,
+  Minus,
+  Plus
 } from 'lucide-react';
 import { 
   calculateTemperature, 
@@ -167,6 +171,13 @@ export function SmartThermostat({ className }: SmartThermostatProps) {
     }
   };
 
+  const getTemperatureColor = (temp: number) => {
+    if (temp >= 60 && temp <= 68) return 'cold'; // Blue
+    if (temp >= 68.1 && temp <= 77) return 'warning'; // Yellow
+    if (temp >= 77.1 && temp <= 85) return 'destructive'; // Red
+    return 'cold'; // Default
+  };
+
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'already_at_target':
@@ -185,7 +196,7 @@ export function SmartThermostat({ className }: SmartThermostatProps) {
       {/* Connection Status */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 tracking-wide">
             <Home className="h-5 w-5" />
             Home Assistant Connection
           </CardTitle>
@@ -247,7 +258,7 @@ export function SmartThermostat({ className }: SmartThermostatProps) {
       {/* Temperature Calculation */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 tracking-wide">
             <Thermometer className="h-5 w-5" />
             Smart Temperature Calculator
           </CardTitle>
@@ -255,28 +266,74 @@ export function SmartThermostat({ className }: SmartThermostatProps) {
             Calculate optimal cooling time and send results to Home Assistant
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-6">
+          {/* Temperature Controls */}
+          <div className="flex flex-col items-center space-y-6">
+            <div className="flex items-center space-x-32">
+              {/* Current Temperature */}
+              <div className="flex flex-col items-center space-y-4">
+                <Label className="text-sm font-medium">Current Temperature</Label>
+                <CircularMeter
+                  value={currentTemp}
+                  max={85}
+                  min={60}
+                  unit="°F"
+                  label="Current"
+                  color={getTemperatureColor(currentTemp)}
+                  size="lg"
+                  showControls={false}
+                  isActive={true}
+                  useCircularSlider={false}
+                />
+                <div className="flex flex-col items-center space-y-2">
+                  <ElasticSlider
+                    defaultValue={currentTemp}
+                    startingValue={60}
+                    maxValue={85}
+                    isStepped={true}
+                    stepSize={0.1}
+                    leftIcon={<Minus className="h-4 w-4" />}
+                    rightIcon={<Plus className="h-4 w-4" />}
+                    onValueChange={(value) => setCurrentTemp(value)}
+                    className="w-64"
+                  />
+                </div>
+              </div>
+
+              {/* Target Temperature */}
+              <div className="flex flex-col items-center space-y-4">
+                <Label className="text-sm font-medium">Target Temperature</Label>
+                <CircularMeter
+                  value={targetTemp}
+                  max={85}
+                  min={60}
+                  unit="°F"
+                  label="Target"
+                  color={getTemperatureColor(targetTemp)}
+                  size="lg"
+                  showControls={false}
+                  isActive={true}
+                  useCircularSlider={false}
+                />
+                <div className="flex flex-col items-center space-y-2">
+                  <ElasticSlider
+                    defaultValue={targetTemp}
+                    startingValue={60}
+                    maxValue={85}
+                    isStepped={true}
+                    stepSize={0.1}
+                    leftIcon={<Minus className="h-4 w-4" />}
+                    rightIcon={<Plus className="h-4 w-4" />}
+                    onValueChange={(value) => setTargetTemp(value)}
+                    className="w-64"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Other Settings */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="currentTemp">Current Temperature (°F)</Label>
-              <Input
-                id="currentTemp"
-                type="number"
-                value={currentTemp}
-                onChange={(e) => setCurrentTemp(Number(e.target.value))}
-                placeholder="75"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="targetTemp">Target Temperature (°F)</Label>
-              <Input
-                id="targetTemp"
-                type="number"
-                value={targetTemp}
-                onChange={(e) => setTargetTemp(Number(e.target.value))}
-                placeholder="72"
-              />
-            </div>
             <div className="space-y-2">
               <Label htmlFor="location">Location</Label>
               <Input
@@ -365,7 +422,7 @@ export function SmartThermostat({ className }: SmartThermostatProps) {
               </div>
               <div className="text-center">
                 <p className="text-2xl font-bold text-orange-500">
-                  {calculationResult.target_temp}°F
+                  {calculationResult.target_temp.toFixed(1)}°F
                 </p>
                 <p className="text-sm text-muted-foreground">Target</p>
               </div>

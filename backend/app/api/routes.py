@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import logging
 from datetime import datetime, timezone, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional
@@ -8,6 +9,8 @@ from typing import Any, Dict, List, Literal, Optional
 from fastapi import APIRouter, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 from ..models.schema import (
     ApprovalQueueItem,
@@ -217,7 +220,52 @@ def _parse_intent(text: str) -> ChatIntent:
     return ChatIntent(type="QueryStatus", parameters={"query": text})
 
 
-def _generate_response(intent: ChatIntent) -> str:
+def _generate_llm_response(text: str, intent: ChatIntent) -> str:
+    """Generate a conversational response using LLM with fallback to rule-based responses."""
+    try:
+        # Try to use Ollama for generating conversational responses
+        import subprocess
+        import json
+        
+        # Create a prompt for the LLM
+        prompt = f"""You are a helpful home automation assistant. A user said: "{text}"
+
+The system interpreted this as: {intent.type}
+- Device: {intent.device}
+- State: {intent.state}
+- Level: {intent.level}
+- Temperature: {intent.temperature}
+
+Generate a friendly, conversational response (1-2 sentences) that acknowledges what the user wants and confirms the action. Be helpful and natural.
+
+Response:"""
+        
+        result = subprocess.run(
+            ["ollama", "run", "llama3.2", prompt],
+            capture_output=True,
+            text=True,
+            check=False,
+            timeout=10
+        )
+        
+        if result.returncode == 0 and result.stdout.strip():
+            response = result.stdout.strip()
+            # Clean up the response (remove any extra formatting)
+            if response.startswith("Response:"):
+                response = response[9:].strip()
+            if len(response) > 200:  # Limit response length
+                response = response[:200] + "..."
+            return response
+            
+    except (FileNotFoundError, subprocess.TimeoutExpired, Exception) as e:
+        logger.warning(f"LLM response generation failed: {e}, falling back to rule-based response")
+    
+    # Fallback to rule-based responses
+    return _generate_rule_based_response(intent)
+
+
+def _generate_rule_based_response(intent: ChatIntent) -> str:
+    """Generate rule-based responses as fallback."""
     if intent.type == "ToggleDevice":
         name = (intent.device or "device").split(".")[-1].replace("_", " ")
         return f"I've {'turned on' if intent.state else 'turned off'} the {name}."
@@ -226,7 +274,26 @@ def _generate_response(intent: ChatIntent) -> str:
             return f"I've set the thermostat to {intent.temperature}°F."
         name = (intent.device or "device").split(".")[-1].replace("_", " ")
         return f"I've set the {name} to {intent.level}%."
-    return "Command processed successfully."
+    if intent.type == "QueryStatus":
+        query = intent.parameters.get("query", "").lower() if intent.parameters else ""
+        
+        # Handle common questions
+        if any(word in query for word in ["temperature", "temp", "degrees"]):
+            return "I can help you with temperature control. You can ask me to set the thermostat to a specific temperature, or I can tell you the current temperature in your home."
+        
+        if any(word in query for word in ["light", "lights", "brightness"]):
+            return "I can control your lights! You can ask me to turn lights on or off, or adjust their brightness. Which room would you like to control?"
+        
+        if any(word in query for word in ["help", "what", "how", "can you"]):
+            return "I'm your smart home assistant! I can help you control lights, adjust the thermostat, and manage your devices. Just tell me what you'd like to do - for example, 'turn on the living room lights' or 'set temperature to 72 degrees'."
+        
+        if any(word in query for word in ["status", "state", "current"]):
+            return "I can check the status of your devices. Would you like to know about your lights, thermostat, or other smart home devices?"
+        
+        # Default helpful response
+        return "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?"
+    
+    return "I've processed your request successfully."
 
 
 class ChatRequest(BaseModel):
@@ -240,6 +307,15 @@ class ChatResult(BaseModel):
     assistant: ChatMessage
 
 
+@router.delete("/chat")
+async def clear_chat_history():
+    """Clear all chat history from the backend."""
+    dashboard = state_store.load_dashboard()
+    dashboard["chat_history"] = []
+    state_store.save_dashboard(dashboard)
+    return {"status": "success", "message": "Chat history cleared"}
+
+
 @router.post("/chat", response_model=ChatResult)
 async def create_chat(payload: ChatRequest) -> ChatResult:
     text = payload.text.strip()
@@ -247,7 +323,7 @@ async def create_chat(payload: ChatRequest) -> ChatResult:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Message text required")
 
     intent = _parse_intent(text)
-    response = _generate_response(intent)
+    response = _generate_llm_response(text, intent)
 
     now = datetime.now(timezone.utc)
     user_message = ChatMessage(
