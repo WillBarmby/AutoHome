@@ -38,6 +38,10 @@
                   "show_icon": true,
                   "type": "button",
                   "entity": "sensor.thermostat"
+                },
+                {
+                  "type": "thermostat",
+                  "entity": "climate.heatpump"
                 }
               ]
             },
@@ -176,6 +180,31 @@
                 {
                   "type": "heading",
                   "heading": "New section"
+                },
+                {
+                  "type": "tile",
+                  "entity": "sensor.thermostat_current_temp"
+                },
+                {
+                  "type": "tile",
+                  "entity": "sensor.thermostat_outdoor_temp"
+                },
+                {
+                  "type": "tile",
+                  "entity": "sensor.thermostat"
+                },
+                {
+                  "type": "tile",
+                  "entity": "sensor.thermostat_turn_on_time"
+                },
+                {
+                  "type": "tile",
+                  "entity": "sensor.thermostat_time_needed"
+                },
+                {
+                  "type": "sensor",
+                  "entity": "number.temperature_setting",
+                  "graph": "line"
                 }
               ]
             }

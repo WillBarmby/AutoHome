@@ -13,7 +13,7 @@
       "lead_minutes": 26,
       "source": "preferences",
       "created_at": "2025-09-28T15:23:00.825892",
-      "next_run_at": null
+      "next_run_at": "2025-09-28T22:04:00"
     },
     {
       "id": "5acf3618548044b4920ba61520c4599d",
@@ -28,7 +28,7 @@
       "lead_minutes": 0,
       "source": "preferences",
       "created_at": "2025-09-28T15:23:00.825999",
-      "next_run_at": null
+      "next_run_at": "2025-09-29T06:30:00"
     }
   ],
   "queue": [
@@ -46,7 +46,7 @@
       "lead_minutes": 0,
       "source": "llm",
       "created_at": "2025-09-28T12:00:29.353137",
-      "next_run_at": "2025-09-28T12:00:29.352976"
+      "next_run_at": "2025-09-28T15:55:23.368516"
     },
     {
       "id": "42f755bb4c63483695c25733e07beaf7",
@@ -61,7 +61,7 @@
       "lead_minutes": 0,
       "source": "llm",
       "created_at": "2025-09-28T12:43:46.353827",
-      "next_run_at": "2025-09-28T12:43:46.353635"
+      "next_run_at": "2025-09-28T15:55:23.368516"
     },
     {
       "id": "2df3ab2e85db4b56af7b823e86f69654",
@@ -76,23 +76,8 @@
       "lead_minutes": 0,
       "source": "llm",
       "created_at": "2025-09-28T15:05:08.306292",
-      "next_run_at": "2025-09-28T15:05:08.306121"
-    },
-    {
-      "id": "b7f6267ef66f4109947bae6311175850",
-      "description": "turn off my bed light",
-      "entity_id": "light.bed_light",
-      "service": "turn_off",
-      "payload": {
-        "entity_id": "light.bed_light"
-      },
-      "category": "queue",
-      "run_time": "2025-09-28T15:20:41.941043",
-      "lead_minutes": 0,
-      "source": "llm",
-      "created_at": "2025-09-28T15:20:41.941187",
-      "next_run_at": "2025-09-28T15:20:41.941043"
+      "next_run_at": "2025-09-28T15:55:23.368516"
     }
   ],
-  "updatedAt": "2025-09-28T15:23:00.827932"
+  "updatedAt": "2025-09-28T15:50:23.368516"
 }

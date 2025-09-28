@@ -6,8 +6,8 @@ import logging
 import re
 import subprocess
 import time
-from datetime import datetime, timezone
-from typing import Dict, Set
+from datetime import datetime, timedelta, timezone
+from typing import Dict, Optional, Set
 
 from fastapi import APIRouter, HTTPException, status
 from fastapi.encoders import jsonable_encoder
@@ -43,6 +43,11 @@ _ALIAS_REPLACEMENTS = {
     "desk": ["desk", "office"],
     "coffee": ["coffee", "coffee machine"],
 }
+
+_TIME_PHRASE_REGEX = re.compile(
+    r"\b(?:at|around|by)\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)\b",
+    flags=re.IGNORECASE,
+)
 
 
 def _normalise_text(value: str) -> str:
@@ -87,6 +92,28 @@ def _get_aliases() -> Dict[str, Set[str]]:
         _alias_cache["aliases"] = _build_alias_cache()
         _alias_cache["expires"] = now + _ALIAS_CACHE_TTL
     return _alias_cache["aliases"]  # type: ignore[return-value]
+
+
+def _extract_scheduled_time(raw_text: str) -> Optional[datetime]:
+    match = _TIME_PHRASE_REGEX.search(raw_text)
+    if not match:
+        return None
+
+    hour = int(match.group(1))
+    minute = int(match.group(2) or 0)
+    period = match.group(3).lower()
+
+    if period == "pm" and hour != 12:
+        hour += 12
+    if period == "am" and hour == 12:
+        hour = 0
+
+    now_local = datetime.now()
+    scheduled = now_local.replace(hour=hour, minute=minute, second=0, microsecond=0)
+    if scheduled <= now_local:
+        scheduled += timedelta(days=1)
+
+    return scheduled
 
 
 def _extract_device(text: str) -> str:
@@ -147,20 +174,30 @@ def _parse_intent(text: str) -> ChatIntent:
     """Convert a user message into a structured intent record."""
 
     lower_text = text.lower()
+    scheduled_time = _extract_scheduled_time(text)
 
     if "turn on" in lower_text or "turn off" in lower_text:
         state = "turn on" in lower_text
         device = _extract_device(lower_text)
-        return ChatIntent(type="ToggleDevice", device=device, state=state)
+        intent = ChatIntent(type="ToggleDevice", device=device, state=state)
+        if scheduled_time:
+            intent.runAt = scheduled_time.isoformat()
+        return intent
 
     if "set" in lower_text and "%" in lower_text:
         level = _extract_percentage(lower_text)
         device = _extract_device(lower_text)
-        return ChatIntent(type="SetLevel", device=device, level=level)
+        intent = ChatIntent(type="SetLevel", device=device, level=level)
+        if scheduled_time:
+            intent.runAt = scheduled_time.isoformat()
+        return intent
 
     if "temperature" in lower_text or "degrees" in lower_text:
         temp = _extract_temperature(lower_text)
-        return ChatIntent(type="SetLevel", device="climate.thermostat_hall", temperature=temp)
+        intent = ChatIntent(type="SetLevel", device="climate.thermostat_hall", temperature=temp)
+        if scheduled_time:
+            intent.runAt = scheduled_time.isoformat()
+        return intent
 
     return ChatIntent(type="QueryStatus", parameters={"query": text})
 
@@ -293,10 +330,16 @@ async def create_chat(payload: ChatRequest) -> ChatResult:
 
     queue_candidate = queue_from_intent(text, intent.dict())
     if queue_candidate:
-        success, _, error = ha_device_service.execute_scheduled(queue_candidate)
-        if not success and error:
-            logger.warning("Failed to execute HA command from chat intent: %s", error)
-        append_queue_command(queue_candidate)
+        now_utc = datetime.utcnow()
+        next_run = queue_candidate.next_run_at
+        should_enqueue_only = next_run is not None and next_run > now_utc
+
+        if not should_enqueue_only:
+            success, _, error = ha_device_service.execute_scheduled(queue_candidate)
+            if not success and error:
+                logger.warning("Failed to execute HA command from chat intent: %s", error)
+        if should_enqueue_only:
+            append_queue_command(queue_candidate)
 
     return ChatResult(
         intent=intent,

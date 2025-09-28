@@ -26,6 +26,9 @@ DEFAULT_PROFILE: Dict[str, Any] = {
     "squareFootage": 2200,
     "coolingUnits": 1,
     "notes": "",
+    "lightEntityId": None,
+    "lightsOnTime": None,
+    "lightsOffTime": None,
 }
 
 
@@ -52,4 +55,3 @@ async def update_user_profile(profile: UserProfile) -> UserProfile:
 
 
 __all__ = ["router"]
-

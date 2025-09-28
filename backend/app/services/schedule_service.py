@@ -157,12 +157,56 @@ def rebuild_daily_schedule(profile: UserProfile) -> List[ScheduledCommand]:
         source="preferences",
     )
 
+    daily_commands = [bedtime_command, morning_command]
+
+    light_entity = (profile.lightEntityId or "").strip() if profile.lightEntityId else ""
+    if light_entity:
+        def _safe_parse_clock(raw_value: Optional[str]) -> Optional[time]:
+            if not raw_value:
+                return None
+            try:
+                return _parse_clock_string(raw_value)
+            except ValueError:
+                return None
+
+        friendly_label = light_entity.split(".")[-1].replace("_", " ")
+
+        on_time = _safe_parse_clock(profile.lightsOnTime)
+        if on_time:
+            daily_commands.append(
+                _make_command(
+                    description=f"Turn on {friendly_label}",
+                    entity_id=light_entity,
+                    service="turn_on",
+                    payload={"entity_id": light_entity},
+                    run_time=_time_to_string(on_time),
+                    category="daily",
+                    lead_minutes=0,
+                    source="preferences",
+                )
+            )
+
+        off_time = _safe_parse_clock(profile.lightsOffTime)
+        if off_time:
+            daily_commands.append(
+                _make_command(
+                    description=f"Turn off {friendly_label}",
+                    entity_id=light_entity,
+                    service="turn_off",
+                    payload={"entity_id": light_entity},
+                    run_time=_time_to_string(off_time),
+                    category="daily",
+                    lead_minutes=0,
+                    source="preferences",
+                )
+            )
+
     existing_schedule = state_store.load_schedule()
     queue_items = existing_schedule.get("queue", [])
 
-    _store_schedule([bedtime_command, morning_command], queue_items)
+    _store_schedule(daily_commands, queue_items)
 
-    return [bedtime_command, morning_command]
+    return daily_commands
 
 
 def append_queue_command(command: ScheduledCommand) -> None:
@@ -213,7 +257,16 @@ def queue_from_intent(summary: str, intent_payload: Dict[str, Any]) -> Optional[
     else:
         return None
 
-    immediate_run = datetime.utcnow()
+    run_at_raw = intent_payload.get("runAt")
+    scheduled_run: Optional[datetime] = None
+    if isinstance(run_at_raw, str) and run_at_raw:
+        try:
+            scheduled_run = datetime.fromisoformat(run_at_raw)
+        except ValueError:
+            scheduled_run = None
+
+    if scheduled_run is None:
+        scheduled_run = datetime.utcnow()
 
     return _make_command(
         description=summary,
@@ -221,10 +274,10 @@ def queue_from_intent(summary: str, intent_payload: Dict[str, Any]) -> Optional[
         service=service,
         payload=payload,
         category="queue",
-        run_time=immediate_run.isoformat(),
+        run_time=scheduled_run.isoformat(),
         lead_minutes=0,
         source="llm",
-        next_run=immediate_run,
+        next_run=scheduled_run,
     )
 
 

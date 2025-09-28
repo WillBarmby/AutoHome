@@ -162,6 +162,34 @@
       "content": "I've turned off the bed light.",
       "timestamp": "2025-09-28T15:20:41.937328Z",
       "intent": null
+    },
+    {
+      "id": "1759073700718",
+      "type": "user",
+      "content": "Stacy's mom has got it going on",
+      "timestamp": "2025-09-28T15:35:00.718282Z",
+      "intent": {
+        "type": "QueryStatus",
+        "device": null,
+        "state": null,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": {
+          "query": "Stacy's mom has got it going on"
+        }
+      }
+    },
+    {
+      "id": "1759073700719",
+      "type": "assistant",
+      "content": "I think I know where you're going with this! Your mom's system is currently not set up or connected to our home automation network, so I'll send a notification to your parent's account to schedule an ...",
+      "timestamp": "2025-09-28T15:35:00.718282Z",
+      "intent": null
     }
   ],
   "approval_queue": [
@@ -249,7 +277,31 @@
       "comfortDelta": null,
       "expiresAt": "2025-09-28T15:25:42.009530Z",
       "status": "pending"
+    },
+    {
+      "id": "1759073700741",
+      "summary": "Stacy's mom has got it going on",
+      "intent": {
+        "type": "QueryStatus",
+        "device": null,
+        "state": null,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": {
+          "query": "Stacy's mom has got it going on"
+        }
+      },
+      "guardrailBadges": [],
+      "costDelta": null,
+      "comfortDelta": null,
+      "expiresAt": "2025-09-28T15:40:00.741960Z",
+      "status": "pending"
     }
   ],
-  "operation_mode": "manual"
+  "operation_mode": "paused"
 }

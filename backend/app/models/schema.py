@@ -38,6 +38,7 @@ class ChatIntent(BaseModel):
     cheapest: Optional[bool] = None
     avoid_peak: Optional[bool] = None
     parameters: Optional[Dict[str, Any]] = None
+    runAt: Optional[str] = None
 
 
 class ChatMessage(BaseModel):
@@ -104,6 +105,9 @@ class UserProfile(BaseModel):
     squareFootage: float = 2200
     coolingUnits: int = 1
     notes: str = ""
+    lightEntityId: Optional[str] = None
+    lightsOnTime: Optional[str] = None
+    lightsOffTime: Optional[str] = None
     updatedAt: Optional[datetime] = None
 
 
@@ -119,6 +123,7 @@ class ScheduledCommand(BaseModel):
     source: Literal["preferences", "llm"]
     created_at: datetime
     next_run_at: Optional[datetime] = None
+    last_run_at: Optional[datetime] = None
 
 
 __all__ = [
