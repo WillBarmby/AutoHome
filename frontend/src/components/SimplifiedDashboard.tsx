@@ -317,34 +317,41 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     };
   }, []);
 
-  // Animate elements on mount
+  // Animate elements when not loading
   useEffect(() => {
-    const elements = [
-      headerRef.current,
-      chatConsoleRef.current,
-      leftColumnRef.current,
-      rightColumnRef.current
-    ].filter(Boolean);
+    if (!loading) {
+      const elements = [
+        headerRef.current,
+        chatConsoleRef.current,
+        leftColumnRef.current,
+        rightColumnRef.current
+      ].filter(Boolean);
 
-    gsap.fromTo(elements, 
-      { 
-        y: 30, 
-        opacity: 0 
-      },
-      { 
-        y: 0, 
-        opacity: 1, 
-        duration: 0.8, 
-        stagger: 0.15,
-        ease: 'power2.out'
-      }
-    );
-  }, []);
+      gsap.fromTo(elements, 
+        { 
+          y: 30, 
+          opacity: 0 
+        },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 0.8, 
+          stagger: 0.15,
+          ease: 'power2.out'
+        }
+      );
+    }
+  }, [loading]);
 
   if (loading) {
     return (
-      <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid text-muted-foreground">
-        Loading dashboard…
+      <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <span className="text-sm text-muted-foreground">Loading dashboard…</span>
+          </div>
+        </div>
       </div>
     );
   }
@@ -492,7 +499,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 rounded-full hover:bg-muted"
+              className="h-8 w-8 p-0 rounded-full hover:bg-muted hover:text-white"
               onClick={() => setNotificationsOpen(!notificationsOpen)}
             >
               <Bell className="h-4 w-4" />

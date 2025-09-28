@@ -78,26 +78,28 @@ const Devices = () => {
   const headerRef = useRef<HTMLDivElement>(null);
   const devicesRef = useRef<HTMLDivElement>(null);
 
-  // Animate elements on mount
+  // Animate elements when not loading
   useEffect(() => {
-    const elements = [headerRef.current, devicesRef.current].filter(Boolean);
-    
-    if (elements.length > 0) {
-      gsap.fromTo(elements, 
-        { 
-          y: 30, 
-          opacity: 0 
-        },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 0.8, 
-          stagger: 0.15,
-          ease: 'power2.out' 
-        }
-      );
+    if (!loading) {
+      const elements = [headerRef.current, devicesRef.current].filter(Boolean);
+      
+      if (elements.length > 0) {
+        gsap.fromTo(elements, 
+          { 
+            y: 30, 
+            opacity: 0 
+          },
+          { 
+            y: 0, 
+            opacity: 1, 
+            duration: 0.8, 
+            stagger: 0.15,
+            ease: 'power2.out' 
+          }
+        );
+      }
     }
-  }, []);
+  }, [loading]);
 
   const getDeviceIcon = (device: Entity) => {
     const icon = (device.icon || device.attributes?.icon || "").toLowerCase();
@@ -171,10 +173,12 @@ const Devices = () => {
 
   if (loading) {
     return (
-      <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid flex items-center justify-center">
-        <div className="flex items-center gap-3 text-muted-foreground">
-          <RefreshCw className="h-5 w-5 animate-spin" />
-          <span>Loading devices…</span>
+      <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <span className="text-sm text-muted-foreground">Loading devices…</span>
+          </div>
         </div>
       </div>
     );

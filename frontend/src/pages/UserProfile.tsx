@@ -47,23 +47,25 @@ export default function UserProfile() {
 
   const watchedValues = watch();
 
-  // GSAP animations
+  // GSAP animations - trigger when not loading
   useEffect(() => {
-    const elements = [headerRef.current, formRef.current, previewRef.current].filter(Boolean);
-    
-    if (elements.length > 0) {
-      gsap.fromTo(elements, 
-        { y: 30, opacity: 0 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 0.8, 
-          stagger: 0.15, 
-          ease: 'power2.out' 
-        }
-      );
+    if (!isLoading) {
+      const elements = [headerRef.current, formRef.current, previewRef.current].filter(Boolean);
+      
+      if (elements.length > 0) {
+        gsap.fromTo(elements, 
+          { y: 30, opacity: 0 },
+          { 
+            y: 0, 
+            opacity: 1, 
+            duration: 0.8, 
+            stagger: 0.15, 
+            ease: 'power2.out' 
+          }
+        );
+      }
     }
-  }, []);
+  }, [isLoading]);
 
   // Set last updated timestamp on mount
   useEffect(() => {
@@ -148,7 +150,12 @@ export default function UserProfile() {
   if (isLoading) {
     return (
       <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid text-muted-foreground">
-        Loading your profile…
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <span className="text-sm">Loading your profile…</span>
+          </div>
+        </div>
       </div>
     );
   }
