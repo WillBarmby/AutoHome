@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { motion, PanInfo, useMotionValue } from 'motion/react';
+import { motion, PanInfo, useMotionValue } from 'framer-motion';
 import React, { JSX } from 'react';
 import { 
   Thermometer, 

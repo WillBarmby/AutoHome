@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { animate, motion, useMotionValue, useMotionValueEvent, useTransform } from 'motion/react';
+import { animate, motion, useMotionValue, useMotionValueEvent, useTransform } from 'framer-motion';
 
 const MAX_OVERFLOW = 50;
 
