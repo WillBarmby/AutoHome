@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "minor_version": 1,
+  "key": "person",
+  "data": {
+    "items": [
+      {
+        "id": "will_barmby",
+        "name": "Will Barmby",
+        "user_id": "99ab22ac36954ea9a2f48a2e9035fde6",
+        "device_trackers": []
+      }
+    ]
+  }
+}

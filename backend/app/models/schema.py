@@ -100,8 +100,25 @@ class UserProfile(BaseModel):
     wakeTime: str
     tempAwakeF: float
     tempSleepF: float
+    location: str = "San Francisco"
+    squareFootage: float = 2200
+    coolingUnits: int = 1
     notes: str = ""
     updatedAt: Optional[datetime] = None
+
+
+class ScheduledCommand(BaseModel):
+    id: str
+    description: str
+    entity_id: str
+    service: str
+    payload: Dict[str, Any]
+    category: Literal["daily", "queue"]
+    run_time: str
+    lead_minutes: int = 0
+    source: Literal["preferences", "llm"]
+    created_at: datetime
+    next_run_at: Optional[datetime] = None
 
 
 __all__ = [
@@ -113,5 +130,6 @@ __all__ = [
     "DashboardVitals",
     "Entity",
     "PricePoint",
+    "ScheduledCommand",
     "UserProfile",
 ]

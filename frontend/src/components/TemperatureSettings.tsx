@@ -50,18 +50,18 @@ const TemperatureSettings = forwardRef<TemperatureSettingsRef, TemperatureSettin
   }));
 
   return (
-    <div className={cn("bg-green-600/20 backdrop-blur-sm border border-green-500/30 rounded-lg p-6 flex flex-col items-center justify-center", className)}>
-      <h3 className="text-white text-center text-xl font-medium mb-6">Temperature Settings</h3>
+    <div className={cn("w-full bg-green-600/20 backdrop-blur-sm border border-green-500/30 rounded-lg p-6 flex flex-col items-center justify-center", className)}>
+      <h3 className="text-white text-center text-xl font-medium mb-6">Comfort temperatures</h3>
       
-      <div className="grid grid-cols-2 gap-6 w-full relative">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full relative">
         {/* Divider */}
-        <div className="absolute left-1/2 top-8 bottom-8 w-px bg-white/10 transform -translate-x-1/2"></div>
+        <div className="hidden md:block absolute left-1/2 top-8 bottom-8 w-px bg-white/10 transform -translate-x-1/2"></div>
         
         {/* When Awake */}
         <div className="flex flex-col items-center justify-center h-full">
           <div className="flex items-center gap-2 text-white text-sm mb-3">
             <Sun className="w-4 h-4" />
-            <span>when awake</span>
+            <span>while I'm up</span>
           </div>
           <div className="flex items-center justify-center">
             <div className="flex items-baseline w-[140px] justify-center">
@@ -97,7 +97,7 @@ const TemperatureSettings = forwardRef<TemperatureSettingsRef, TemperatureSettin
         <div className="flex flex-col items-center justify-center h-full">
           <div className="flex items-center gap-2 text-white text-sm mb-3">
             <Moon className="w-4 h-4" />
-            <span>when sleeping</span>
+            <span>overnight</span>
           </div>
           <div className="flex items-center justify-center">
             <div className="flex items-baseline w-[140px] justify-center">

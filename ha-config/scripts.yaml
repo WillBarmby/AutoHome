@@ -1,0 +1,14 @@
+# Scripts for manual demo control
+activate_demo_evening:
+  alias: Activate Demo Evening Scene
+  sequence:
+    - service: scene.turn_on
+      target:
+        entity_id: scene.demo_evening
+
+activate_demo_daytime:
+  alias: Activate Demo Daytime Scene
+  sequence:
+    - service: scene.turn_on
+      target:
+        entity_id: scene.demo_daytime

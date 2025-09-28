@@ -1,0 +1,68 @@
+{
+  "daily": [
+    {
+      "id": "258a414b64e34cba896fbb26b3a509fe",
+      "description": "Pre-condition home for bedtime comfort",
+      "entity_id": "climate.home",
+      "service": "set_temperature",
+      "payload": {
+        "temperature": 64.0
+      },
+      "category": "daily",
+      "run_time": "21:42",
+      "lead_minutes": 78,
+      "source": "preferences",
+      "created_at": "2025-09-28T13:15:52.278152",
+      "next_run_at": null
+    },
+    {
+      "id": "5d51b01776e44427bf0762cc78acab92",
+      "description": "Restore daytime comfort level",
+      "entity_id": "climate.home",
+      "service": "set_temperature",
+      "payload": {
+        "temperature": 72.0
+      },
+      "category": "daily",
+      "run_time": "06:30",
+      "lead_minutes": 0,
+      "source": "preferences",
+      "created_at": "2025-09-28T13:15:52.278243",
+      "next_run_at": null
+    }
+  ],
+  "queue": [
+    {
+      "id": "aa47057e464c407cbb94963835287268",
+      "description": "at 9pm, set the thermostat to 65 degrees fahrenheit",
+      "entity_id": "climate.thermostat_hall",
+      "service": "turn_on",
+      "payload": {
+        "entity_id": "climate.thermostat_hall",
+        "temperature": 65.0
+      },
+      "category": "queue",
+      "run_time": "2025-09-28T12:00:29.352976",
+      "lead_minutes": 0,
+      "source": "llm",
+      "created_at": "2025-09-28T12:00:29.353137",
+      "next_run_at": "2025-09-28T12:00:29.352976"
+    },
+    {
+      "id": "42f755bb4c63483695c25733e07beaf7",
+      "description": "Turn off all lights",
+      "entity_id": "unknown",
+      "service": "turn_off",
+      "payload": {
+        "entity_id": "unknown"
+      },
+      "category": "queue",
+      "run_time": "2025-09-28T12:43:46.353635",
+      "lead_minutes": 0,
+      "source": "llm",
+      "created_at": "2025-09-28T12:43:46.353827",
+      "next_run_at": "2025-09-28T12:43:46.353635"
+    }
+  ],
+  "updatedAt": "2025-09-28T13:15:52.278996"
+}
