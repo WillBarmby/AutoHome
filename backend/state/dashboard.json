@@ -138,13 +138,13 @@
   },
   "chat_history": [
     {
-      "id": "1759071908297",
+      "id": "1759072841937",
       "type": "user",
-      "content": "Turn off my bed light",
-      "timestamp": "2025-09-28T15:05:08.297890Z",
+      "content": "turn off my bed light",
+      "timestamp": "2025-09-28T15:20:41.937328Z",
       "intent": {
         "type": "ToggleDevice",
-        "device": "unknown",
+        "device": "light.bed_light",
         "state": false,
         "level": null,
         "temperature": null,
@@ -157,10 +157,10 @@
       }
     },
     {
-      "id": "1759071908298",
+      "id": "1759072841938",
       "type": "assistant",
-      "content": "I've turned off the unknown.",
-      "timestamp": "2025-09-28T15:05:08.297890Z",
+      "content": "I've turned off the bed light.",
+      "timestamp": "2025-09-28T15:20:41.937328Z",
       "intent": null
     }
   ],
@@ -226,6 +226,28 @@
       "costDelta": null,
       "comfortDelta": null,
       "expiresAt": "2025-09-28T15:10:08.359672Z",
+      "status": "pending"
+    },
+    {
+      "id": "1759072842009",
+      "summary": "turn off my bed light",
+      "intent": {
+        "type": "ToggleDevice",
+        "device": "light.bed_light",
+        "state": false,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": null
+      },
+      "guardrailBadges": [],
+      "costDelta": null,
+      "comfortDelta": null,
+      "expiresAt": "2025-09-28T15:25:42.009530Z",
       "status": "pending"
     }
   ],

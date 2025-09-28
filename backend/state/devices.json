@@ -32,7 +32,7 @@
       "min_temp": 45,
       "max_temp": 95,
       "current_temperature": 77,
-      "temperature": 68,
+      "temperature": 81,
       "hvac_action": "heating",
       "friendly_name": "HeatPump",
       "supported_features": 385
@@ -311,7 +311,7 @@
   },
   {
     "entity_id": "light.ceiling_lights",
-    "state": "on",
+    "state": "off",
     "attributes": {
       "min_color_temp_kelvin": 2000,
       "max_color_temp_kelvin": 6535,
@@ -321,23 +321,13 @@
         "color_temp",
         "hs"
       ],
-      "color_mode": "color_temp",
-      "brightness": 180,
-      "color_temp_kelvin": 2631,
-      "color_temp": 380,
-      "hs_color": [
-        28.55,
-        67.974
-      ],
-      "rgb_color": [
-        255,
-        164,
-        82
-      ],
-      "xy_color": [
-        0.532,
-        0.388
-      ],
+      "color_mode": null,
+      "brightness": null,
+      "color_temp_kelvin": null,
+      "color_temp": null,
+      "hs_color": null,
+      "rgb_color": null,
+      "xy_color": null,
       "friendly_name": "Ceiling Lights",
       "supported_features": 0
     },

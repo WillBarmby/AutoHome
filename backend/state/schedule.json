@@ -1,33 +1,33 @@
 {
   "daily": [
     {
-      "id": "258a414b64e34cba896fbb26b3a509fe",
+      "id": "f78a4c98107b4306a8ae2423dfba86cc",
       "description": "Pre-condition home for bedtime comfort",
       "entity_id": "climate.home",
       "service": "set_temperature",
       "payload": {
-        "temperature": 64.0
+        "temperature": 73.0
       },
       "category": "daily",
-      "run_time": "21:42",
-      "lead_minutes": 78,
+      "run_time": "22:04",
+      "lead_minutes": 26,
       "source": "preferences",
-      "created_at": "2025-09-28T13:15:52.278152",
+      "created_at": "2025-09-28T15:23:00.825892",
       "next_run_at": null
     },
     {
-      "id": "5d51b01776e44427bf0762cc78acab92",
+      "id": "5acf3618548044b4920ba61520c4599d",
       "description": "Restore daytime comfort level",
       "entity_id": "climate.home",
       "service": "set_temperature",
       "payload": {
-        "temperature": 72.0
+        "temperature": 69.0
       },
       "category": "daily",
       "run_time": "06:30",
       "lead_minutes": 0,
       "source": "preferences",
-      "created_at": "2025-09-28T13:15:52.278243",
+      "created_at": "2025-09-28T15:23:00.825999",
       "next_run_at": null
     }
   ],
@@ -77,7 +77,22 @@
       "source": "llm",
       "created_at": "2025-09-28T15:05:08.306292",
       "next_run_at": "2025-09-28T15:05:08.306121"
+    },
+    {
+      "id": "b7f6267ef66f4109947bae6311175850",
+      "description": "turn off my bed light",
+      "entity_id": "light.bed_light",
+      "service": "turn_off",
+      "payload": {
+        "entity_id": "light.bed_light"
+      },
+      "category": "queue",
+      "run_time": "2025-09-28T15:20:41.941043",
+      "lead_minutes": 0,
+      "source": "llm",
+      "created_at": "2025-09-28T15:20:41.941187",
+      "next_run_at": "2025-09-28T15:20:41.941043"
     }
   ],
-  "updatedAt": "2025-09-28T15:05:08.326908"
+  "updatedAt": "2025-09-28T15:23:00.827932"
 }
