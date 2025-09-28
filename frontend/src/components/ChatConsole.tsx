@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -139,6 +140,28 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
 
   return (
     <Card className={cn("bg-gradient-card border-card-border shadow-card", className)}>
+      {/* Header */}
+      <div className="bg-gradient-to-r from-primary/90 to-primary/70 p-6 rounded-t-lg relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-4 after:bg-gradient-to-b after:from-transparent after:to-black/10 after:pointer-events-none">
+        <div className="flex items-center gap-3">
+          <motion.div 
+            className="w-16 h-16 bg-white rounded-full flex items-center justify-center overflow-hidden cursor-pointer"
+            whileHover={{ 
+              rotate: [0, -5, 5, -5, 0],
+              transition: { duration: 0.3, ease: "easeInOut" }
+            }}
+          >
+            <img 
+              src="/imgs/helmrbot.png" 
+              alt="helmr" 
+              className="w-[150%] h-[150%] object-cover mt-3"
+            />
+          </motion.div>
+          <div>
+            <h3 className="text-white font-bold text-lg tracking-wide">hi, i'm helmr!</h3>
+            <p className="text-green-100 text-sm">Here to guide your home</p>
+          </div>
+        </div>
+      </div>
       <CardContent className="p-4">
         {/* Messages Area */}
         <ScrollArea ref={scrollAreaRef} className="h-[600px] mb-4">
@@ -201,16 +224,21 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything about your smart home..."
-              className="pr-12"
+              className="pr-12 h-10"
               disabled={isProcessing}
             />
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8",
-                isListening && "bg-destructive text-destructive-foreground animate-pulse",
-                !voiceSupported && "opacity-50 cursor-not-allowed"
+// <<<<<<< frontend
+//                 "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-transparent hover:text-primary",
+//                 isListening && "bg-destructive text-destructive-foreground animate-pulse"
+// =======
+//                 "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8",
+//                 isListening && "bg-destructive text-destructive-foreground animate-pulse",
+//                 !voiceSupported && "opacity-50 cursor-not-allowed"
+// >>>>>>> main
               )}
               onClick={toggleVoiceInput}
               disabled={!voiceSupported}
