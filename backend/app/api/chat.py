@@ -5,12 +5,16 @@ from __future__ import annotations
 import logging
 import re
 import subprocess
+import time
 from datetime import datetime, timezone
+from typing import Dict, Set
+
 from fastapi import APIRouter, HTTPException, status
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 
 from ..models.schema import ChatIntent, ChatMessage
+from ..services.ha_device_service import ha_device_service
 from ..services.schedule_service import append_queue_command, queue_from_intent
 from ..services.state_store import state_store
 
@@ -19,23 +23,105 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
+_ALIAS_CACHE_TTL = 30.0
+_alias_cache: Dict[str, object] = {"expires": 0.0, "aliases": {}}
+_DOMAIN_PREFERENCE = [
+    "light",
+    "switch",
+    "fan",
+    "climate",
+    "cover",
+    "media_player",
+    "scene",
+    "script",
+]
+_ALIAS_REPLACEMENTS = {
+    "bedroom": ["bedroom", "bed"],
+    "living room": ["living room", "living"],
+    "lamp": ["lamp", "light"],
+    "lights": ["lights", "light"],
+    "desk": ["desk", "office"],
+    "coffee": ["coffee", "coffee machine"],
+}
+
+
+def _normalise_text(value: str) -> str:
+    cleaned = re.sub(r"[^a-z0-9]+", " ", value.lower()).strip()
+    return re.sub(r"\s+", " ", cleaned)
+
+
+def _expand_alias(base: str) -> Set[str]:
+    expanded: Set[str] = {base}
+    for key, replacements in _ALIAS_REPLACEMENTS.items():
+        if key in base:
+            for replacement in replacements:
+                expanded.add(base.replace(key, replacement))
+    return {_normalise_text(alias) for alias in expanded}
+
+
+def _build_alias_cache() -> Dict[str, Set[str]]:
+    aliases: Dict[str, Set[str]] = {}
+    devices = ha_device_service.get_devices(force_refresh=False)
+    for entity in devices:
+        entity_id = entity.entity_id
+        object_id = entity.entity_id.split(".", 1)[-1]
+        friendly = entity.attributes.get("friendly_name", "")
+
+        alias_set: Set[str] = set()
+        alias_set.update(_expand_alias(_normalise_text(object_id)))
+        if friendly:
+            alias_set.update(_expand_alias(_normalise_text(friendly)))
+
+        # Add simple domain-based fallbacks (e.g., "thermostat")
+        domain = entity_id.split(".")[0]
+        alias_set.add(_normalise_text(domain))
+
+        aliases[entity_id] = {alias for alias in alias_set if alias}
+
+    return aliases
+
+
+def _get_aliases() -> Dict[str, Set[str]]:
+    now = time.time()
+    if now >= _alias_cache["expires"]:
+        _alias_cache["aliases"] = _build_alias_cache()
+        _alias_cache["expires"] = now + _ALIAS_CACHE_TTL
+    return _alias_cache["aliases"]  # type: ignore[return-value]
+
 
 def _extract_device(text: str) -> str:
-    """Crude keyword matcher mapping natural language to an entity id."""
+    """Map natural language to a Home Assistant entity id."""
 
-    lower = text.lower()
-    if "living room" in lower:
-        return "light.living_room"
-    if "bedroom" in lower:
-        return "light.bedroom"
-    if "coffee" in lower:
-        return "switch.coffee_machine"
-    if "fan" in lower:
-        return "fan.office_fan"
-    if "garage" in lower:
-        return "cover.garage"
-    if "thermostat" in lower:
-        return "climate.thermostat_hall"
+    search_text = _normalise_text(text)
+    aliases = _get_aliases()
+
+    best_match: str | None = None
+    best_priority = len(_DOMAIN_PREFERENCE)
+
+    for entity_id, candidates in aliases.items():
+        if not candidates:
+            continue
+        if any(candidate in search_text for candidate in candidates):
+            domain = entity_id.split(".")[0]
+            try:
+                priority = _DOMAIN_PREFERENCE.index(domain)
+            except ValueError:
+                priority = len(_DOMAIN_PREFERENCE)
+            if best_match is None or priority < best_priority:
+                best_match = entity_id
+                best_priority = priority
+
+    if best_match:
+        return best_match
+
+    # domain fallbacks by keyword if nothing matched aliases
+    if "thermostat" in search_text or "temperature" in search_text:
+        for entity_id in aliases:
+            if entity_id.startswith("climate."):
+                return entity_id
+    if "garage" in search_text and any(e.startswith("cover.") for e in aliases):
+        return next(e for e in aliases if e.startswith("cover."))
+
     return "unknown"
 
 
@@ -207,6 +293,9 @@ async def create_chat(payload: ChatRequest) -> ChatResult:
 
     queue_candidate = queue_from_intent(text, intent.dict())
     if queue_candidate:
+        success, _, error = ha_device_service.execute_scheduled(queue_candidate)
+        if not success and error:
+            logger.warning("Failed to execute HA command from chat intent: %s", error)
         append_queue_command(queue_candidate)
 
     return ChatResult(

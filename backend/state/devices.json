@@ -1,21 +1,673 @@
 [
   {
-    "entity_id": "light.living_room",
-    "state": "on",
+    "entity_id": "script.activate_demo_evening",
+    "state": "off",
     "attributes": {
-      "friendly_name": "Living Room Lamp",
-      "brightness": 200
+      "last_triggered": null,
+      "mode": "single",
+      "current": 0,
+      "friendly_name": "Activate Demo Evening Scene"
     },
-    "icon": "mdi:lightbulb"
+    "icon": null
   },
   {
-    "entity_id": "climate.bedroom",
+    "entity_id": "script.activate_demo_daytime",
+    "state": "off",
+    "attributes": {
+      "last_triggered": null,
+      "mode": "single",
+      "current": 0,
+      "friendly_name": "Activate Demo Daytime Scene"
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "climate.heatpump",
+    "state": "heat",
+    "attributes": {
+      "hvac_modes": [
+        "heat",
+        "off"
+      ],
+      "min_temp": 45,
+      "max_temp": 95,
+      "current_temperature": 77,
+      "temperature": 68,
+      "hvac_action": "heating",
+      "friendly_name": "HeatPump",
+      "supported_features": 385
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "climate.hvac",
+    "state": "cool",
+    "attributes": {
+      "hvac_modes": [
+        "off",
+        "heat",
+        "cool",
+        "auto",
+        "dry",
+        "fan_only"
+      ],
+      "min_temp": 45,
+      "max_temp": 95,
+      "min_humidity": 30,
+      "max_humidity": 99,
+      "fan_modes": [
+        "on_low",
+        "on_high",
+        "auto_low",
+        "auto_high",
+        "off"
+      ],
+      "swing_modes": [
+        "auto",
+        "1",
+        "2",
+        "3",
+        "off"
+      ],
+      "swing_horizontal_modes": [
+        "auto",
+        "rangefull",
+        "off"
+      ],
+      "current_temperature": 72,
+      "temperature": 70,
+      "target_temp_high": null,
+      "target_temp_low": null,
+      "current_humidity": 54.2,
+      "humidity": 67.4,
+      "fan_mode": "on_high",
+      "hvac_action": "cooling",
+      "swing_mode": "off",
+      "swing_horizontal_mode": "auto",
+      "friendly_name": "Hvac",
+      "supported_features": 943
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "climate.ecobee",
+    "state": "heat_cool",
+    "attributes": {
+      "hvac_modes": [
+        "off",
+        "cool",
+        "heat_cool",
+        "auto",
+        "dry",
+        "fan_only"
+      ],
+      "min_temp": 45,
+      "max_temp": 95,
+      "fan_modes": [
+        "on_low",
+        "on_high",
+        "auto_low",
+        "auto_high",
+        "off"
+      ],
+      "preset_modes": [
+        "home",
+        "eco",
+        "away"
+      ],
+      "swing_modes": [
+        "auto",
+        "1",
+        "2",
+        "3",
+        "off"
+      ],
+      "current_temperature": 73,
+      "target_temp_high": 75,
+      "target_temp_low": 70,
+      "fan_mode": "auto_low",
+      "preset_mode": "home",
+      "swing_mode": "auto",
+      "friendly_name": "Ecobee",
+      "supported_features": 442
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "cover.kitchen_window",
+    "state": "closed",
+    "attributes": {
+      "friendly_name": "Kitchen Window",
+      "supported_features": 11
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "cover.hall_window",
+    "state": "open",
+    "attributes": {
+      "current_position": 10,
+      "friendly_name": "Hall Window",
+      "supported_features": 15
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "cover.living_room_window",
+    "state": "open",
+    "attributes": {
+      "current_position": 70,
+      "current_tilt_position": 50,
+      "friendly_name": "Living Room Window",
+      "supported_features": 255
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "cover.garage_door",
+    "state": "closed",
+    "attributes": {
+      "device_class": "garage",
+      "friendly_name": "Garage Door",
+      "supported_features": 3
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "cover.pergola_roof",
+    "state": "closed",
+    "attributes": {
+      "current_tilt_position": 60,
+      "friendly_name": "Pergola Roof",
+      "supported_features": 240
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "fan.living_room_fan",
+    "state": "off",
+    "attributes": {
+      "preset_modes": [
+        "auto",
+        "smart",
+        "sleep",
+        "on"
+      ],
+      "direction": "forward",
+      "oscillating": false,
+      "percentage": null,
+      "percentage_step": 33.333333333333336,
+      "preset_mode": null,
+      "friendly_name": "Living Room Fan",
+      "supported_features": 55
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "fan.ceiling_fan",
+    "state": "off",
+    "attributes": {
+      "preset_modes": null,
+      "percentage": null,
+      "percentage_step": 33.333333333333336,
+      "preset_mode": null,
+      "friendly_name": "Ceiling Fan",
+      "supported_features": 49
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "fan.percentage_full_fan",
+    "state": "off",
+    "attributes": {
+      "preset_modes": [
+        "auto",
+        "smart",
+        "sleep",
+        "on"
+      ],
+      "direction": "forward",
+      "oscillating": false,
+      "percentage": null,
+      "percentage_step": 33.333333333333336,
+      "preset_mode": null,
+      "friendly_name": "Percentage Full Fan",
+      "supported_features": 55
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "fan.percentage_limited_fan",
+    "state": "off",
+    "attributes": {
+      "preset_modes": [
+        "auto",
+        "smart",
+        "sleep",
+        "on"
+      ],
+      "percentage": null,
+      "percentage_step": 33.333333333333336,
+      "preset_mode": null,
+      "friendly_name": "Percentage Limited Fan",
+      "supported_features": 49
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "fan.preset_only_limited_fan",
+    "state": "off",
+    "attributes": {
+      "preset_modes": [
+        "auto",
+        "smart",
+        "sleep",
+        "on"
+      ],
+      "preset_mode": null,
+      "friendly_name": "Preset Only Limited Fan",
+      "supported_features": 56
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "light.bed_light",
     "state": "on",
     "attributes": {
-      "friendly_name": "Bedroom Thermostat",
-      "hvac_mode": "cool",
-      "temperature": 74.60000000000001
+      "min_color_temp_kelvin": 2000,
+      "max_color_temp_kelvin": 6535,
+      "min_mireds": 153,
+      "max_mireds": 500,
+      "effect_list": [
+        "rainbow",
+        "off"
+      ],
+      "supported_color_modes": [
+        "color_temp",
+        "hs"
+      ],
+      "effect": "rainbow",
+      "color_mode": "color_temp",
+      "brightness": 180,
+      "color_temp_kelvin": 2631,
+      "color_temp": 380,
+      "hs_color": [
+        28.55,
+        67.974
+      ],
+      "rgb_color": [
+        255,
+        164,
+        82
+      ],
+      "xy_color": [
+        0.532,
+        0.388
+      ],
+      "friendly_name": "Bed Light",
+      "supported_features": 4
     },
-    "icon": "mdi:thermometer"
+    "icon": null
+  },
+  {
+    "entity_id": "light.ceiling_lights",
+    "state": "on",
+    "attributes": {
+      "min_color_temp_kelvin": 2000,
+      "max_color_temp_kelvin": 6535,
+      "min_mireds": 153,
+      "max_mireds": 500,
+      "supported_color_modes": [
+        "color_temp",
+        "hs"
+      ],
+      "color_mode": "color_temp",
+      "brightness": 180,
+      "color_temp_kelvin": 2631,
+      "color_temp": 380,
+      "hs_color": [
+        28.55,
+        67.974
+      ],
+      "rgb_color": [
+        255,
+        164,
+        82
+      ],
+      "xy_color": [
+        0.532,
+        0.388
+      ],
+      "friendly_name": "Ceiling Lights",
+      "supported_features": 0
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "light.kitchen_lights",
+    "state": "on",
+    "attributes": {
+      "min_color_temp_kelvin": 2000,
+      "max_color_temp_kelvin": 6535,
+      "min_mireds": 153,
+      "max_mireds": 500,
+      "supported_color_modes": [
+        "color_temp",
+        "hs"
+      ],
+      "color_mode": "hs",
+      "brightness": 180,
+      "color_temp_kelvin": null,
+      "color_temp": null,
+      "hs_color": [
+        345,
+        75
+      ],
+      "rgb_color": [
+        255,
+        64,
+        112
+      ],
+      "xy_color": [
+        0.588,
+        0.274
+      ],
+      "friendly_name": "Kitchen Lights",
+      "supported_features": 0
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "light.office_rgbw_lights",
+    "state": "on",
+    "attributes": {
+      "supported_color_modes": [
+        "rgbw"
+      ],
+      "color_mode": "rgbw",
+      "brightness": 180,
+      "hs_color": [
+        0.0,
+        49.804
+      ],
+      "rgb_color": [
+        255,
+        128,
+        128
+      ],
+      "xy_color": [
+        0.524,
+        0.313
+      ],
+      "rgbw_color": [
+        255,
+        0,
+        0,
+        255
+      ],
+      "friendly_name": "Office RGBW Lights",
+      "supported_features": 0
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "light.living_room_rgbww_lights",
+    "state": "on",
+    "attributes": {
+      "supported_color_modes": [
+        "rgbww"
+      ],
+      "color_mode": "rgbww",
+      "brightness": 180,
+      "hs_color": [
+        0.923,
+        50.98
+      ],
+      "rgb_color": [
+        255,
+        127,
+        125
+      ],
+      "xy_color": [
+        0.528,
+        0.315
+      ],
+      "rgbww_color": [
+        255,
+        0,
+        0,
+        255,
+        0
+      ],
+      "friendly_name": "Living Room RGBWW Lights",
+      "supported_features": 0
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "light.entrance_color_white_lights",
+    "state": "on",
+    "attributes": {
+      "supported_color_modes": [
+        "hs",
+        "white"
+      ],
+      "color_mode": "hs",
+      "brightness": 180,
+      "hs_color": [
+        345,
+        75
+      ],
+      "rgb_color": [
+        255,
+        64,
+        112
+      ],
+      "xy_color": [
+        0.588,
+        0.274
+      ],
+      "friendly_name": "Entrance Color + White Lights",
+      "supported_features": 0
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "media_player.living_room",
+    "state": "playing",
+    "attributes": {
+      "sound_mode_list": [
+        "Music",
+        "Movie"
+      ],
+      "volume_level": 1.0,
+      "is_volume_muted": false,
+      "media_content_id": "eyU3bRy2x44",
+      "media_content_type": "movie",
+      "media_duration": 300,
+      "media_position": 45,
+      "media_position_updated_at": "2025-09-28T14:51:46.352025+00:00",
+      "media_title": "\u2665\u2665 The Best Fireplace Video (3 hours)",
+      "app_name": "YouTube",
+      "sound_mode": "Music",
+      "shuffle": false,
+      "entity_picture": "/api/media_player_proxy/media_player.living_room?token=ca5a86ed89a6322df4a5c76e81d77b507dc6e0d50b91e418796cc9517cf73314&cache=bc2ffb49c4f67034",
+      "friendly_name": "Living Room",
+      "supported_features": 119695
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "media_player.bedroom",
+    "state": "playing",
+    "attributes": {
+      "sound_mode_list": [
+        "Music",
+        "Movie"
+      ],
+      "volume_level": 1.0,
+      "is_volume_muted": false,
+      "media_content_id": "kxopViU98Xo",
+      "media_content_type": "movie",
+      "media_duration": 360000,
+      "media_position": 54744,
+      "media_position_updated_at": "2025-09-28T14:51:46.352030+00:00",
+      "media_title": "Epic sax guy 10 hours",
+      "app_name": "YouTube",
+      "sound_mode": "Music",
+      "shuffle": false,
+      "entity_picture": "/api/media_player_proxy/media_player.bedroom?token=2d02c9fa02dfec3984c8637f17071213531f8fa6dad0274a419b9242eabd074d&cache=e4513ed94ec89151",
+      "friendly_name": "Bedroom",
+      "supported_features": 119695
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "media_player.walkman",
+    "state": "playing",
+    "attributes": {
+      "sound_mode_list": [
+        "Music",
+        "Movie"
+      ],
+      "group_members": [],
+      "volume_level": 1.0,
+      "is_volume_muted": false,
+      "media_content_id": "bounzz-1",
+      "media_content_type": "music",
+      "media_duration": 213,
+      "media_title": "I Wanna Be A Hippy (Flamman & Abraxas Radio Mix)",
+      "media_artist": "Technohead",
+      "media_album_name": "Bounzz",
+      "media_track": 1,
+      "sound_mode": "Music",
+      "shuffle": false,
+      "repeat": "off",
+      "entity_picture": "/api/media_player_proxy/media_player.walkman?token=c50ffe798831dab229e29a9f3792d18ec3e7b89cfa17c36c80a962378fee63be&cache=62c0c516acbc53a9",
+      "friendly_name": "Walkman",
+      "supported_features": 914877
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "media_player.kitchen",
+    "state": "playing",
+    "attributes": {
+      "sound_mode_list": [
+        "Music",
+        "Movie"
+      ],
+      "group_members": [],
+      "volume_level": 1.0,
+      "is_volume_muted": false,
+      "media_content_id": "bounzz-1",
+      "media_content_type": "music",
+      "media_duration": 213,
+      "media_title": "I Wanna Be A Hippy (Flamman & Abraxas Radio Mix)",
+      "media_artist": "Technohead",
+      "media_album_name": "Bounzz",
+      "media_track": 1,
+      "sound_mode": "Music",
+      "shuffle": false,
+      "repeat": "off",
+      "entity_picture": "/api/media_player_proxy/media_player.kitchen?token=06d96dfa477ebd407131b37261bd11d632dd0fc4d227c28464ad5e1cccae362d&cache=62c0c516acbc53a9",
+      "friendly_name": "Kitchen",
+      "supported_features": 914877
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "media_player.lounge_room",
+    "state": "playing",
+    "attributes": {
+      "source_list": [
+        "dvd",
+        "youtube"
+      ],
+      "sound_mode_list": [
+        "Music",
+        "Movie"
+      ],
+      "volume_level": 1.0,
+      "is_volume_muted": false,
+      "media_content_id": "house-of-cards-1",
+      "media_content_type": "tvshow",
+      "media_duration": 3600,
+      "media_title": "Chapter 1",
+      "media_series_title": "House of Cards",
+      "media_season": "1",
+      "media_episode": "1",
+      "app_name": "Netflix",
+      "source": "dvd",
+      "sound_mode": "Music",
+      "shuffle": false,
+      "device_class": "tv",
+      "entity_picture": "/api/media_player_proxy/media_player.lounge_room?token=1c01bed0f3f78cfa94e2e4770bd96b61e585cf46f667c65a0f4164ec4d74a4a8&cache=cb9d84451faf9351",
+      "friendly_name": "Lounge room",
+      "supported_features": 121265
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "media_player.browse",
+    "state": "playing",
+    "attributes": {
+      "volume_level": 1.0,
+      "is_volume_muted": false,
+      "sound_mode": "Music",
+      "shuffle": false,
+      "friendly_name": "Browse",
+      "supported_features": 131072
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "media_player.group",
+    "state": "playing",
+    "attributes": {
+      "sound_mode_list": [
+        "Music",
+        "Movie"
+      ],
+      "group_members": null,
+      "volume_level": 1.0,
+      "is_volume_muted": false,
+      "sound_mode": "Music",
+      "shuffle": false,
+      "friendly_name": "Group",
+      "supported_features": 643983
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "media_player.search",
+    "state": "playing",
+    "attributes": {
+      "volume_level": 1.0,
+      "is_volume_muted": false,
+      "sound_mode": "Music",
+      "shuffle": false,
+      "friendly_name": "Search",
+      "supported_features": 4194304
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "switch.decorative_lights",
+    "state": "on",
+    "attributes": {
+      "assumed_state": true,
+      "friendly_name": "Decorative Lights"
+    },
+    "icon": null
+  },
+  {
+    "entity_id": "switch.ac",
+    "state": "off",
+    "attributes": {
+      "device_class": "outlet",
+      "friendly_name": "AC"
+    },
+    "icon": null
   }
 ]

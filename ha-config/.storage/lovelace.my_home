@@ -1,0 +1,258 @@
+{
+  "version": 1,
+  "minor_version": 1,
+  "key": "lovelace.my_home",
+  "data": {
+    "config": {
+      "views": [
+        {
+          "icon": "mdi:home",
+          "path": "home",
+          "type": "sections",
+          "max_columns": 2,
+          "sections": [
+            {
+              "type": "grid",
+              "column_span": 2,
+              "cards": [
+                {
+                  "show_name": true,
+                  "show_icon": true,
+                  "type": "button",
+                  "entity": "light.bed_light"
+                },
+                {
+                  "show_name": true,
+                  "show_icon": true,
+                  "type": "button",
+                  "entity": "light.ceiling_lights"
+                },
+                {
+                  "show_name": true,
+                  "show_icon": true,
+                  "type": "button",
+                  "entity": "switch.ac"
+                },
+                {
+                  "show_name": true,
+                  "show_icon": true,
+                  "type": "button",
+                  "entity": "sensor.thermostat"
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "column_span": 2,
+              "cards": [
+                {
+                  "type": "heading",
+                  "heading": "Summaries"
+                },
+                {
+                  "type": "tile",
+                  "entity": "sensor.thermostat"
+                },
+                {
+                  "type": "home-summary",
+                  "summary": "lights",
+                  "vertical": true,
+                  "tap_action": {
+                    "action": "navigate",
+                    "navigation_path": "lights"
+                  },
+                  "grid_options": {
+                    "rows": 2,
+                    "columns": 4
+                  }
+                },
+                {
+                  "type": "home-summary",
+                  "summary": "climate",
+                  "vertical": true,
+                  "tap_action": {
+                    "action": "navigate",
+                    "navigation_path": "climate"
+                  },
+                  "grid_options": {
+                    "rows": 2,
+                    "columns": 4
+                  }
+                },
+                {
+                  "type": "home-summary",
+                  "summary": "security",
+                  "vertical": true,
+                  "tap_action": {
+                    "action": "navigate",
+                    "navigation_path": "security"
+                  },
+                  "grid_options": {
+                    "rows": 2,
+                    "columns": 4
+                  }
+                },
+                {
+                  "type": "home-summary",
+                  "summary": "media_players",
+                  "vertical": true,
+                  "tap_action": {
+                    "action": "navigate",
+                    "navigation_path": "media-players"
+                  },
+                  "grid_options": {
+                    "rows": 2,
+                    "columns": 4
+                  }
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "column_span": 2,
+              "cards": [
+                {
+                  "type": "heading",
+                  "heading_style": "title",
+                  "heading": "Areas"
+                },
+                {
+                  "type": "area",
+                  "area": "bedroom",
+                  "display_type": "compact",
+                  "sensor_classes": [],
+                  "navigation_path": "areas-bedroom",
+                  "vertical": true,
+                  "grid_options": {
+                    "rows": 2,
+                    "columns": 4
+                  }
+                },
+                {
+                  "type": "area",
+                  "area": "kitchen",
+                  "display_type": "compact",
+                  "sensor_classes": [],
+                  "navigation_path": "areas-kitchen",
+                  "vertical": true,
+                  "grid_options": {
+                    "rows": 2,
+                    "columns": 4
+                  }
+                },
+                {
+                  "type": "area",
+                  "area": "living_room",
+                  "display_type": "compact",
+                  "sensor_classes": [],
+                  "navigation_path": "areas-living_room",
+                  "vertical": true,
+                  "grid_options": {
+                    "rows": 2,
+                    "columns": 4
+                  }
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "column_span": 2,
+              "cards": [
+                {
+                  "type": "heading",
+                  "heading": "",
+                  "heading_style": "subtitle"
+                },
+                {
+                  "type": "weather-forecast",
+                  "entity": "weather.demo_weather_south",
+                  "forecast_type": "daily"
+                }
+              ]
+            }
+          ],
+          "header": {
+            "layout": "responsive",
+            "card": {
+              "type": "markdown",
+              "text_only": true,
+              "content": "## Welcome {{ user }}"
+            }
+          }
+        },
+        {
+          "title": "Bedroom",
+          "path": "areas-bedroom",
+          "subview": true,
+          "type": "sections",
+          "header": {
+            "badges_position": "bottom"
+          },
+          "max_columns": 2,
+          "sections": [],
+          "badges": []
+        },
+        {
+          "title": "Kitchen",
+          "path": "areas-kitchen",
+          "subview": true,
+          "type": "sections",
+          "header": {
+            "badges_position": "bottom"
+          },
+          "max_columns": 2,
+          "sections": [],
+          "badges": []
+        },
+        {
+          "title": "Living Room",
+          "path": "areas-living_room",
+          "subview": true,
+          "type": "sections",
+          "header": {
+            "badges_position": "bottom"
+          },
+          "max_columns": 2,
+          "sections": [],
+          "badges": []
+        },
+        {
+          "title": "",
+          "path": "lights",
+          "subview": true,
+          "icon": "mdi:lamps",
+          "type": "sections",
+          "max_columns": 2,
+          "sections": []
+        },
+        {
+          "title": "",
+          "path": "climate",
+          "subview": true,
+          "icon": "mdi:home-thermometer",
+          "type": "sections",
+          "max_columns": 2,
+          "sections": []
+        },
+        {
+          "title": "",
+          "path": "security",
+          "subview": true,
+          "icon": "mdi:security",
+          "type": "sections",
+          "max_columns": 2,
+          "sections": []
+        },
+        {
+          "title": "",
+          "path": "media-players",
+          "subview": true,
+          "icon": "mdi:multimedia",
+          "type": "sections",
+          "max_columns": 2,
+          "sections": []
+        }
+      ]
+    }
+  }
+}

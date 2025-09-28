@@ -62,7 +62,22 @@
       "source": "llm",
       "created_at": "2025-09-28T12:43:46.353827",
       "next_run_at": "2025-09-28T12:43:46.353635"
+    },
+    {
+      "id": "2df3ab2e85db4b56af7b823e86f69654",
+      "description": "Turn off my bed light",
+      "entity_id": "unknown",
+      "service": "turn_off",
+      "payload": {
+        "entity_id": "unknown"
+      },
+      "category": "queue",
+      "run_time": "2025-09-28T15:05:08.306121",
+      "lead_minutes": 0,
+      "source": "llm",
+      "created_at": "2025-09-28T15:05:08.306292",
+      "next_run_at": "2025-09-28T15:05:08.306121"
     }
   ],
-  "updatedAt": "2025-09-28T13:15:52.278996"
+  "updatedAt": "2025-09-28T15:05:08.326908"
 }

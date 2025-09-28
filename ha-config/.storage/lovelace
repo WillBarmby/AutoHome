@@ -4,9 +4,87 @@
   "key": "lovelace",
   "data": {
     "config": {
-      "strategy": {
-        "type": "original-states"
-      }
+      "views": [
+        {
+          "type": "sections",
+          "max_columns": 4,
+          "title": "Home",
+          "path": "home",
+          "sections": [
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "heading",
+                  "heading": "New section"
+                },
+                {
+                  "type": "thermostat",
+                  "entity": "climate.heatpump"
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "heading",
+                  "heading": "New section"
+                },
+                {
+                  "type": "tile",
+                  "entity": "switch.ac",
+                  "features_position": "bottom",
+                  "vertical": false
+                },
+                {
+                  "type": "tile",
+                  "entity": "light.bed_light"
+                }
+              ]
+            },
+            {
+              "type": "grid",
+              "cards": [
+                {
+                  "type": "heading",
+                  "heading": "New section"
+                },
+                {
+                  "type": "entity-filter",
+                  "entities": [
+                    "sensor.backup_backup_manager_state",
+                    "sensor.sun_next_dawn",
+                    "sensor.sun_next_dusk"
+                  ],
+                  "conditions": [
+                    {
+                      "condition": "state",
+                      "state": "idle"
+                    }
+                  ],
+                  "card": {
+                    "type": "entities"
+                  }
+                }
+              ]
+            }
+          ],
+          "header": {
+            "card": {
+              "type": "markdown",
+              "text_only": true,
+              "content": "# Hello {{ user }}\nAdd your text here, template variables are supported ✨"
+            }
+          },
+          "badges": [
+            {
+              "type": "entity",
+              "entity": "media_player.bedroom"
+            }
+          ]
+        }
+      ]
     }
   }
 }

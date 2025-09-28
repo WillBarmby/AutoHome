@@ -9,6 +9,12 @@
         "name": "Will Barmby",
         "user_id": "99ab22ac36954ea9a2f48a2e9035fde6",
         "device_trackers": []
+      },
+      {
+        "id": "will",
+        "name": "will",
+        "user_id": "576c3990f9794f2a8150afb77ff45f34",
+        "device_trackers": []
       }
     ]
   }

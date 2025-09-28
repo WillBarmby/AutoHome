@@ -138,176 +138,10 @@
   },
   "chat_history": [
     {
-      "id": "1759060829348",
+      "id": "1759071908297",
       "type": "user",
-      "content": "at 9pm, set the thermostat to 65 degrees fahrenheit",
-      "timestamp": "2025-09-28T12:00:29.348289+00:00",
-      "intent": {
-        "type": "SetLevel",
-        "device": "climate.thermostat_hall",
-        "state": null,
-        "level": null,
-        "temperature": 65.0,
-        "before": null,
-        "after": null,
-        "deadline": null,
-        "cheapest": null,
-        "avoid_peak": null,
-        "parameters": null
-      }
-    },
-    {
-      "id": "1759060829349",
-      "type": "assistant",
-      "content": "I've set the thermostat to 65.0\u00b0F.",
-      "timestamp": "2025-09-28T12:00:29.348289+00:00",
-      "intent": null
-    },
-    {
-      "id": "1759062836609",
-      "type": "user",
-      "content": "Is it",
-      "timestamp": "2025-09-28T12:33:56.609359+00:00",
-      "intent": {
-        "type": "QueryStatus",
-        "device": null,
-        "state": null,
-        "level": null,
-        "temperature": null,
-        "before": null,
-        "after": null,
-        "deadline": null,
-        "cheapest": null,
-        "avoid_peak": null,
-        "parameters": {
-          "query": "Is it"
-        }
-      }
-    },
-    {
-      "id": "1759062836610",
-      "type": "assistant",
-      "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
-      "timestamp": "2025-09-28T12:33:56.609359+00:00",
-      "intent": null
-    },
-    {
-      "id": "1759062846636",
-      "type": "user",
-      "content": "That's pretty cool though",
-      "timestamp": "2025-09-28T12:34:06.636060+00:00",
-      "intent": {
-        "type": "QueryStatus",
-        "device": null,
-        "state": null,
-        "level": null,
-        "temperature": null,
-        "before": null,
-        "after": null,
-        "deadline": null,
-        "cheapest": null,
-        "avoid_peak": null,
-        "parameters": {
-          "query": "That's pretty cool though"
-        }
-      }
-    },
-    {
-      "id": "1759062846637",
-      "type": "assistant",
-      "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
-      "timestamp": "2025-09-28T12:34:06.636060+00:00",
-      "intent": null
-    },
-    {
-      "id": "1759062856659",
-      "type": "user",
-      "content": "Shit",
-      "timestamp": "2025-09-28T12:34:16.659908+00:00",
-      "intent": {
-        "type": "QueryStatus",
-        "device": null,
-        "state": null,
-        "level": null,
-        "temperature": null,
-        "before": null,
-        "after": null,
-        "deadline": null,
-        "cheapest": null,
-        "avoid_peak": null,
-        "parameters": {
-          "query": "Shit"
-        }
-      }
-    },
-    {
-      "id": "1759062856660",
-      "type": "assistant",
-      "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
-      "timestamp": "2025-09-28T12:34:16.659908+00:00",
-      "intent": null
-    },
-    {
-      "id": "1759062873992",
-      "type": "user",
-      "content": "So we don't have the AI",
-      "timestamp": "2025-09-28T12:34:33.992743+00:00",
-      "intent": {
-        "type": "QueryStatus",
-        "device": null,
-        "state": null,
-        "level": null,
-        "temperature": null,
-        "before": null,
-        "after": null,
-        "deadline": null,
-        "cheapest": null,
-        "avoid_peak": null,
-        "parameters": {
-          "query": "So we don't have the AI"
-        }
-      }
-    },
-    {
-      "id": "1759062873993",
-      "type": "assistant",
-      "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
-      "timestamp": "2025-09-28T12:34:33.992743+00:00",
-      "intent": null
-    },
-    {
-      "id": "1759062884010",
-      "type": "user",
-      "content": "Is it work",
-      "timestamp": "2025-09-28T12:34:44.010678+00:00",
-      "intent": {
-        "type": "QueryStatus",
-        "device": null,
-        "state": null,
-        "level": null,
-        "temperature": null,
-        "before": null,
-        "after": null,
-        "deadline": null,
-        "cheapest": null,
-        "avoid_peak": null,
-        "parameters": {
-          "query": "Is it work"
-        }
-      }
-    },
-    {
-      "id": "1759062884011",
-      "type": "assistant",
-      "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
-      "timestamp": "2025-09-28T12:34:44.010678+00:00",
-      "intent": null
-    },
-    {
-      "id": "1759063426345",
-      "type": "user",
-      "content": "Turn off all lights",
-      "timestamp": "2025-09-28T12:43:46.345340+00:00",
+      "content": "Turn off my bed light",
+      "timestamp": "2025-09-28T15:05:08.297890Z",
       "intent": {
         "type": "ToggleDevice",
         "device": "unknown",
@@ -323,10 +157,10 @@
       }
     },
     {
-      "id": "1759063426346",
+      "id": "1759071908298",
       "type": "assistant",
       "content": "I've turned off the unknown.",
-      "timestamp": "2025-09-28T12:43:46.345340+00:00",
+      "timestamp": "2025-09-28T15:05:08.297890Z",
       "intent": null
     }
   ],
@@ -347,7 +181,53 @@
       "comfortDelta": "-2\u00b0F",
       "expiresAt": "2024-08-21T12:05:00Z",
       "status": "pending"
+    },
+    {
+      "id": "1759068837540",
+      "summary": "Turn of all my lights",
+      "intent": {
+        "type": "QueryStatus",
+        "device": null,
+        "state": null,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": {
+          "query": "Turn of all my lights"
+        }
+      },
+      "guardrailBadges": [],
+      "costDelta": null,
+      "comfortDelta": null,
+      "expiresAt": "2025-09-28T14:18:57.540395Z",
+      "status": "pending"
+    },
+    {
+      "id": "1759071908359",
+      "summary": "Turn off my bed light",
+      "intent": {
+        "type": "ToggleDevice",
+        "device": "unknown",
+        "state": false,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": null
+      },
+      "guardrailBadges": [],
+      "costDelta": null,
+      "comfortDelta": null,
+      "expiresAt": "2025-09-28T15:10:08.359672Z",
+      "status": "pending"
     }
   ],
-  "operation_mode": "auto"
+  "operation_mode": "manual"
 }
