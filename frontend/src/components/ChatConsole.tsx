@@ -6,12 +6,11 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Mic, Send, Square, User, Bot } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ChatMessage, ChatIntent } from "@/types";
-import { llmService } from "@/services/adapters";
+import { ChatMessage } from "@/types";
 
 interface ChatConsoleProps {
   messages: ChatMessage[];
-  onSendMessage: (message: string, intent: ChatIntent) => void;
+  onSendMessage: (message: string) => void | Promise<void>;
   className?: string;
 }
 
@@ -27,11 +26,10 @@ export function ChatConsole({ messages, onSendMessage, className }: ChatConsoleP
 
     setIsProcessing(true);
     try {
-      const intent = await llmService.parse(input.trim());
-      onSendMessage(input.trim(), intent);
+      await onSendMessage(input.trim());
       setInput("");
     } catch (error) {
-      console.error('Failed to parse message:', error);
+      console.error('Failed to send message:', error);
     } finally {
       setIsProcessing(false);
     }

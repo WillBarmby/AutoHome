@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { gsap } from "gsap";
 import { motion } from "framer-motion";
 import { CircularMeter } from "./CircularMeter";
@@ -20,35 +20,65 @@ import {
   Hand,
   Pause
 } from "lucide-react";
-import { 
-  DeviceEntity, 
-  ChatMessage, 
-  ChatIntent, 
-  OperationMode, 
-  ApprovalQueueItem 
+import {
+  DeviceEntity,
+  ChatMessage,
+  OperationMode,
+  ApprovalQueueItem,
+  PriceData,
+  DashboardVitals,
 } from "@/types";
-import { 
-  mockDevices, 
-  mockVitals, 
-  mockChatHistory, 
-  mockApprovalQueue,
-  mockPricing
-} from "@/services/mockData";
-import { haAdapter, llmService } from "@/services/adapters";
+import { mapEntitiesToDevices } from "@/lib/deviceMapper";
+import {
+  fetchDashboard,
+  createApprovalItem,
+  sendChatMessage,
+  updateApprovalStatus,
+  updateOperationMode,
+} from "@/services/api";
+import { haAdapter } from "@/services/adapters";
 
 interface SimplifiedDashboardProps {
   className?: string;
 }
 
 export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
-  const [devices, setDevices] = useState<DeviceEntity[]>(mockDevices);
-  const [chatMessages, setChatMessages] = useState<ChatMessage[]>(mockChatHistory);
+  const [devices, setDevices] = useState<DeviceEntity[]>([]);
+  const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [operationMode, setOperationMode] = useState<OperationMode>('auto');
-  const [approvalQueue, setApprovalQueue] = useState<ApprovalQueueItem[]>(mockApprovalQueue);
-  const [vitals] = useState(mockVitals);
+  const [approvalQueue, setApprovalQueue] = useState<ApprovalQueueItem[]>([]);
+  const [vitals, setVitals] = useState<DashboardVitals | null>(null);
+  const [pricing, setPricing] = useState<PriceData[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
   
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const [entities, snapshot] = await Promise.all([
+          haAdapter.listEntities(),
+          fetchDashboard(),
+        ]);
+        setDevices(mapEntitiesToDevices(entities));
+        setChatMessages(snapshot.chatHistory);
+        setApprovalQueue(snapshot.approvalQueue);
+        setVitals(snapshot.vitals);
+        setPricing(snapshot.pricing);
+        setOperationMode(snapshot.operationMode);
+        setError(null);
+      } catch (err) {
+        console.error('Failed to load dashboard data', err);
+        setError(err instanceof Error ? err.message : 'Failed to load dashboard');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void load();
+  }, []);
+
   // Animation refs
   const headerRef = useRef<HTMLDivElement>(null);
   const chatConsoleRef = useRef<HTMLDivElement>(null);
@@ -60,25 +90,41 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
   const manualButtonRef = useRef<HTMLButtonElement>(null);
   const pausedButtonRef = useRef<HTMLButtonElement>(null);
 
+  const refreshDevices = useCallback(async () => {
+    try {
+      const entities = await haAdapter.listEntities();
+      setDevices(mapEntitiesToDevices(entities));
+    } catch (err) {
+      console.error('Failed to refresh devices', err);
+    }
+  }, []);
+
+  const isDeviceActive = useCallback((device: DeviceEntity) => {
+    if (typeof device.state === 'boolean') return device.state;
+    if (typeof device.state === 'number') return device.state > 0;
+    if (typeof device.state === 'string') return device.state === 'on' || device.state === 'open';
+    return false;
+  }, []);
+
   const handleDeviceToggle = async (deviceId: string) => {
-    const device = devices.find(d => d.id === deviceId);
+    const device = devices.find((d) => d.id === deviceId);
     if (!device) return;
 
+    const isCurrentlyOn = (() => {
+      if (typeof device.state === 'boolean') return device.state;
+      if (typeof device.state === 'number') return device.state > 0;
+      if (typeof device.state === 'string') return device.state === 'on' || device.state === 'open';
+      return false;
+    })();
+
     try {
-      const newState = !device.state;
+      const domain = device.type;
       await haAdapter.callService(
-        device.type, 
-        newState ? 'turn_on' : 'turn_off', 
-        { entity_id: deviceId }
+        domain,
+        isCurrentlyOn ? 'turn_off' : 'turn_on',
+        { entity_id: deviceId },
       );
-      
-      setDevices(prev => 
-        prev.map(d => 
-          d.id === deviceId 
-            ? { ...d, state: newState }
-            : d
-        )
-      );
+      await refreshDevices();
     } catch (error) {
       console.error('Failed to toggle device:', error);
     }
@@ -95,77 +141,43 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
           entity_id: deviceId,
           temperature: level
         });
-        
-        setDevices(prev => 
-          prev.map(d => 
-            d.id === deviceId 
-              ? { 
-                  ...d, 
-                  state: level, 
-                  attributes: { 
-                    ...d.attributes, 
-                    target_temperature: level,
-                    current_temperature: d.attributes?.current_temperature || level
-                  }
-                }
-              : d
-          )
-        );
       } else {
         // For lights and other devices, set brightness/level
         await haAdapter.callService('light', 'turn_on', {
           entity_id: deviceId,
           brightness: level
         });
-        
-        setDevices(prev => 
-          prev.map(d => 
-            d.id === deviceId 
-              ? { ...d, state: level, attributes: { ...d.attributes, brightness: level }}
-              : d
-          )
-        );
       }
+      await refreshDevices();
     } catch (error) {
       console.error('Failed to change device level:', error);
     }
   };
 
-  const handleSendMessage = async (message: string, intent: ChatIntent) => {
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: message,
-      timestamp: new Date(),
-      intent
-    };
-
-    setChatMessages(prev => [...prev, userMessage]);
-
+  const handleSendMessage = async (message: string) => {
     try {
-      const response = await llmService.generateResponse(intent);
-      const assistantMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'assistant',
-        content: response,
-        timestamp: new Date()
-      };
-      
-      setChatMessages(prev => [...prev, assistantMessage]);
+      const result = await sendChatMessage(message);
+      const { intent, user, assistant } = result;
 
-      if (operationMode === 'manual' || intent.device === 'cover.garage') {
-        const approvalItem: ApprovalQueueItem = {
-          id: Date.now().toString(),
-          summary: message,
-          intent,
-          guardrailBadges: intent.device === 'cover.garage' ? ['Requires Confirmation'] : [],
-          expiresAt: new Date(Date.now() + 5 * 60 * 1000),
-          status: 'pending'
-        };
-        setApprovalQueue(prev => [...prev, approvalItem]);
-      } else if (operationMode === 'auto') {
+      setChatMessages((prev) => [...prev, user, assistant]);
+
+      if (operationMode === 'auto') {
         if (intent.type === 'ToggleDevice' && intent.device && intent.device !== 'cover.garage') {
-          handleDeviceToggle(intent.device);
+          await handleDeviceToggle(intent.device);
+        }
+      } else if (operationMode === 'manual' || intent.device === 'cover.garage') {
+        try {
+          const snapshot = await createApprovalItem({
+            summary: message,
+            intent,
+            guardrailBadges: intent.device === 'cover.garage' ? ['Requires Confirmation'] : [],
+            expiresInSeconds: 5 * 60,
+          });
+          setApprovalQueue(snapshot.approvalQueue);
+          setChatMessages(snapshot.chatHistory);
+          setOperationMode(snapshot.operationMode);
+        } catch (err) {
+          console.error('Failed to create approval item', err);
         }
       }
     } catch (error) {
@@ -173,24 +185,25 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     }
   };
 
-  const handleApprovalAction = (itemId: string, action: 'approve' | 'reject') => {
-    setApprovalQueue(prev => 
-      prev.map(item => 
-        item.id === itemId 
-          ? { ...item, status: action === 'approve' ? 'approved' : 'rejected' }
-          : item
-      )
-    );
+  const handleApprovalAction = async (itemId: string, action: 'approve' | 'reject') => {
+    try {
+      const snapshot = await updateApprovalStatus(itemId, action === 'approve' ? 'approved' : 'rejected');
+      setApprovalQueue(snapshot.approvalQueue);
+      setChatMessages(snapshot.chatHistory);
+      setOperationMode(snapshot.operationMode);
 
-    if (action === 'approve') {
-      const item = approvalQueue.find(i => i.id === itemId);
-      if (item?.intent.type === 'ToggleDevice' && item.intent.device) {
-        handleDeviceToggle(item.intent.device);
+      if (action === 'approve') {
+        const item = snapshot.approvalQueue.find((entry) => entry.id === itemId);
+        if (item?.intent.type === 'ToggleDevice' && item.intent.device) {
+          await handleDeviceToggle(item.intent.device);
+        }
       }
+    } catch (error) {
+      console.error('Failed to update approval item', error);
     }
   };
 
-  const handleOperationModeChange = (mode: OperationMode) => {
+  const handleOperationModeChange = async (mode: OperationMode) => {
     // Animate the clicked button
     const buttonRefs = {
       auto: autoButtonRef,
@@ -211,37 +224,59 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
         }
       );
     }
-    
-    setOperationMode(mode);
+    try {
+      const snapshot = await updateOperationMode(mode);
+      setOperationMode(snapshot.operationMode);
+      setApprovalQueue(snapshot.approvalQueue);
+      setChatMessages(snapshot.chatHistory);
+    } catch (error) {
+      console.error('Failed to update operation mode', error);
+    }
   };
 
-  const currentPrice = mockPricing[new Date().getHours()]?.price_cents_kWh || 15;
-  const peakHours = mockPricing.filter(p => p.is_peak).map(p => p.hour);
+  const currentPrice = pricing[new Date().getHours()]?.price_cents_kWh ?? 15;
+  const peakHours = pricing.filter(p => p.is_peak).map(p => p.hour);
   const isCurrentlyPeak = peakHours.includes(new Date().getHours());
+
+  const vitalsData: DashboardVitals = vitals ?? {
+    temperature: {
+      current: 0,
+      target: 0,
+      outside: 0,
+      deltaT: 0,
+      mode: 'off',
+    },
+    humidity: 0,
+    energyCost: {
+      current: 0,
+      daily: 0,
+      monthly: 0,
+    },
+  };
 
   // Get key devices for circular meters - reactive to device state changes
   const thermostat = devices.find(d => d.type === 'climate');
   const lights = devices.filter(d => d.type === 'light');
   const totalLightBrightness = lights.reduce((sum, light) => {
-    if (light.state && typeof light.state === 'number') {
+    if (typeof light.state === 'number') {
       return sum + light.state;
     }
-    return sum + (light.state ? 100 : 0);
+    return sum + (isDeviceActive(light) ? 100 : 0);
   }, 0);
   const avgLightBrightness = lights.length > 0 ? totalLightBrightness / lights.length : 0;
   
   // Calculate reactive values for meters
   const currentTemperature = thermostat ? 
     (typeof thermostat.state === 'number' ? thermostat.state : 
-     thermostat.attributes?.current_temperature || vitals.temperature.current) : 
-    vitals.temperature.current;
+     thermostat.attributes?.current_temperature || vitalsData.temperature.current) : 
+    vitalsData.temperature.current;
     
   const targetTemperature = thermostat ? 
     (typeof thermostat.state === 'number' ? thermostat.state : 
-     thermostat.attributes?.target_temperature || vitals.temperature.target) : 
-    vitals.temperature.target;
+     thermostat.attributes?.target_temperature || vitalsData.temperature.target) : 
+    vitalsData.temperature.target;
     
-  const activeDeviceCount = devices.filter(d => d.state).length;
+  const activeDeviceCount = devices.filter(isDeviceActive).length;
 
   // Get reactive color based on temperature
   const getTemperatureColor = (temp: number) => {
@@ -289,6 +324,22 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     );
   }, []);
 
+  if (loading) {
+    return (
+      <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid text-muted-foreground">
+        Loading dashboard…
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid text-destructive">
+        Failed to load dashboard: {error}
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
@@ -302,7 +353,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
         <div className="flex bg-muted rounded-lg p-1">
           <motion.button
             ref={autoButtonRef}
-            onClick={() => handleOperationModeChange('auto')}
+            onClick={() => void handleOperationModeChange('auto')}
             className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
               operationMode === 'auto'
                 ? 'bg-green-500 text-white shadow-sm'
@@ -338,7 +389,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
           </motion.button>
           <motion.button
             ref={manualButtonRef}
-            onClick={() => handleOperationModeChange('manual')}
+            onClick={() => void handleOperationModeChange('manual')}
             className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
               operationMode === 'manual'
                 ? 'bg-yellow-500 text-white shadow-sm'
@@ -374,7 +425,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
           </motion.button>
           <motion.button
             ref={pausedButtonRef}
-            onClick={() => handleOperationModeChange('paused')}
+            onClick={() => void handleOperationModeChange('paused')}
             className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
               operationMode === 'paused'
                 ? 'bg-red-500 text-white shadow-sm'
@@ -551,7 +602,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
             <div className="flex items-center space-x-3">
               {/* Daily Cost - Left */}
               <CircularMeter
-                value={vitals.energyCost.daily}
+                value={vitalsData.energyCost.daily}
                 max={50}
                 unit="$"
                 label="Daily Cost"
@@ -564,7 +615,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
               <div className="flex flex-col space-y-3">
                 {/* Humidity - Top */}
                 <CircularMeter
-                  value={vitals.humidity}
+                  value={vitalsData.humidity}
                   max={100}
                   unit="%"
                   label="Humidity"

@@ -8,7 +8,7 @@ from typing import Any, Dict, List
 
 from fastapi.encoders import jsonable_encoder
 
-from ..config import COMMANDS_PATH, DEVICES_PATH, PREFERENCES_PATH, STATE_DIR
+from ..config import DASHBOARD_PATH, COMMANDS_PATH, DEVICES_PATH, PREFERENCES_PATH, STATE_DIR
 
 
 class StateStore:
@@ -34,6 +34,13 @@ class StateStore:
     def save_commands(self, data: Dict[str, Any]) -> None:
         data = jsonable_encoder(data)
         self._write_json(COMMANDS_PATH, data)
+
+    def load_dashboard(self) -> Dict[str, Any]:
+        return self._read_json(DASHBOARD_PATH)
+
+    def save_dashboard(self, data: Dict[str, Any]) -> None:
+        data = jsonable_encoder(data)
+        self._write_json(DASHBOARD_PATH, data)
 
     def list_rooms(self) -> List[str]:
         devices = self.load_devices()
@@ -95,6 +102,31 @@ class StateStore:
             self._write_json(PREFERENCES_PATH, {})
         if not COMMANDS_PATH.exists():
             self._write_json(COMMANDS_PATH, {"pending": [], "history": []})
+        if not DASHBOARD_PATH.exists():
+            self._write_json(
+                DASHBOARD_PATH,
+                {
+                    "pricing": [],
+                    "vitals": {
+                        "temperature": {
+                            "current": 72.0,
+                            "target": 72.0,
+                            "outside": 85.0,
+                            "deltaT": 13.0,
+                            "mode": "cool",
+                        },
+                        "humidity": 45.0,
+                        "energyCost": {
+                            "current": 15.2,
+                            "daily": 4.85,
+                            "monthly": 142.3,
+                        },
+                    },
+                    "chat_history": [],
+                    "approval_queue": [],
+                    "operation_mode": "auto",
+                },
+            )
 
     def _read_json(self, path: Path) -> Dict[str, Any]:
         with path.open("r", encoding="utf-8") as handle:

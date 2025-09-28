@@ -84,6 +84,30 @@ export interface ApprovalQueueItem {
 
 export type OperationMode = 'manual' | 'auto' | 'paused';
 
+export interface DashboardVitals {
+  temperature: {
+    current: number;
+    target: number;
+    outside: number;
+    deltaT: number;
+    mode: string;
+  };
+  humidity: number;
+  energyCost: {
+    current: number;
+    daily: number;
+    monthly: number;
+  };
+}
+
+export interface DashboardSnapshot {
+  pricing: PriceData[];
+  vitals: DashboardVitals;
+  chatHistory: ChatMessage[];
+  approvalQueue: ApprovalQueueItem[];
+  operationMode: OperationMode;
+}
+
 export interface SystemGuardrail {
   deviceId: string;
   minValue?: number;

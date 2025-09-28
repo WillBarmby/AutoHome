@@ -21,8 +21,8 @@ import {
   RotateCcw,
   Info
 } from "lucide-react";
-import { ChatMessage, ChatIntent } from "@/types";
-import { llmService } from "@/services/adapters";
+import { ChatMessage } from "@/types";
+import { sendChatMessage } from "@/services/api";
 
 const VoiceAssist = () => {
   // Animation refs
@@ -110,38 +110,12 @@ const VoiceAssist = () => {
 
     setIsProcessing(true);
     
-    // Add user message
-    const userMessage: ChatMessage = {
-      id: Date.now().toString(),
-      type: 'user',
-      content: transcript,
-      timestamp: new Date()
-    };
-    
-    setConversations(prev => [...prev, userMessage]);
-
     try {
-      // Parse intent (simplified)
-      const intent: ChatIntent = {
-        type: 'QueryStatus',
-        device: ''
-      };
+      const result = await sendChatMessage(transcript);
+      setConversations(prev => [...prev, result.user, result.assistant]);
 
-      // Get AI response
-      const response = await llmService.generateResponse(intent);
-      
-      const assistantMessage: ChatMessage = {
-        id: (Date.now() + 1).toString(),
-        type: 'assistant',
-        content: response,
-        timestamp: new Date()
-      };
-      
-      setConversations(prev => [...prev, assistantMessage]);
-      
-      // Speak the response if not muted
       if (!isMuted && synthesisRef.current) {
-        const utterance = new SpeechSynthesisUtterance(response);
+        const utterance = new SpeechSynthesisUtterance(result.response);
         utterance.volume = volume / 100;
         utterance.rate = 0.9;
         synthesisRef.current.speak(utterance);

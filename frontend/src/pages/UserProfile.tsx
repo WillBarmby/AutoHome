@@ -17,10 +17,12 @@ import { useToast } from '@/hooks/use-toast';
 import { ArrowLeft, Info } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import NumberFlow from '@number-flow/react';
+import { getUserProfile, saveUserProfile } from '@/services/userProfileService';
 
 export default function UserProfile() {
   const [isSaving, setIsSaving] = useState(false);
   const [lastUpdated, setLastUpdated] = useState<string>('');
+  const [isLoading, setIsLoading] = useState(true);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -29,20 +31,6 @@ export default function UserProfile() {
   const formRef = useRef<HTMLDivElement>(null);
   const previewRef = useRef<HTMLDivElement>(null);
   const temperatureSettingsRef = useRef<TemperatureSettingsRef>(null);
-
-  // Load user profile synchronously
-  const getInitialProfile = (): UserProfile => {
-    try {
-      const stored = localStorage.getItem('userProfile');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        return { ...defaultUserProfile, ...parsed };
-      }
-    } catch (error) {
-      console.error('Failed to load user profile:', error);
-    }
-    return defaultUserProfile;
-  };
 
   const {
     register,
@@ -54,7 +42,7 @@ export default function UserProfile() {
     formState: { errors, isDirty }
   } = useForm<UserProfile>({
     resolver: zodResolver(UserProfileSchema),
-    defaultValues: getInitialProfile()
+    defaultValues: defaultUserProfile
   });
 
   const watchedValues = watch();
@@ -79,9 +67,20 @@ export default function UserProfile() {
 
   // Set last updated timestamp on mount
   useEffect(() => {
-    const profile = getInitialProfile();
-    setLastUpdated(profile.updatedAt || '');
-  }, []);
+    const loadProfile = async () => {
+      try {
+        const profile = await getUserProfile();
+        reset(profile);
+        setLastUpdated(profile.updatedAt || '');
+      } catch (error) {
+        console.error('Failed to load user profile:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    void loadProfile();
+  }, [reset]);
 
   // Track unsaved changes
   useEffect(() => {
@@ -97,15 +96,10 @@ export default function UserProfile() {
     
     setIsSaving(true);
     try {
-      const profileWithTimestamp = {
-        ...updatedData,
-        updatedAt: new Date().toISOString()
-      };
-      
-      localStorage.setItem('userProfile', JSON.stringify(profileWithTimestamp));
-      setLastUpdated(profileWithTimestamp.updatedAt);
+      const savedProfile = await saveUserProfile(updatedData);
+      setLastUpdated(savedProfile.updatedAt || '');
       setHasUnsavedChanges(false);
-      reset(updatedData);
+      reset(savedProfile);
       
       toast({
         title: "Success",
@@ -148,7 +142,15 @@ export default function UserProfile() {
     return timeStr;
   };
 
+  if (isLoading) {
+    return (
+      <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid text-muted-foreground">
+        Loading profile…
+      </div>
+    );
+  }
 
+  
   return (
     <div className="space-y-6 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}

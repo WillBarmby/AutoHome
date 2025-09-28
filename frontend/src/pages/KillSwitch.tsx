@@ -19,7 +19,8 @@ import {
   Info
 } from "lucide-react";
 import { DeviceEntity } from "@/types";
-import { mockDevices } from "@/services/mockData";
+import { haAdapter } from "@/services/adapters";
+import { mapEntitiesToDevices } from "@/lib/deviceMapper";
 
 const KillSwitch = () => {
   // Animation refs
@@ -27,7 +28,7 @@ const KillSwitch = () => {
   const emergencyControlsRef = useRef<HTMLDivElement>(null);
   const systemStatusRef = useRef<HTMLDivElement>(null);
   
-  const [devices] = useState<DeviceEntity[]>(mockDevices);
+  const [devices, setDevices] = useState<DeviceEntity[]>([]);
   const [killSwitchActive, setKillSwitchActive] = useState(false);
   const [emergencyMode, setEmergencyMode] = useState(false);
   const [autoRecovery, setAutoRecovery] = useState(true);
@@ -41,6 +42,26 @@ const KillSwitch = () => {
     scheduling: true,
     notifications: true
   });
+
+  useEffect(() => {
+    const loadDevices = async () => {
+      try {
+        const entities = await haAdapter.listEntities();
+        setDevices(mapEntitiesToDevices(entities));
+      } catch (error) {
+        console.error('Failed to load devices for kill switch', error);
+      }
+    };
+
+    void loadDevices();
+  }, []);
+
+  const isDeviceActive = (device: DeviceEntity) => {
+    if (typeof device.state === 'boolean') return device.state;
+    if (typeof device.state === 'number') return device.state > 0;
+    if (typeof device.state === 'string') return device.state === 'on' || device.state === 'open';
+    return false;
+  };
 
   const handleKillSwitch = async () => {
     if (!killSwitchActive) {
@@ -101,7 +122,7 @@ const KillSwitch = () => {
     });
   };
 
-  const activeDevices = devices.filter(d => d.state).length;
+  const activeDevices = devices.filter(isDeviceActive).length;
   const criticalDevices = devices.filter(d => 
     d.id.includes('climate') || 
     d.id.includes('security') || 

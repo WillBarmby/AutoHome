@@ -17,11 +17,19 @@ import {
   Settings, 
   Save,
   RotateCcw,
-  Info
+  Info,
+  Thermometer,
+  Lightbulb,
+  Camera,
+  Coffee,
+  Fan,
+  Car,
+  Power
 } from "lucide-react";
 import { DeviceEntity } from "@/types";
-import { mockDevices } from "@/services/mockData";
 import DeviceCarousel, { DeviceCarouselItem } from "@/components/DeviceCarousel";
+import { haAdapter } from "@/services/adapters";
+import { mapEntitiesToDevices } from "@/lib/deviceMapper";
 
 interface GuardrailSettings {
   deviceId: string;
@@ -37,7 +45,48 @@ interface GuardrailSettings {
 }
 
 const Guardrail = () => {
-  const [devices] = useState<DeviceEntity[]>(mockDevices);
+  const iconForDevice = (device: DeviceEntity) => {
+    const commonProps = { className: "h-[16px] w-[16px] text-white" };
+    switch (device.type) {
+      case 'climate':
+        return <Thermometer {...commonProps} />;
+      case 'light':
+        return <Lightbulb {...commonProps} />;
+      case 'camera':
+        return <Camera {...commonProps} />;
+      case 'switch':
+        return <Coffee {...commonProps} />;
+      case 'fan':
+        return <Fan {...commonProps} />;
+      case 'cover':
+        return <Car {...commonProps} />;
+      default:
+        return <Power {...commonProps} />;
+    }
+  };
+
+  const toCarouselItem = (device: DeviceEntity): DeviceCarouselItem => ({
+    title: device.name,
+    description: device.room ? `Located in ${device.room}` : `${device.type} device`,
+    id: device.id,
+    type: device.type,
+    icon: iconForDevice(device),
+  });
+
+  const buildGuardrailSettings = (device: DeviceEntity): GuardrailSettings => ({
+    deviceId: device.id,
+    deviceName: device.name,
+    enabled: true,
+    allowedActions: ['turn_on', 'turn_off'],
+    minValue: device.type === 'climate' ? 18 : 0,
+    maxValue: device.type === 'climate' ? 26 : 100,
+    quietHoursStart: 22,
+    quietHoursEnd: 7,
+    maxActionsPerHour: device.type === 'climate' ? 2 : 10,
+    requireConfirmation: device.id.includes('garage') || device.id.includes('lock'),
+  });
+
+  const [devices, setDevices] = useState<DeviceEntity[]>([]);
   
   // Animation refs
   const headerRef = useRef<HTMLDivElement>(null);
@@ -45,27 +94,24 @@ const Guardrail = () => {
   const carouselRef = useRef<HTMLDivElement>(null);
   const settingsRef = useRef<HTMLDivElement>(null);
   
-  const [selectedDevice, setSelectedDevice] = useState<DeviceCarouselItem | null>({
-    title: 'Hall Thermostat',
-    description: 'Climate control for hallway',
-    id: 'climate.thermostat_hall',
-    type: 'climate',
-    icon: null
-  });
-  const [guardrails, setGuardrails] = useState<GuardrailSettings[]>(
-    devices.map(device => ({
-      deviceId: device.id,
-      deviceName: device.name,
-      enabled: true,
-      allowedActions: ['turn_on', 'turn_off'],
-      minValue: device.type === 'climate' ? 18 : 0,
-      maxValue: device.type === 'climate' ? 26 : 100,
-      quietHoursStart: 22,
-      quietHoursEnd: 7,
-      maxActionsPerHour: device.type === 'climate' ? 2 : 10,
-      requireConfirmation: device.id.includes('garage') || device.id.includes('lock')
-    }))
-  );
+  const [selectedDevice, setSelectedDevice] = useState<DeviceCarouselItem | null>(null);
+  const [guardrails, setGuardrails] = useState<GuardrailSettings[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const entities = await haAdapter.listEntities();
+        const mapped = mapEntitiesToDevices(entities);
+        setDevices(mapped);
+        setGuardrails(mapped.map(buildGuardrailSettings));
+        setSelectedDevice(mapped.length ? toCarouselItem(mapped[0]) : null);
+      } catch (error) {
+        console.error('Failed to load devices for guardrails', error);
+      }
+    };
+
+    void load();
+  }, []);
 
   const [globalSettings, setGlobalSettings] = useState({
     enableAllGuardrails: true,
@@ -252,6 +298,7 @@ const Guardrail = () => {
             <div className="flex justify-center lg:justify-start">
               <DeviceCarousel
                 baseWidth={580}
+                items={devices.map(toCarouselItem)}
                 onDeviceSelect={handleDeviceSelect}
                 onIndexChange={handleIndexChange}
               />
@@ -262,18 +309,24 @@ const Guardrail = () => {
               <div className="w-full max-w-md space-y-4" style={{ width: '580px' }}>
                 {/* Header */}
                 <div className="flex items-center justify-between">
-                  <AnimatePresence mode="wait">
-                    <motion.h3 
-                      key={selectedDevice.title}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -10 }}
-                      transition={{ duration: 0.2, ease: "easeInOut" }}
-                      className="text-base font-semibold tracking-wide text-foreground"
-                    >
-                      {selectedDevice.title}
-                    </motion.h3>
-                  </AnimatePresence>
+                  {selectedDevice ? (
+                    <AnimatePresence mode="wait">
+                      <motion.h3 
+                        key={selectedDevice.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                        className="text-base font-semibold tracking-wide text-foreground"
+                      >
+                        {selectedDevice.title}
+                      </motion.h3>
+                    </AnimatePresence>
+                  ) : (
+                    <h3 className="text-base font-semibold tracking-wide text-foreground">
+                      Select a device
+                    </h3>
+                  )}
                   <div className="flex items-center gap-2">
                     {getCurrentGuardrail()?.requireConfirmation && (
                       <Badge variant="destructive" className="text-xs">

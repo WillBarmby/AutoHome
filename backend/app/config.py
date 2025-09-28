@@ -10,6 +10,7 @@ STATE_DIR = BACKEND_DIR / "state"
 DEVICES_PATH = STATE_DIR / "devices.json"
 PREFERENCES_PATH = STATE_DIR / "preferences.json"
 COMMANDS_PATH = STATE_DIR / "commands.json"
+DASHBOARD_PATH = STATE_DIR / "dashboard.json"
 
 MOCK_HA = os.getenv("MOCK_HA", "true").lower() != "false"
 HA_BASE_URL = os.getenv("HA_BASE_URL")
@@ -22,6 +23,7 @@ __all__ = [
     "DEVICES_PATH",
     "PREFERENCES_PATH",
     "COMMANDS_PATH",
+    "DASHBOARD_PATH",
     "MOCK_HA",
     "HA_BASE_URL",
     "HA_TOKEN",
