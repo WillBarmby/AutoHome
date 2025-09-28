@@ -179,8 +179,11 @@ const VoiceAssist = () => {
     <div className="space-y-6 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-foreground tracking-wide">Voice Assistant</h1>
+        <div className="flex items-center gap-3">
+          <Mic className="h-6 w-6 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-wide">Voice Assistant</h1>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -210,7 +213,7 @@ const VoiceAssist = () => {
           <Card className="bg-gradient-card border-card-border shadow-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 tracking-wide">
-                <Mic className="h-5 w-5" />
+                <Volume2 className="h-5 w-5" />
                 Voice Control
               </CardTitle>
             </CardHeader>

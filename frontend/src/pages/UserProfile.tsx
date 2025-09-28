@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { gsap } from 'gsap';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Info } from 'lucide-react';
+import { ArrowLeft, Info, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import NumberFlow from '@number-flow/react';
 import { getUserProfile, saveUserProfile } from '@/services/userProfileService';
@@ -158,8 +158,11 @@ export default function UserProfile() {
     <div className="space-y-6 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-foreground tracking-wide">Your Profile</h1>
+        <div className="flex items-center gap-3">
+          <User className="h-6 w-6 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-wide">Your Profile</h1>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>

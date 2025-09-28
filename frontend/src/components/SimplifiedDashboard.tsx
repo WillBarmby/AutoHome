@@ -361,9 +361,9 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     <div className="space-y-8 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-3">
+          <Home className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold text-foreground tracking-wide">Home Control</h1>
-          <p className="text-sm text-muted-foreground">AI Assistant Panel</p>
         </div>
         
         {/* Operation Mode Segmented Control - Centered */}
@@ -508,7 +508,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -10 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="fixed top-12 right-6 w-80 bg-background border border-border rounded-lg shadow-lg z-[9999]"
+          className="fixed top-16 right-8 w-80 bg-background border border-border rounded-lg shadow-lg z-[9999]"
         >
           <div className="p-4 border-b border-border">
             <h3 className="font-medium text-sm">Notifications</h3>
@@ -537,19 +537,28 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
 
       {/* Main Content */}
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="dashboard" className="flex items-center gap-2">
-            <Home className="h-4 w-4" />
-            Dashboard
-          </TabsTrigger>
-          <TabsTrigger value="home-assistant" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Home Assistant
-          </TabsTrigger>
-        </TabsList>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        >
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="dashboard">
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="home-assistant">
+              Home Assistant
+            </TabsTrigger>
+          </TabsList>
+        </motion.div>
 
         <TabsContent value="dashboard" className="space-y-8 pt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <motion.div 
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+          >
             {/* Left Column - Chat Console */}
             <div ref={chatConsoleRef}>
               <ChatConsole
@@ -669,11 +678,17 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </TabsContent>
 
         <TabsContent value="home-assistant" className="space-y-6 pt-6">
-          <SmartThermostat />
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+          >
+            <SmartThermostat />
+          </motion.div>
         </TabsContent>
       </Tabs>
     </div>

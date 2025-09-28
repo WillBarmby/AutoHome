@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { gsap } from "gsap";
 import { useRef } from "react";
+import { motion } from "framer-motion";
 
 import type { Entity } from "@/types";
 import { haAdapter } from "@/services/adapters";
@@ -8,7 +9,8 @@ import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, AlertCircle, Home, Lightbulb, Thermometer, Power, Fan, PlugZap } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { RefreshCw, AlertCircle, Cpu, Lightbulb, Thermometer, Power, Fan, PlugZap, Info } from "lucide-react";
 
 const Devices = () => {
   const [devices, setDevices] = useState<Entity[]>([]);
@@ -82,12 +84,15 @@ const Devices = () => {
     
     if (elements.length > 0) {
       gsap.fromTo(elements, 
-        { y: 30, opacity: 0 },
+        { 
+          y: 30, 
+          opacity: 0 
+        },
         { 
           y: 0, 
           opacity: 1, 
           duration: 0.8, 
-          stagger: 0.15, 
+          stagger: 0.15,
           ease: 'power2.out' 
         }
       );
@@ -204,11 +209,20 @@ const Devices = () => {
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <Home className="h-6 w-6 text-primary" />
+          <Cpu className="h-6 w-6 text-primary" />
           <div>
             <h1 className="text-2xl font-bold text-foreground tracking-wide">Devices</h1>
-            <p className="text-sm text-muted-foreground">Control your smart home devices</p>
           </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground hover:text-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Control your smart home devices here</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         
         <div className="flex items-center gap-3">
