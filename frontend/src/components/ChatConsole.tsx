@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Mic, Send, Square, User, Bot, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ChatMessage } from "@/types";
+import { ChatMessage, ChatIntent } from "@/types";
 
 interface ChatConsoleProps {
   messages: ChatMessage[];
@@ -231,14 +231,9 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
               variant="ghost"
               size="icon"
               className={cn(
-// <<<<<<< frontend
-//                 "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-transparent hover:text-primary",
-//                 isListening && "bg-destructive text-destructive-foreground animate-pulse"
-// =======
-//                 "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8",
-//                 isListening && "bg-destructive text-destructive-foreground animate-pulse",
-//                 !voiceSupported && "opacity-50 cursor-not-allowed"
-// >>>>>>> main
+                "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-transparent hover:text-primary",
+                isListening && "bg-destructive text-destructive-foreground animate-pulse",
+                !voiceSupported && "opacity-50 cursor-not-allowed"
               )}
               onClick={toggleVoiceInput}
               disabled={!voiceSupported}
