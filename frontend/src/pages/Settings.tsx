@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { 
-  Settings as SettingsIcon, 
+  Settings as Gear, 
   User, 
   Bell, 
   Palette, 
@@ -127,8 +127,11 @@ const Settings = () => {
     <div className="space-y-6 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-foreground tracking-wide">Settings</h1>
+        <div className="flex items-center gap-3">
+          <Gear className="h-6 w-6 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-wide">Settings</h1>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -172,7 +175,7 @@ const Settings = () => {
         <Card className="bg-gradient-card border-card-border">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 tracking-wide">
-              <SettingsIcon className="h-5 w-5" />
+              <Database className="h-5 w-5" />
               System Preferences
             </CardTitle>
           </CardHeader>

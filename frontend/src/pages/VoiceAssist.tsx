@@ -179,8 +179,11 @@ const VoiceAssist = () => {
     <div className="space-y-6 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-foreground tracking-wide">Voice Assistant</h1>
+        <div className="flex items-center gap-3">
+          <Mic className="h-6 w-6 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-wide">Voice Assistant</h1>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -206,50 +209,6 @@ const VoiceAssist = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Voice Controls */}
         <div ref={voiceControlsRef} className="lg:col-span-1 space-y-6">
-          {/* Main Controls */}
-          <Card className="bg-gradient-card border-card-border shadow-card">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 tracking-wide">
-                <Mic className="h-5 w-5" />
-                Voice Control
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {/* Microphone Button */}
-              <div className="flex justify-center">
-                <Button
-                  variant={isListening ? "destructive" : "default"}
-                  size="lg"
-                  className="h-20 w-20 rounded-full"
-                  onClick={isListening ? stopListening : startListening}
-                  disabled={!voiceEnabled || isMuted}
-                >
-                  {isListening ? (
-                    <MicOff className="h-8 w-8" />
-                  ) : (
-                    <Mic className="h-8 w-8" />
-                  )}
-                </Button>
-              </div>
-
-              {/* Current Transcript */}
-              {currentTranscript && (
-                <div className="p-3 bg-muted/30 rounded-lg">
-                  <Label className="text-xs text-muted-foreground">Listening...</Label>
-                  <p className="text-sm">{currentTranscript}</p>
-                </div>
-              )}
-
-              {/* Processing Indicator */}
-              {isProcessing && (
-                <div className="flex items-center justify-center gap-2 p-2">
-                  <Activity className="h-4 w-4 animate-spin text-primary" />
-                  <span className="text-sm text-muted-foreground">Processing...</span>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
           {/* Settings */}
           <div ref={settingsRef}>
             <Card className="bg-gradient-card border-card-border shadow-card h-[400px]">
@@ -326,6 +285,50 @@ const VoiceAssist = () => {
             </CardContent>
             </Card>
           </div>
+
+          {/* Main Controls */}
+          <Card className="bg-gradient-card border-card-border shadow-card">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 tracking-wide">
+                <Volume2 className="h-5 w-5" />
+                Voice Control
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {/* Microphone Button */}
+              <div className="flex justify-center">
+                <Button
+                  variant={isListening ? "destructive" : "default"}
+                  size="lg"
+                  className="h-20 w-20 rounded-full"
+                  onClick={isListening ? stopListening : startListening}
+                  disabled={!voiceEnabled || isMuted}
+                >
+                  {isListening ? (
+                    <MicOff className="h-8 w-8" />
+                  ) : (
+                    <Mic className="h-8 w-8" />
+                  )}
+                </Button>
+              </div>
+
+              {/* Current Transcript */}
+              {currentTranscript && (
+                <div className="p-3 bg-muted/30 rounded-lg">
+                  <Label className="text-xs text-muted-foreground">Listening...</Label>
+                  <p className="text-sm">{currentTranscript}</p>
+                </div>
+              )}
+
+              {/* Processing Indicator */}
+              {isProcessing && (
+                <div className="flex items-center justify-center gap-2 p-2">
+                  <Activity className="h-4 w-4 animate-spin text-primary" />
+                  <span className="text-sm text-muted-foreground">Processing...</span>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         {/* Conversation History */}

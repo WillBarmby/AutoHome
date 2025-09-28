@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,8 +20,57 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentTranscript, setCurrentTranscript] = useState("");
+  const [voiceSupported, setVoiceSupported] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+
+  // Initialize voice recognition
+  useEffect(() => {
+    // Check if speech recognition is supported
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      setVoiceSupported(true);
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US';
+      
+      recognitionRef.current.onresult = (event: any) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        setCurrentTranscript(transcript);
+        
+        // If final result, process the command
+        if (event.results[event.results.length - 1].isFinal) {
+          setInput(transcript);
+          setIsListening(false);
+          setCurrentTranscript("");
+        }
+      };
+      
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        setCurrentTranscript("");
+      };
+      
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+        setCurrentTranscript("");
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;
@@ -44,17 +94,23 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
   };
 
   const toggleVoiceInput = () => {
+    if (!voiceSupported) {
+      console.warn('Speech recognition not supported in this browser');
+      return;
+    }
+
     if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
       setIsListening(false);
-      // Stop voice recognition
+      setCurrentTranscript("");
     } else {
       setIsListening(true);
-      // Start voice recognition (would integrate with Web Speech API)
-      // For now, just simulate
-      setTimeout(() => {
-        setIsListening(false);
-        setInput("What's the current temperature in the living room?");
-      }, 2000);
+      setCurrentTranscript("");
+      if (recognitionRef.current) {
+        recognitionRef.current.start();
+      }
     }
   };
 
@@ -84,6 +140,28 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
 
   return (
     <Card className={cn("bg-gradient-card border-card-border shadow-card", className)}>
+      {/* Header */}
+      <div className="bg-gradient-to-r from-primary/90 to-primary/70 p-6 rounded-t-lg relative after:absolute after:bottom-0 after:left-0 after:right-0 after:h-4 after:bg-gradient-to-b after:from-transparent after:to-black/10 after:pointer-events-none">
+        <div className="flex items-center gap-3">
+          <motion.div 
+            className="w-16 h-16 bg-white rounded-full flex items-center justify-center overflow-hidden cursor-pointer"
+            whileHover={{ 
+              rotate: [0, -5, 5, -5, 0],
+              transition: { duration: 0.3, ease: "easeInOut" }
+            }}
+          >
+            <img 
+              src="/imgs/helmrbot.png" 
+              alt="helmr" 
+              className="w-[150%] h-[150%] object-cover mt-3"
+            />
+          </motion.div>
+          <div>
+            <h3 className="text-white font-bold text-lg tracking-wide">hi, i'm helmr!</h3>
+            <p className="text-green-100 text-sm">Here to guide your home</p>
+          </div>
+        </div>
+      </div>
       <CardContent className="p-4">
         {/* Messages Area */}
         <ScrollArea ref={scrollAreaRef} className="h-[600px] mb-4">
@@ -146,17 +224,25 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
               placeholder="Ask me anything about your smart home..."
-              className="pr-12"
+              className="pr-12 h-10"
               disabled={isProcessing}
             />
             <Button
               variant="ghost"
               size="icon"
               className={cn(
-                "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8",
-                isListening && "bg-destructive text-destructive-foreground animate-pulse"
+// <<<<<<< frontend
+//                 "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 hover:bg-transparent hover:text-primary",
+//                 isListening && "bg-destructive text-destructive-foreground animate-pulse"
+// =======
+//                 "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8",
+//                 isListening && "bg-destructive text-destructive-foreground animate-pulse",
+//                 !voiceSupported && "opacity-50 cursor-not-allowed"
+// >>>>>>> main
               )}
               onClick={toggleVoiceInput}
+              disabled={!voiceSupported}
+              title={voiceSupported ? (isListening ? "Stop listening" : "Start voice input") : "Voice not supported"}
             >
               {isListening ? (
                 <Square className="h-4 w-4" />
@@ -193,6 +279,11 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
               <div className="h-2 w-2 bg-destructive rounded-full animate-pulse" />
               Listening...
             </div>
+            {currentTranscript && (
+              <div className="mt-1 text-xs text-muted-foreground italic">
+                "{currentTranscript}"
+              </div>
+            )}
           </div>
         )}
       </CardContent>

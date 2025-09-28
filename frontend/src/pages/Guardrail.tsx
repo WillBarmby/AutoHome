@@ -24,7 +24,8 @@ import {
   Coffee,
   Fan,
   Car,
-  Power
+  Power,
+  Globe
 } from "lucide-react";
 import { DeviceEntity } from "@/types";
 import DeviceCarousel, { DeviceCarouselItem } from "@/components/DeviceCarousel";
@@ -225,8 +226,11 @@ const Guardrail = () => {
     <div className="space-y-6 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-foreground tracking-wide">Guardrails</h1>
+        <div className="flex items-center gap-3">
+          <Shield className="h-6 w-6 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-wide">Guardrails</h1>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -254,7 +258,7 @@ const Guardrail = () => {
         <Card className="bg-gradient-card border-card-border">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-lg tracking-wide">
-            <Settings className="h-5 w-5" />
+            <Globe className="h-5 w-5" />
             Global Settings
           </CardTitle>
         </CardHeader>

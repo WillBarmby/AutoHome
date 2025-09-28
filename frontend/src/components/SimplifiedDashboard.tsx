@@ -317,34 +317,41 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     };
   }, []);
 
-  // Animate elements on mount
+  // Animate elements when not loading
   useEffect(() => {
-    const elements = [
-      headerRef.current,
-      chatConsoleRef.current,
-      leftColumnRef.current,
-      rightColumnRef.current
-    ].filter(Boolean);
+    if (!loading) {
+      const elements = [
+        headerRef.current,
+        chatConsoleRef.current,
+        leftColumnRef.current,
+        rightColumnRef.current
+      ].filter(Boolean);
 
-    gsap.fromTo(elements, 
-      { 
-        y: 30, 
-        opacity: 0 
-      },
-      { 
-        y: 0, 
-        opacity: 1, 
-        duration: 0.8, 
-        stagger: 0.15,
-        ease: 'power2.out'
-      }
-    );
-  }, []);
+      gsap.fromTo(elements, 
+        { 
+          y: 30, 
+          opacity: 0 
+        },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 0.8, 
+          stagger: 0.15,
+          ease: 'power2.out'
+        }
+      );
+    }
+  }, [loading]);
 
   if (loading) {
     return (
-      <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid text-muted-foreground">
-        Loading dashboard…
+      <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <span className="text-sm text-muted-foreground">Loading dashboard…</span>
+          </div>
+        </div>
       </div>
     );
   }
@@ -361,9 +368,9 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     <div className="space-y-8 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div>
+        <div className="flex items-center gap-3">
+          <Home className="h-6 w-6 text-primary" />
           <h1 className="text-2xl font-bold text-foreground tracking-wide">Home Control</h1>
-          <p className="text-sm text-muted-foreground">AI Assistant Panel</p>
         </div>
         
         {/* Operation Mode Segmented Control - Centered */}
@@ -492,7 +499,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 rounded-full hover:bg-muted"
+              className="h-8 w-8 p-0 rounded-full hover:bg-muted hover:text-white"
               onClick={() => setNotificationsOpen(!notificationsOpen)}
             >
               <Bell className="h-4 w-4" />
@@ -508,7 +515,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -10 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="fixed top-12 right-6 w-80 bg-background border border-border rounded-lg shadow-lg z-[9999]"
+          className="fixed top-16 right-8 w-80 bg-background border border-border rounded-lg shadow-lg z-[9999]"
         >
           <div className="p-4 border-b border-border">
             <h3 className="font-medium text-sm">Notifications</h3>
@@ -537,23 +544,28 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
 
       {/* Main Content */}
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="dashboard" className="flex items-center gap-2">
-            <Home className="h-4 w-4" />
-            Dashboard
-          </TabsTrigger>
-          <TabsTrigger value="home-assistant" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Home Assistant
-          </TabsTrigger>
-          <TabsTrigger value="advanced" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            Advanced
-          </TabsTrigger>
-        </TabsList>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        >
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="dashboard">
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="home-assistant">
+              Home Assistant
+            </TabsTrigger>
+          </TabsList>
+        </motion.div>
 
         <TabsContent value="dashboard" className="space-y-8 pt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <motion.div 
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+          >
             {/* Left Column - Chat Console */}
             <div ref={chatConsoleRef}>
               <ChatConsole
@@ -673,27 +685,17 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </TabsContent>
 
         <TabsContent value="home-assistant" className="space-y-6 pt-6">
-          <SmartThermostat />
-        </TabsContent>
-
-        <TabsContent value="advanced" className="space-y-6 pt-6">
-          <Card className="bg-gradient-card border-card-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 tracking-wide">
-                <Database className="h-5 w-5" />
-                Advanced Configuration
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Advanced configuration options will be available here in future updates.
-              </p>
-            </CardContent>
-          </Card>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+          >
+            <SmartThermostat />
+          </motion.div>
         </TabsContent>
       </Tabs>
     </div>
