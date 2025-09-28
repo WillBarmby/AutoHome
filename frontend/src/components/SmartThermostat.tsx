@@ -370,7 +370,7 @@ export function SmartThermostat({ className }: SmartThermostatProps) {
             <div>
               <CardTitle className="flex items-center gap-2">
                 {getStatusIcon(calculationResult.status)}
-                <span className="text-white">
+                <span className="text-white tracking-wider">
                   Calculation Results
                 </span>
               </CardTitle>
