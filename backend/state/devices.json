@@ -1,7 +1,7 @@
 [
   {
     "entity_id": "light.living_room",
-    "state": "off",
+    "state": "on",
     "attributes": {
       "friendly_name": "Living Room Lamp",
       "brightness": 200

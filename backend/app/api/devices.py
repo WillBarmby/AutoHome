@@ -9,13 +9,31 @@ from __future__ import annotations
 import json
 from typing import Any
 
+import logging
 from fastapi import APIRouter, HTTPException
 
-from ..config import DEVICES_PATH
+from ..config import DEVICES_PATH, MOCK_HA
 from ..models.schema import Command, Entity
+from ..services.ha_thermostat_service import ha_thermostat_service
 
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
+
+
+def _normalise_entity(raw: dict[str, Any]) -> Entity:
+    """Convert a heterogeneous Home Assistant payload into our Entity model."""
+
+    attributes = raw.get("attributes", {}) or {}
+    icon = raw.get("icon") or attributes.get("icon")
+    entity_id = raw.get("entity_id")
+    state = raw.get("state", "unknown")
+    return Entity(
+        entity_id=entity_id,
+        state=str(state),
+        attributes=attributes,
+        icon=icon,
+    )
 
 
 def _read_device_state() -> list[dict[str, Any]]:
@@ -34,15 +52,32 @@ def _write_device_state(payload: list[dict[str, Any]]) -> None:
 
 @router.get("/devices", response_model=list[Entity])
 async def get_devices() -> list[Entity]:
-    """Return the set of devices currently tracked by the mock state file."""
+    """Return device entities from Home Assistant, falling back to local mocks."""
+
+    if not MOCK_HA:
+        entities = ha_thermostat_service.get_all_entities()
+        if entities:
+            return [_normalise_entity(entity) for entity in entities]
+
+        logger.warning("Falling back to mock devices because Home Assistant entities were unavailable")
 
     payload = _read_device_state()
-    return [Entity(**entity) for entity in payload]
+    return [_normalise_entity(entity) for entity in payload]
 
 
 @router.post("/execute")
 async def execute_command(cmd: Command) -> dict[str, object]:
-    """Update the mock device state to reflect the requested Home Assistant command."""
+    """Execute a device command via Home Assistant with a mock fallback."""
+
+    if not MOCK_HA:
+        service_name = cmd.service.split(".")[-1]
+        payload = cmd.data or {}
+        success = ha_thermostat_service.set_device_state(cmd.entity_id, service_name, payload)
+        if success:
+            updated = ha_thermostat_service.get_entity_state(cmd.entity_id)
+            if updated is not None:
+                return {"status": "ok", "entity": _normalise_entity(updated).dict()}
+        logger.warning("Home Assistant command failed, reverting to mock state update", extra={"entity_id": cmd.entity_id})
 
     try:
         devices = _read_device_state()
@@ -90,4 +125,3 @@ async def execute_command(cmd: Command) -> dict[str, object]:
 
 
 __all__ = ["router"]
-
