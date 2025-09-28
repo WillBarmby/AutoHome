@@ -138,36 +138,10 @@
   },
   "chat_history": [
     {
-      "id": "1759060829348",
+      "id": "1759071267115",
       "type": "user",
-      "content": "at 9pm, set the thermostat to 65 degrees fahrenheit",
-      "timestamp": "2025-09-28T12:00:29.348289+00:00",
-      "intent": {
-        "type": "SetLevel",
-        "device": "climate.thermostat_hall",
-        "state": null,
-        "level": null,
-        "temperature": 65.0,
-        "before": null,
-        "after": null,
-        "deadline": null,
-        "cheapest": null,
-        "avoid_peak": null,
-        "parameters": null
-      }
-    },
-    {
-      "id": "1759060829349",
-      "type": "assistant",
-      "content": "I've set the thermostat to 65.0\u00b0F.",
-      "timestamp": "2025-09-28T12:00:29.348289+00:00",
-      "intent": null
-    },
-    {
-      "id": "1759062836609",
-      "type": "user",
-      "content": "Is it",
-      "timestamp": "2025-09-28T12:33:56.609359+00:00",
+      "content": "set thermostat to 68\u00b0",
+      "timestamp": "2025-09-28T14:54:27.115551+00:00",
       "intent": {
         "type": "QueryStatus",
         "device": null,
@@ -180,22 +154,22 @@
         "cheapest": null,
         "avoid_peak": null,
         "parameters": {
-          "query": "Is it"
+          "query": "set thermostat to 68\u00b0"
         }
       }
     },
     {
-      "id": "1759062836610",
+      "id": "1759071267116",
       "type": "assistant",
       "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
-      "timestamp": "2025-09-28T12:33:56.609359+00:00",
+      "timestamp": "2025-09-28T14:54:27.115551+00:00",
       "intent": null
     },
     {
-      "id": "1759062846636",
+      "id": "1759071279194",
       "type": "user",
-      "content": "That's pretty cool though",
-      "timestamp": "2025-09-28T12:34:06.636060+00:00",
+      "content": "set thermostat to 68",
+      "timestamp": "2025-09-28T14:54:39.194294+00:00",
       "intent": {
         "type": "QueryStatus",
         "device": null,
@@ -208,110 +182,26 @@
         "cheapest": null,
         "avoid_peak": null,
         "parameters": {
-          "query": "That's pretty cool though"
+          "query": "set thermostat to 68"
         }
       }
     },
     {
-      "id": "1759062846637",
+      "id": "1759071279195",
       "type": "assistant",
       "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
-      "timestamp": "2025-09-28T12:34:06.636060+00:00",
+      "timestamp": "2025-09-28T14:54:39.194294+00:00",
       "intent": null
     },
     {
-      "id": "1759062856659",
+      "id": "1759071291623",
       "type": "user",
-      "content": "Shit",
-      "timestamp": "2025-09-28T12:34:16.659908+00:00",
-      "intent": {
-        "type": "QueryStatus",
-        "device": null,
-        "state": null,
-        "level": null,
-        "temperature": null,
-        "before": null,
-        "after": null,
-        "deadline": null,
-        "cheapest": null,
-        "avoid_peak": null,
-        "parameters": {
-          "query": "Shit"
-        }
-      }
-    },
-    {
-      "id": "1759062856660",
-      "type": "assistant",
-      "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
-      "timestamp": "2025-09-28T12:34:16.659908+00:00",
-      "intent": null
-    },
-    {
-      "id": "1759062873992",
-      "type": "user",
-      "content": "So we don't have the AI",
-      "timestamp": "2025-09-28T12:34:33.992743+00:00",
-      "intent": {
-        "type": "QueryStatus",
-        "device": null,
-        "state": null,
-        "level": null,
-        "temperature": null,
-        "before": null,
-        "after": null,
-        "deadline": null,
-        "cheapest": null,
-        "avoid_peak": null,
-        "parameters": {
-          "query": "So we don't have the AI"
-        }
-      }
-    },
-    {
-      "id": "1759062873993",
-      "type": "assistant",
-      "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
-      "timestamp": "2025-09-28T12:34:33.992743+00:00",
-      "intent": null
-    },
-    {
-      "id": "1759062884010",
-      "type": "user",
-      "content": "Is it work",
-      "timestamp": "2025-09-28T12:34:44.010678+00:00",
-      "intent": {
-        "type": "QueryStatus",
-        "device": null,
-        "state": null,
-        "level": null,
-        "temperature": null,
-        "before": null,
-        "after": null,
-        "deadline": null,
-        "cheapest": null,
-        "avoid_peak": null,
-        "parameters": {
-          "query": "Is it work"
-        }
-      }
-    },
-    {
-      "id": "1759062884011",
-      "type": "assistant",
-      "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
-      "timestamp": "2025-09-28T12:34:44.010678+00:00",
-      "intent": null
-    },
-    {
-      "id": "1759063426345",
-      "type": "user",
-      "content": "Turn off all lights",
-      "timestamp": "2025-09-28T12:43:46.345340+00:00",
+      "content": "turn on all lights",
+      "timestamp": "2025-09-28T14:54:51.623161+00:00",
       "intent": {
         "type": "ToggleDevice",
         "device": "unknown",
-        "state": false,
+        "state": true,
         "level": null,
         "temperature": null,
         "before": null,
@@ -323,10 +213,38 @@
       }
     },
     {
-      "id": "1759063426346",
+      "id": "1759071291624",
       "type": "assistant",
-      "content": "I've turned off the unknown.",
-      "timestamp": "2025-09-28T12:43:46.345340+00:00",
+      "content": "I've turned on the unknown.",
+      "timestamp": "2025-09-28T14:54:51.623161+00:00",
+      "intent": null
+    },
+    {
+      "id": "1759071359628",
+      "type": "user",
+      "content": "I think it can pick up on everything that I'm saying like correctly",
+      "timestamp": "2025-09-28T14:55:59.628757+00:00",
+      "intent": {
+        "type": "QueryStatus",
+        "device": null,
+        "state": null,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": {
+          "query": "I think it can pick up on everything that I'm saying like correctly"
+        }
+      }
+    },
+    {
+      "id": "1759071359629",
+      "type": "assistant",
+      "content": "I'm here to help with your smart home! I can control lights, adjust the thermostat, and answer questions about your devices. What would you like me to do?",
+      "timestamp": "2025-09-28T14:55:59.628757+00:00",
       "intent": null
     }
   ],

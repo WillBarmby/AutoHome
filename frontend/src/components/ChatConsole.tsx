@@ -19,8 +19,57 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
   const [input, setInput] = useState("");
   const [isListening, setIsListening] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [currentTranscript, setCurrentTranscript] = useState("");
+  const [voiceSupported, setVoiceSupported] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+
+  // Initialize voice recognition
+  useEffect(() => {
+    // Check if speech recognition is supported
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+      setVoiceSupported(true);
+      const SpeechRecognition = (window as any).webkitSpeechRecognition || (window as any).SpeechRecognition;
+      recognitionRef.current = new SpeechRecognition();
+      
+      recognitionRef.current.continuous = false;
+      recognitionRef.current.interimResults = true;
+      recognitionRef.current.lang = 'en-US';
+      
+      recognitionRef.current.onresult = (event: any) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        setCurrentTranscript(transcript);
+        
+        // If final result, process the command
+        if (event.results[event.results.length - 1].isFinal) {
+          setInput(transcript);
+          setIsListening(false);
+          setCurrentTranscript("");
+        }
+      };
+      
+      recognitionRef.current.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        setCurrentTranscript("");
+      };
+      
+      recognitionRef.current.onend = () => {
+        setIsListening(false);
+        setCurrentTranscript("");
+      };
+    }
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
 
   const handleSend = async () => {
     if (!input.trim() || isProcessing) return;
@@ -44,17 +93,23 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
   };
 
   const toggleVoiceInput = () => {
+    if (!voiceSupported) {
+      console.warn('Speech recognition not supported in this browser');
+      return;
+    }
+
     if (isListening) {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
       setIsListening(false);
-      // Stop voice recognition
+      setCurrentTranscript("");
     } else {
       setIsListening(true);
-      // Start voice recognition (would integrate with Web Speech API)
-      // For now, just simulate
-      setTimeout(() => {
-        setIsListening(false);
-        setInput("What's the current temperature in the living room?");
-      }, 2000);
+      setCurrentTranscript("");
+      if (recognitionRef.current) {
+        recognitionRef.current.start();
+      }
     }
   };
 
@@ -154,9 +209,12 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
               size="icon"
               className={cn(
                 "absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8",
-                isListening && "bg-destructive text-destructive-foreground animate-pulse"
+                isListening && "bg-destructive text-destructive-foreground animate-pulse",
+                !voiceSupported && "opacity-50 cursor-not-allowed"
               )}
               onClick={toggleVoiceInput}
+              disabled={!voiceSupported}
+              title={voiceSupported ? (isListening ? "Stop listening" : "Start voice input") : "Voice not supported"}
             >
               {isListening ? (
                 <Square className="h-4 w-4" />
@@ -193,6 +251,11 @@ export function ChatConsole({ messages, onSendMessage, onClearMessages, classNam
               <div className="h-2 w-2 bg-destructive rounded-full animate-pulse" />
               Listening...
             </div>
+            {currentTranscript && (
+              <div className="mt-1 text-xs text-muted-foreground italic">
+                "{currentTranscript}"
+              </div>
+            )}
           </div>
         )}
       </CardContent>
