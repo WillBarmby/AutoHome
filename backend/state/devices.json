@@ -274,6 +274,11 @@
     "entity_id": "light.bed_light",
     "state": "off",
     "attributes": {
+<<<<<<< HEAD
+      "friendly_name": "Bedroom Thermostat",
+      "hvac_mode": "cool",
+      "temperature": 85
+=======
       "min_color_temp_kelvin": 2000,
       "max_color_temp_kelvin": 6535,
       "min_mireds": 153,
@@ -296,6 +301,7 @@
       "xy_color": null,
       "friendly_name": "Bed Light",
       "supported_features": 4
+>>>>>>> 8a8e156b34959218d2775faa3bee6f6bfb679b5f
     },
     "icon": null
   },

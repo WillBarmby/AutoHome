@@ -136,6 +136,9 @@
       "monthly": 142.3
     }
   },
+<<<<<<< HEAD
+  "chat_history": [],
+=======
   "chat_history": [
     {
       "id": "1759072841937",
@@ -192,6 +195,7 @@
       "intent": null
     }
   ],
+>>>>>>> 8a8e156b34959218d2775faa3bee6f6bfb679b5f
   "approval_queue": [
     {
       "id": "1",
