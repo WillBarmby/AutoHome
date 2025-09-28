@@ -1,7 +1,7 @@
 [
   {
     "entity_id": "light.living_room",
-    "state": "off",
+    "state": "on",
     "attributes": {
       "friendly_name": "Living Room Lamp",
       "brightness": 200
@@ -10,11 +10,11 @@
   },
   {
     "entity_id": "climate.bedroom",
-    "state": "off",
+    "state": "on",
     "attributes": {
       "friendly_name": "Bedroom Thermostat",
       "hvac_mode": "cool",
-      "temperature": 74.60000000000001
+      "temperature": 78.10000000000001
     },
     "icon": "mdi:thermometer"
   }
