@@ -14,7 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { gsap } from 'gsap';
 import { useToast } from '@/hooks/use-toast';
-import { ArrowLeft, Info } from 'lucide-react';
+import { ArrowLeft, Info, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import NumberFlow from '@number-flow/react';
 import { getUserProfile, saveUserProfile } from '@/services/userProfileService';
@@ -47,23 +47,25 @@ export default function UserProfile() {
 
   const watchedValues = watch();
 
-  // GSAP animations
+  // GSAP animations - trigger when not loading
   useEffect(() => {
-    const elements = [headerRef.current, formRef.current, previewRef.current].filter(Boolean);
-    
-    if (elements.length > 0) {
-      gsap.fromTo(elements, 
-        { y: 30, opacity: 0 },
-        { 
-          y: 0, 
-          opacity: 1, 
-          duration: 0.8, 
-          stagger: 0.15, 
-          ease: 'power2.out' 
-        }
-      );
+    if (!isLoading) {
+      const elements = [headerRef.current, formRef.current, previewRef.current].filter(Boolean);
+      
+      if (elements.length > 0) {
+        gsap.fromTo(elements, 
+          { y: 30, opacity: 0 },
+          { 
+            y: 0, 
+            opacity: 1, 
+            duration: 0.8, 
+            stagger: 0.15, 
+            ease: 'power2.out' 
+          }
+        );
+      }
     }
-  }, []);
+  }, [isLoading]);
 
   // Set last updated timestamp on mount
   useEffect(() => {
@@ -148,7 +150,12 @@ export default function UserProfile() {
   if (isLoading) {
     return (
       <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid text-muted-foreground">
-        Loading your profile…
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <span className="text-sm">Loading your profile…</span>
+          </div>
+        </div>
       </div>
     );
   }
@@ -158,8 +165,11 @@ export default function UserProfile() {
     <div className="space-y-6 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-foreground tracking-wide">Your Profile</h1>
+        <div className="flex items-center gap-3">
+          <User className="h-6 w-6 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-wide">Your Profile</h1>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -194,15 +204,10 @@ export default function UserProfile() {
         {/* Form */}
         <Card ref={formRef} className="bg-gradient-card border-card-border">
           <CardHeader className="relative">
-            <CardTitle className="tracking-wide">Your preferences</CardTitle>
+            <CardTitle className="tracking-wide">Preferences</CardTitle>
             <CardDescription>
               Tune your day-to-day rhythm and comfort settings.
             </CardDescription>
-            {hasUnsavedChanges && (
-              <Badge variant="outline" className="absolute top-4 right-4 text-orange-500 border-orange-500 text-xs">
-                Unsaved changes
-              </Badge>
-            )}
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -323,7 +328,12 @@ export default function UserProfile() {
                     setValue('tempSleepF', temp, { shouldDirty: true });
                     setHasUnsavedChanges(true);
                   }}
-                  className="w-full max-w-3xl mx-auto"
+                  onSave={handleSubmit(onSubmit)}
+                  onReset={handleReset}
+                  onLoadExample={handleUseExample}
+                  isSaving={isSaving}
+                  hasUnsavedChanges={hasUnsavedChanges}
+                  className="w-full"
                 />
 
                 {/* Notes UI temporarily disabled
@@ -350,32 +360,6 @@ export default function UserProfile() {
                 */}
               </div>
 
-              {/* Action Buttons */}
-              <div className="flex flex-wrap gap-3 pt-4">
-                <Button 
-                  type="submit" 
-                  disabled={isSaving || !hasUnsavedChanges}
-                  className="flex-1 min-w-24"
-                >
-                  {isSaving ? 'Saving…' : 'Save changes'}
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={handleReset}
-                  disabled={isSaving}
-                >
-                  Reset all
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  onClick={handleUseExample}
-                  disabled={isSaving}
-                >
-                  Load example
-                </Button>
-              </div>
             </form>
           </CardContent>
         </Card>
@@ -429,9 +413,9 @@ export default function UserProfile() {
               <div className="p-4 bg-muted/20 rounded-lg">
                 <p className="font-medium mb-2">Home snapshot</p>
                 <p>
-                  Based in <span className="font-semibold text-primary">{watchedValues.location}</span>, roughly
-                  <span className="font-semibold text-primary"> {watchedValues.squareFootage.toLocaleString()} sq. ft.</span> with
-                  <span className="font-semibold text-primary"> {watchedValues.coolingUnits}</span> HVAC unit{watchedValues.coolingUnits > 1 ? 's' : ''}.
+                  Based in <span className="font-semibold text-primary">{watchedValues.location || 'Unknown'}</span>, roughly
+                  <span className="font-semibold text-primary"> {watchedValues.squareFootage?.toLocaleString() || 'Unknown'} sq. ft.</span> with
+                  <span className="font-semibold text-primary"> {watchedValues.coolingUnits || 'Unknown'}</span> HVAC unit{(watchedValues.coolingUnits || 1) > 1 ? 's' : ''}.
                 </p>
               </div>
 

@@ -25,15 +25,24 @@ class StateStore:
         STATE_DIR.mkdir(parents=True, exist_ok=True)
         self._ensure_seed_files()
 
-    def load_devices(self) -> Dict[str, Any]:
-        """Return the device collection from disk."""
+    def load_devices(self) -> List[Dict[str, Any]]:
+        """Return the cached Home Assistant entities from disk."""
 
-        return self._read_json(DEVICES_PATH)
+        data = self._read_json(DEVICES_PATH)
+        if isinstance(data, dict):
+            if "entities" in data and isinstance(data["entities"], list):
+                return list(data["entities"])
+            if "devices" in data and isinstance(data["devices"], list):
+                return list(data["devices"])
+            return []
+        if isinstance(data, list):
+            return list(data)
+        return []
 
-    def save_devices(self, data: Dict[str, Any]) -> None:
-        """Persist the provided device payload to disk."""
+    def save_devices(self, entities: List[Dict[str, Any]]) -> None:
+        """Persist the provided Home Assistant entities to disk."""
 
-        self._write_json(DEVICES_PATH, data)
+        self._write_json(DEVICES_PATH, entities)
 
     def load_preferences(self) -> Dict[str, Any]:
         """Return stored user preferences."""
@@ -79,18 +88,35 @@ class StateStore:
         self._write_json(SCHEDULE_PATH, data)
 
     def list_rooms(self) -> List[str]:
-        """Return the list of known rooms from the device catalogue."""
+        """Return the list of known rooms derived from cached entities."""
 
-        devices = self.load_devices()
-        return devices.get("rooms", [])
+        rooms: set[str] = set()
+        for entity in self.load_devices():
+            attributes = entity.get("attributes", {}) if isinstance(entity, dict) else {}
+            room = attributes.get("room") or attributes.get("area")
+            if isinstance(room, str) and room:
+                rooms.add(room)
+        return sorted(rooms)
 
     def devices_by_type(self, device_type: str, room: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Return devices filtered by type and optional room."""
+        """Return cached entities filtered by Home Assistant domain and optional room."""
 
-        devices = self.load_devices().get("devices", [])
-        if room:
-            devices = [d for d in devices if d.get("room") == room]
-        return [d for d in devices if d.get("type") == device_type]
+        matches: List[Dict[str, Any]] = []
+        for entity in self.load_devices():
+            if not isinstance(entity, dict):
+                continue
+            entity_id = entity.get("entity_id", "")
+            if not isinstance(entity_id, str) or not entity_id:
+                continue
+            domain = entity_id.split(".")[0]
+            if domain != device_type:
+                continue
+            if room:
+                entity_room = entity.get("attributes", {}).get("room")
+                if entity_room != room:
+                    continue
+            matches.append(entity)
+        return matches
 
     def _ensure_seed_files(self) -> None:
         """Create default JSON payloads so the UI has data during development."""
@@ -98,47 +124,39 @@ class StateStore:
         if not DEVICES_PATH.exists():
             self._write_json(
                 DEVICES_PATH,
-                {
-                    "rooms": ["bedroom", "living_room"],
-                    "devices": [
-                        {
-                            "id": "bedroom_light",
-                            "room": "bedroom",
-                            "type": "light",
-                            "name": "Bedroom Light",
-                        },
-                        {
-                            "id": "bedroom_fan",
-                            "room": "bedroom",
-                            "type": "fan",
-                            "name": "Bedroom Fan",
-                        },
-                        {
-                            "id": "bedroom_thermostat",
-                            "room": "bedroom",
-                            "type": "thermostat",
-                            "name": "Bedroom Thermostat",
-                        },
-                        {
-                            "id": "living_light",
+                [
+                    {
+                        "entity_id": "light.living_room",
+                        "state": "off",
+                        "attributes": {
+                            "friendly_name": "Living Room Lamp",
+                            "brightness": 0,
                             "room": "living_room",
-                            "type": "light",
-                            "name": "Living Room Light",
                         },
-                        {
-                            "id": "living_fan",
-                            "room": "living_room",
-                            "type": "fan",
-                            "name": "Living Room Fan",
+                        "icon": "mdi:lightbulb",
+                    },
+                    {
+                        "entity_id": "fan.bedroom",
+                        "state": "off",
+                        "attributes": {
+                            "friendly_name": "Bedroom Fan",
+                            "room": "bedroom",
                         },
-                        {
-                            "id": "living_thermostat",
-                            "room": "living_room",
-                            "type": "thermostat",
-                            "name": "Living Room Thermostat",
+                        "icon": "mdi:fan",
+                    },
+                    {
+                        "entity_id": "climate.bedroom",
+                        "state": "cool",
+                        "attributes": {
+                            "friendly_name": "Bedroom Thermostat",
+                            "current_temperature": 72.0,
+                            "temperature": 70.0,
+                            "hvac_mode": "cool",
+                            "room": "bedroom",
                         },
-                    ],
-                },
+                        "icon": "mdi:thermometer",
+                    },
+                ],
             )
         if not PREFERENCES_PATH.exists():
             self._write_json(PREFERENCES_PATH, {})

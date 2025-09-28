@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { CircularMeter } from './CircularMeter';
 import ElasticSlider from './ElasticSlider';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +21,9 @@ import {
   AlertCircle,
   Loader2,
   Minus,
-  Plus
+  Plus,
+  Wifi,
+  WifiOff
 } from 'lucide-react';
 import { 
   calculateTemperature, 
@@ -193,78 +196,43 @@ export function SmartThermostat({ className }: SmartThermostatProps) {
 
   return (
     <div className={`space-y-6 ${className}`}>
-      {/* Connection Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 tracking-wide">
-            <Home className="h-5 w-5" />
-            Home Assistant Connection
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          {loading ? (
-            <div className="flex items-center gap-2">
-              <Loader2 className="h-4 w-4 animate-spin" />
-              <span>Checking connection...</span>
-            </div>
-          ) : connectionStatus ? (
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {connectionStatus.connected ? (
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                ) : (
-                  <AlertCircle className="h-4 w-4 text-red-500" />
-                )}
-                <span>
-                  {connectionStatus.connected ? 'Connected' : 'Disconnected'}
-                </span>
-                {connectionStatus.mock_mode && (
-                  <Badge variant="secondary">Mock Mode</Badge>
-                )}
-              </div>
-              {connectionStatus.ha_url && (
-                <span className="text-sm text-muted-foreground">
-                  {connectionStatus.ha_url}
-                </span>
-              )}
-            </div>
-          ) : (
-            <span className="text-muted-foreground">Unknown status</span>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Weather Data */}
-      {weatherData && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sun className="h-5 w-5" />
-              Current Weather
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-2xl font-bold">{weatherData.temperature}°F</p>
-                <p className="text-sm text-muted-foreground">{weatherData.city}</p>
-              </div>
-              <Cloud className="h-8 w-8 text-blue-500" />
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* Temperature Calculation */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 tracking-wide">
-            <Thermometer className="h-5 w-5" />
-            Smart Temperature Calculator
-          </CardTitle>
-          <CardDescription>
-            Calculate optimal cooling time and send results to Home Assistant
-          </CardDescription>
+        <CardHeader className="relative">
+          <div>
+            <CardTitle className="flex items-center gap-2 tracking-wide">
+              <Thermometer className="h-5 w-5" />
+              Smart Temperature Calculator
+            </CardTitle>
+            <CardDescription>
+              Calculate optimal cooling time and send results to Home Assistant
+            </CardDescription>
+          </div>
+          {/* Home Assistant Connection Status - Positioned at top right */}
+          <div className="absolute top-4 right-4">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-2">
+                    {connectionStatus?.connected ? (
+                      <Wifi className="h-4 w-4 text-green-500" />
+                    ) : (
+                      <WifiOff className="h-4 w-4 text-red-500" />
+                    )}
+                    <Badge 
+                      variant={connectionStatus?.connected ? "default" : "destructive"}
+                      className="text-xs"
+                    >
+                      {connectionStatus?.connected ? "Connected" : "Disconnected"}
+                    </Badge>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent side="left">
+                  <p>{connectionStatus?.ha_url || "localhost:8123"}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Temperature Controls */}
@@ -398,56 +366,46 @@ export function SmartThermostat({ className }: SmartThermostatProps) {
       {/* Calculation Results */}
       {calculationResult && (
         <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {getStatusIcon(calculationResult.status)}
-              <span className={getStatusColor(calculationResult.status)}>
-                Calculation Results
-              </span>
-            </CardTitle>
+          <CardHeader className="relative">
+            <div>
+              <CardTitle className="flex items-center gap-2">
+                {getStatusIcon(calculationResult.status)}
+                <span className="text-white tracking-wider">
+                  Calculation Results
+                </span>
+              </CardTitle>
+            </div>
+            {/* Current Weather Indicator - Positioned at top right */}
+            {weatherData && (
+              <div className="absolute top-4 right-8">
+                <div className="flex items-center gap-2">
+                  <Cloud className="h-4 w-4 text-blue-500" />
+                  <span className="text-sm text-muted-foreground">
+                    Currently {weatherData.temperature}°F in {weatherData.city}
+                  </span>
+                </div>
+              </div>
+            )}
           </CardHeader>
           <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <div className="text-center">
-                <p className="text-2xl font-bold text-blue-500">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="text-center py-8">
+                <p className="text-2xl font-bold text-yellow-400">
                   {calculationResult.time_needed}
                 </p>
                 <p className="text-sm text-muted-foreground">Minutes</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-green-500">
+              <div className="text-center py-8">
+                <p className="text-2xl font-bold text-yellow-400">
                   {calculationResult.current_temp}°F
                 </p>
                 <p className="text-sm text-muted-foreground">Current</p>
               </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-orange-500">
+              <div className="text-center py-8">
+                <p className="text-2xl font-bold text-yellow-400">
                   {calculationResult.target_temp.toFixed(1)}°F
                 </p>
                 <p className="text-sm text-muted-foreground">Target</p>
-              </div>
-              <div className="text-center">
-                <p className="text-2xl font-bold text-purple-500">
-                  {calculationResult.outdoor_temp}°F
-                </p>
-                <p className="text-sm text-muted-foreground">Outdoor</p>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Efficiency Factor</p>
-                <p className="text-lg font-semibold">
-                  {(calculationResult.efficiency_factor * 100).toFixed(1)}%
-                </p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Status</p>
-                <Badge variant="outline" className={getStatusColor(calculationResult.status)}>
-                  {calculationResult.status.replace('_', ' ')}
-                </Badge>
               </div>
             </div>
 

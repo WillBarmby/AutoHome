@@ -16,7 +16,8 @@ import {
   StopCircle,
   Bell,
   Wifi,
-  Info
+  Info,
+  X
 } from "lucide-react";
 import { DeviceEntity } from "@/types";
 import { haAdapter } from "@/services/adapters";
@@ -156,8 +157,11 @@ const KillSwitch = () => {
     <div className="space-y-6 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <h1 className="text-2xl font-bold text-foreground tracking-wide">Kill Switch</h1>
+        <div className="flex items-center gap-3">
+          <Power className="h-6 w-6 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold text-foreground tracking-wide">Kill Switch</h1>
+          </div>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -188,7 +192,7 @@ const KillSwitch = () => {
         <Card className={`border-2 ${killSwitchActive ? 'border-destructive bg-destructive/5' : 'border-card-border bg-gradient-card'}`}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg tracking-wide">
-              <Power className={`h-6 w-6 ${killSwitchActive ? 'text-destructive' : 'text-primary'}`} />
+              <X className={`h-6 w-6 ${killSwitchActive ? 'text-destructive' : 'text-primary'}`} />
               Main Kill Switch
             </CardTitle>
           </CardHeader>

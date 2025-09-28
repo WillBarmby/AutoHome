@@ -136,7 +136,38 @@
       "monthly": 142.3
     }
   },
+<<<<<<< HEAD
   "chat_history": [],
+=======
+  "chat_history": [
+    {
+      "id": "1759072841937",
+      "type": "user",
+      "content": "turn off my bed light",
+      "timestamp": "2025-09-28T15:20:41.937328Z",
+      "intent": {
+        "type": "ToggleDevice",
+        "device": "light.bed_light",
+        "state": false,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": null
+      }
+    },
+    {
+      "id": "1759072841938",
+      "type": "assistant",
+      "content": "I've turned off the bed light.",
+      "timestamp": "2025-09-28T15:20:41.937328Z",
+      "intent": null
+    }
+  ],
+>>>>>>> 8a8e156b34959218d2775faa3bee6f6bfb679b5f
   "approval_queue": [
     {
       "id": "1",
@@ -154,7 +185,75 @@
       "comfortDelta": "-2\u00b0F",
       "expiresAt": "2024-08-21T12:05:00Z",
       "status": "pending"
+    },
+    {
+      "id": "1759068837540",
+      "summary": "Turn of all my lights",
+      "intent": {
+        "type": "QueryStatus",
+        "device": null,
+        "state": null,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": {
+          "query": "Turn of all my lights"
+        }
+      },
+      "guardrailBadges": [],
+      "costDelta": null,
+      "comfortDelta": null,
+      "expiresAt": "2025-09-28T14:18:57.540395Z",
+      "status": "pending"
+    },
+    {
+      "id": "1759071908359",
+      "summary": "Turn off my bed light",
+      "intent": {
+        "type": "ToggleDevice",
+        "device": "unknown",
+        "state": false,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": null
+      },
+      "guardrailBadges": [],
+      "costDelta": null,
+      "comfortDelta": null,
+      "expiresAt": "2025-09-28T15:10:08.359672Z",
+      "status": "pending"
+    },
+    {
+      "id": "1759072842009",
+      "summary": "turn off my bed light",
+      "intent": {
+        "type": "ToggleDevice",
+        "device": "light.bed_light",
+        "state": false,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": null
+      },
+      "guardrailBadges": [],
+      "costDelta": null,
+      "comfortDelta": null,
+      "expiresAt": "2025-09-28T15:25:42.009530Z",
+      "status": "pending"
     }
   ],
-  "operation_mode": "auto"
+  "operation_mode": "manual"
 }

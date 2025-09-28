@@ -59,6 +59,9 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
   const [error, setError] = useState<string | null>(null);
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const notificationsRef = useRef<HTMLDivElement>(null);
+  const [localClimateTemperature, setLocalClimateTemperature] = useState<number | null>(null);
+  const climateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isClimateAdjusting, setIsClimateAdjusting] = useState(false);
   
   useEffect(() => {
     const load = async () => {
@@ -100,6 +103,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     try {
       const entities = await haAdapter.listEntities();
       setDevices(mapEntitiesToDevices(entities));
+      // Don't clear local climate temperature here - let it persist until user stops adjusting
     } catch (err) {
       console.error('Failed to refresh devices', err);
     }
@@ -137,26 +141,46 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
   };
 
   const handleDeviceLevelChange = async (deviceId: string, level: number) => {
-    try {
-      const device = devices.find(d => d.id === deviceId);
-      if (!device) return;
+    const device = devices.find(d => d.id === deviceId);
+    if (!device) return;
 
-      if (device.type === 'climate') {
-        // For climate devices, set temperature
-        await haAdapter.callService('climate', 'set_temperature', {
-          entity_id: deviceId,
-          temperature: level
-        });
-      } else {
-        // For lights and other devices, set brightness/level
+    if (device.type === 'climate') {
+      // Set adjusting flag and update local state immediately
+      setIsClimateAdjusting(true);
+      setLocalClimateTemperature(level);
+      
+      // Clear existing timeout
+      if (climateTimeoutRef.current) {
+        clearTimeout(climateTimeoutRef.current);
+      }
+      
+      // Debounce the API call
+      climateTimeoutRef.current = setTimeout(async () => {
+        try {
+          await haAdapter.callService('climate', 'set_temperature', {
+            entity_id: deviceId,
+            temperature: level
+          });
+          // Keep the local state and adjusting flag - don't reset to device state
+          console.log(`Climate temperature set to ${level}°F`);
+        } catch (error) {
+          console.error('Failed to change device level:', error);
+          // Only reset on error
+          setIsClimateAdjusting(false);
+          setLocalClimateTemperature(null);
+        }
+      }, 800);
+    } else {
+      // For lights and other devices, set brightness/level
+      try {
         await haAdapter.callService('light', 'turn_on', {
           entity_id: deviceId,
           brightness: level
         });
+        await refreshDevices();
+      } catch (error) {
+        console.error('Failed to change device level:', error);
       }
-      await refreshDevices();
-    } catch (error) {
-      console.error('Failed to change device level:', error);
     }
   };
 
@@ -284,13 +308,11 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
   
   // Calculate reactive values for meters
   const currentTemperature = thermostat ? 
-    (typeof thermostat.state === 'number' ? thermostat.state : 
-     thermostat.attributes?.current_temperature || vitalsData.temperature.current) : 
+    (thermostat.attributes?.current_temperature || vitalsData.temperature.current) : 
     vitalsData.temperature.current;
     
   const targetTemperature = thermostat ? 
-    (typeof thermostat.state === 'number' ? thermostat.state : 
-     thermostat.attributes?.target_temperature || vitalsData.temperature.target) : 
+    (isClimateAdjusting ? localClimateTemperature : (thermostat.attributes?.target_temperature || vitalsData.temperature.target)) : 
     vitalsData.temperature.target;
     
   const activeDeviceCount = devices.filter(isDeviceActive).length;
@@ -317,34 +339,50 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     };
   }, []);
 
-  // Animate elements on mount
+  // Cleanup timeout on unmount
   useEffect(() => {
-    const elements = [
-      headerRef.current,
-      chatConsoleRef.current,
-      leftColumnRef.current,
-      rightColumnRef.current
-    ].filter(Boolean);
-
-    gsap.fromTo(elements, 
-      { 
-        y: 30, 
-        opacity: 0 
-      },
-      { 
-        y: 0, 
-        opacity: 1, 
-        duration: 0.8, 
-        stagger: 0.15,
-        ease: 'power2.out'
+    return () => {
+      if (climateTimeoutRef.current) {
+        clearTimeout(climateTimeoutRef.current);
       }
-    );
+    };
   }, []);
+
+  // Animate elements when not loading
+  useEffect(() => {
+    if (!loading) {
+      const elements = [
+        headerRef.current,
+        chatConsoleRef.current,
+        leftColumnRef.current,
+        rightColumnRef.current
+      ].filter(Boolean);
+
+      gsap.fromTo(elements, 
+        { 
+          y: 30, 
+          opacity: 0 
+        },
+        { 
+          y: 0, 
+          opacity: 1, 
+          duration: 0.8, 
+          stagger: 0.15,
+          ease: 'power2.out'
+        }
+      );
+    }
+  }, [loading]);
 
   if (loading) {
     return (
-      <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid text-muted-foreground">
-        Loading dashboard…
+      <div className="p-10 min-h-screen bg-gradient-main bg-dot-grid">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="flex flex-col items-center gap-4">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+            <span className="text-sm text-muted-foreground">Loading dashboard…</span>
+          </div>
+        </div>
       </div>
     );
   }
@@ -361,121 +399,145 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
     <div className="space-y-8 p-10 min-h-screen bg-gradient-main bg-dot-grid relative">
       {/* Header */}
       <div ref={headerRef} className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-foreground tracking-wide">Home Control</h1>
-          <p className="text-sm text-muted-foreground">AI Assistant Panel</p>
-        </div>
-        
-        {/* Operation Mode Segmented Control - Centered */}
-        <div className="flex bg-muted rounded-lg p-1">
-          <motion.button
-            ref={autoButtonRef}
-            onClick={() => void handleOperationModeChange('auto')}
-            className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
-              operationMode === 'auto'
-                ? 'bg-green-500 text-white shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-            title="Auto (Safe) - Safe actions execute automatically"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            animate={{
-              rotate: operationMode === 'auto' ? [0, -10, 10, -10, 0] : 0,
-              transition: { duration: 0.5, ease: "easeInOut" }
-            }}
-          >
-            <motion.div
-              animate={{
-                scale: operationMode === 'auto' ? [1, 1.2, 1] : 1,
-                transition: { duration: 0.3, ease: "easeInOut" }
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-3">
+            <Home className="h-6 w-6 text-primary" />
+            <h1 className="text-2xl font-bold text-foreground tracking-wide">Home Control</h1>
+          </div>
+          
+          {/* Operation Mode Segmented Control - Moved to left */}
+          <div className="flex items-center gap-3">
+            <div className="flex bg-muted rounded-lg p-1">
+              <motion.button
+                ref={autoButtonRef}
+                onClick={() => void handleOperationModeChange('auto')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
+                  operationMode === 'auto'
+                    ? 'bg-green-500 text-white shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title="Auto (Safe) - Safe actions execute automatically"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                animate={{
+                  rotate: operationMode === 'auto' ? [0, -10, 10, -10, 0] : 0,
+                  transition: { duration: 0.5, ease: "easeInOut" }
+                }}
+              >
+                <motion.div
+                  animate={{
+                    scale: operationMode === 'auto' ? [1, 1.2, 1] : 1,
+                    transition: { duration: 0.3, ease: "easeInOut" }
+                  }}
+                >
+                  <Zap className="h-4 w-4" />
+                </motion.div>
+                {operationMode === 'auto' && (
+                  <motion.span 
+                    className="text-sm font-medium whitespace-nowrap"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Auto
+                  </motion.span>
+                )}
+              </motion.button>
+              <motion.button
+                ref={manualButtonRef}
+                onClick={() => void handleOperationModeChange('manual')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
+                  operationMode === 'manual'
+                    ? 'bg-yellow-500 text-white shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title="Manual - All actions require approval"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                animate={{
+                  rotate: operationMode === 'manual' ? [0, -5, 5, -5, 0] : 0,
+                  transition: { duration: 0.5, ease: "easeInOut" }
+                }}
+              >
+                <motion.div
+                  animate={{
+                    scale: operationMode === 'manual' ? [1, 1.2, 1] : 1,
+                    transition: { duration: 0.3, ease: "easeInOut" }
+                  }}
+                >
+                  <Hand className="h-4 w-4" />
+                </motion.div>
+                {operationMode === 'manual' && (
+                  <motion.span 
+                    className="text-sm font-medium whitespace-nowrap"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Manual
+                  </motion.span>
+                )}
+              </motion.button>
+              <motion.button
+                ref={pausedButtonRef}
+                onClick={() => void handleOperationModeChange('paused')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
+                  operationMode === 'paused'
+                    ? 'bg-red-500 text-white shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+                title="Paused - All automation disabled"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                animate={{
+                  rotate: operationMode === 'paused' ? [0, -15, 15, -15, 0] : 0,
+                  transition: { duration: 0.5, ease: "easeInOut" }
+                }}
+              >
+                <motion.div
+                  animate={{
+                    scale: operationMode === 'paused' ? [1, 1.2, 1] : 1,
+                    transition: { duration: 0.3, ease: "easeInOut" }
+                  }}
+                >
+                  <Pause className="h-4 w-4" />
+                </motion.div>
+                {operationMode === 'paused' && (
+                  <motion.span 
+                    className="text-sm font-medium whitespace-nowrap"
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -10 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    Paused
+                  </motion.span>
+                )}
+              </motion.button>
+            </div>
+            
+            {/* Short Description */}
+            <motion.div 
+              key={operationMode}
+              className="text-xs text-muted-foreground"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ 
+                duration: 0.3, 
+                ease: [0.4, 0, 0.2, 1],
+                type: "spring",
+                stiffness: 300,
+                damping: 30
               }}
             >
-              <Zap className="h-4 w-4" />
+              {operationMode === 'auto' ? 'Safe auto execution' :
+               operationMode === 'manual' ? 'Requires approval' :
+               'All automation disabled'}
             </motion.div>
-            {operationMode === 'auto' && (
-              <motion.span 
-                className="text-sm font-medium whitespace-nowrap"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                Auto
-              </motion.span>
-            )}
-          </motion.button>
-          <motion.button
-            ref={manualButtonRef}
-            onClick={() => void handleOperationModeChange('manual')}
-            className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
-              operationMode === 'manual'
-                ? 'bg-yellow-500 text-white shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-            title="Manual - All actions require approval"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            animate={{
-              rotate: operationMode === 'manual' ? [0, -5, 5, -5, 0] : 0,
-              transition: { duration: 0.5, ease: "easeInOut" }
-            }}
-          >
-            <motion.div
-              animate={{
-                scale: operationMode === 'manual' ? [1, 1.2, 1] : 1,
-                transition: { duration: 0.3, ease: "easeInOut" }
-              }}
-            >
-              <Hand className="h-4 w-4" />
-            </motion.div>
-            {operationMode === 'manual' && (
-              <motion.span 
-                className="text-sm font-medium whitespace-nowrap"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                Manual
-              </motion.span>
-            )}
-          </motion.button>
-          <motion.button
-            ref={pausedButtonRef}
-            onClick={() => void handleOperationModeChange('paused')}
-            className={`flex items-center gap-2 px-3 py-2 rounded-md transition-all ${
-              operationMode === 'paused'
-                ? 'bg-red-500 text-white shadow-sm'
-                : 'text-muted-foreground hover:text-foreground'
-            }`}
-            title="Paused - All automation disabled"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            animate={{
-              rotate: operationMode === 'paused' ? [0, -15, 15, -15, 0] : 0,
-              transition: { duration: 0.5, ease: "easeInOut" }
-            }}
-          >
-            <motion.div
-              animate={{
-                scale: operationMode === 'paused' ? [1, 1.2, 1] : 1,
-                transition: { duration: 0.3, ease: "easeInOut" }
-              }}
-            >
-              <Pause className="h-4 w-4" />
-            </motion.div>
-            {operationMode === 'paused' && (
-              <motion.span 
-                className="text-sm font-medium whitespace-nowrap"
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                transition={{ duration: 0.2 }}
-              >
-                Paused
-              </motion.span>
-            )}
-          </motion.button>
+          </div>
         </div>
         
         <div className="flex items-center gap-3">
@@ -492,7 +554,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
             <Button
               variant="ghost"
               size="sm"
-              className="h-8 w-8 p-0 rounded-full hover:bg-muted"
+              className="h-8 w-8 p-0 rounded-full hover:bg-muted hover:text-white"
               onClick={() => setNotificationsOpen(!notificationsOpen)}
             >
               <Bell className="h-4 w-4" />
@@ -501,6 +563,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
         </div>
       </div>
 
+
       {/* Notifications Popup - Fixed positioning to appear above everything */}
       {notificationsOpen && (
         <motion.div 
@@ -508,7 +571,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: -10 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
-          className="fixed top-12 right-6 w-80 bg-background border border-border rounded-lg shadow-lg z-[9999]"
+          className="fixed top-16 right-8 w-80 bg-background border border-border rounded-lg shadow-lg z-[9999]"
         >
           <div className="p-4 border-b border-border">
             <h3 className="font-medium text-sm">Notifications</h3>
@@ -537,23 +600,28 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
 
       {/* Main Content */}
       <Tabs defaultValue="dashboard" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="dashboard" className="flex items-center gap-2">
-            <Home className="h-4 w-4" />
-            Dashboard
-          </TabsTrigger>
-          <TabsTrigger value="home-assistant" className="flex items-center gap-2">
-            <Settings className="h-4 w-4" />
-            Home Assistant
-          </TabsTrigger>
-          <TabsTrigger value="advanced" className="flex items-center gap-2">
-            <Database className="h-4 w-4" />
-            Advanced
-          </TabsTrigger>
-        </TabsList>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+        >
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="dashboard">
+              Dashboard
+            </TabsTrigger>
+            <TabsTrigger value="home-assistant">
+              Home Assistant
+            </TabsTrigger>
+          </TabsList>
+        </motion.div>
 
         <TabsContent value="dashboard" className="space-y-8 pt-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <motion.div 
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+          >
             {/* Left Column - Chat Console */}
             <div ref={chatConsoleRef}>
               <ChatConsole
@@ -571,7 +639,11 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
                   {/* Climate Toggle Segmented Control */}
                   <div className="flex bg-muted rounded-lg p-1 mb-2">
                     <button
-                      onClick={() => handleDeviceToggle(thermostat.id)}
+                      onClick={() => {
+                        if (!thermostat.state) {
+                          handleDeviceToggle(thermostat.id);
+                        }
+                      }}
                       className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
                         thermostat.state
                           ? 'bg-green-500 text-white shadow-sm'
@@ -581,7 +653,11 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
                       ON
                     </button>
                     <button
-                      onClick={() => handleDeviceToggle(thermostat.id)}
+                      onClick={() => {
+                        if (thermostat.state) {
+                          handleDeviceToggle(thermostat.id);
+                        }
+                      }}
                       className={`px-3 py-1 text-xs font-medium rounded-md transition-all ${
                         !thermostat.state
                           ? 'bg-red-500 text-white shadow-sm'
@@ -592,21 +668,24 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
                     </button>
                   </div>
                   
-                  <CircularMeter
-                    value={targetTemperature}
-                    max={85}
-                    min={60}
-                    unit="°F"
-                    label="Climate"
-                    color={getTemperatureColor(targetTemperature)}
-                    size="lg"
-                    showControls={false}
-                    isActive={!!thermostat.state}
-                    useCircularSlider={false}
-                  />
-                  <div className="flex flex-col items-center space-y-2">
+                  <div className={`transition-opacity duration-300 ease-in-out ${!thermostat.state ? 'opacity-50' : 'opacity-100'}`}>
+                    <CircularMeter
+                      value={targetTemperature}
+                      max={85}
+                      min={60}
+                      unit="°F"
+                      label="Climate"
+                      color={getTemperatureColor(targetTemperature)}
+                      size="lg"
+                      showControls={false}
+                      isActive={!!thermostat.state}
+                      useCircularSlider={false}
+                    />
+                  </div>
+                  <div className={`flex flex-col items-center space-y-2 transition-opacity duration-300 ease-in-out ${!thermostat.state ? 'opacity-50' : 'opacity-100'}`}>
                     <span className="text-sm text-muted-foreground">Temperature Control</span>
                     <ElasticSlider
+                      key={`${thermostat.id}-${targetTemperature}`}
                       defaultValue={targetTemperature}
                       startingValue={60}
                       maxValue={85}
@@ -615,7 +694,7 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
                       leftIcon={<Minus className="h-4 w-4" />}
                       rightIcon={<Plus className="h-4 w-4" />}
                       onValueChange={(value) => handleDeviceLevelChange(thermostat.id, value)}
-                      className="w-64"
+                      className={`w-64 ${!thermostat.state ? 'opacity-50' : ''}`}
                     />
                   </div>
                 </div>
@@ -673,27 +752,17 @@ export function SimplifiedDashboard({ className }: SimplifiedDashboardProps) {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </TabsContent>
 
         <TabsContent value="home-assistant" className="space-y-6 pt-6">
-          <SmartThermostat />
-        </TabsContent>
-
-        <TabsContent value="advanced" className="space-y-6 pt-6">
-          <Card className="bg-gradient-card border-card-border">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 tracking-wide">
-                <Database className="h-5 w-5" />
-                Advanced Configuration
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                Advanced configuration options will be available here in future updates.
-              </p>
-            </CardContent>
-          </Card>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, ease: "easeOut", delay: 0.1 }}
+          >
+            <SmartThermostat />
+          </motion.div>
         </TabsContent>
       </Tabs>
     </div>

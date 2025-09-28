@@ -1,13 +1,19 @@
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { ChevronUp, ChevronDown, Sun, Moon } from 'lucide-react';
+import { ChevronUp, ChevronDown, Sun, Moon, Save, RotateCcw, Download } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import NumberFlow from '@number-flow/react';
+import { Button } from '@/components/ui/button';
 
 interface TemperatureSettingsProps {
   awakeTemp: number;
   sleepTemp: number;
   onAwakeTempChange: (temp: number) => void;
   onSleepTempChange: (temp: number) => void;
+  onSave?: () => void;
+  onReset?: () => void;
+  onLoadExample?: () => void;
+  isSaving?: boolean;
+  hasUnsavedChanges?: boolean;
   className?: string;
 }
 
@@ -20,6 +26,11 @@ const TemperatureSettings = forwardRef<TemperatureSettingsRef, TemperatureSettin
   sleepTemp,
   onAwakeTempChange,
   onSleepTempChange,
+  onSave,
+  onReset,
+  onLoadExample,
+  isSaving = false,
+  hasUnsavedChanges = false,
   className
 }, ref) => {
   const [localAwakeTemp, setLocalAwakeTemp] = useState(awakeTemp);
@@ -50,8 +61,8 @@ const TemperatureSettings = forwardRef<TemperatureSettingsRef, TemperatureSettin
   }));
 
   return (
-    <div className={cn("w-full bg-green-600/20 backdrop-blur-sm border border-green-500/30 rounded-lg p-6 flex flex-col items-center justify-center", className)}>
-      <h3 className="text-white text-center text-xl font-medium mb-6">Comfort temperatures</h3>
+    <div className={cn("w-full bg-green-600/10 backdrop-blur-md border border-green-500/20 rounded-lg p-6 flex flex-col items-center justify-center", className)}>
+      <h3 className="text-white text-center text-xl font-medium mb-6">Comfort Temperatures</h3>
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full relative">
         {/* Divider */}
@@ -129,6 +140,47 @@ const TemperatureSettings = forwardRef<TemperatureSettingsRef, TemperatureSettin
           </div>
         </div>
       </div>
+      
+      {/* Action Buttons */}
+      {(onSave || onReset || onLoadExample) && (
+        <div className="flex gap-3 mt-6">
+          {onSave && (
+            <Button 
+              type="button"
+              onClick={onSave}
+              disabled={isSaving || !hasUnsavedChanges}
+              className="flex-1"
+            >
+              <Save className="w-4 h-4 mr-2" />
+              {isSaving ? 'Saving…' : 'Save changes'}
+            </Button>
+          )}
+          {onReset && (
+            <Button 
+              type="button"
+              variant="outline"
+              onClick={onReset}
+              disabled={isSaving}
+              className="flex-1 border-white/30 text-white hover:bg-white/10 hover:text-white"
+            >
+              <RotateCcw className="w-4 h-4 mr-2" />
+              Reset all
+            </Button>
+          )}
+          {onLoadExample && (
+            <Button 
+              type="button"
+              variant="outline"
+              onClick={onLoadExample}
+              disabled={isSaving}
+              className="flex-1 border-white/30 text-white hover:bg-white/10 hover:text-white"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              Load example
+            </Button>
+          )}
+        </div>
+      )}
     </div>
   );
 });

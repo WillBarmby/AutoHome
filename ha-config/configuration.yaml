@@ -1,7 +1,54 @@
 # Base configuration for Home Assistant demo environment
 default_config:
 
-demo:
+# Trimmed down demo inventory so only a handful of entities appear
+light:
+  - platform: demo
+    lights:
+      - name: Living Room Lamp
+        state: on
+        brightness: 200
+      - name: Bedroom Lamp
+        state: off
+        brightness: 10
+
+switch:
+  - platform: demo
+    switches:
+      - name: Coffee Machine
+        initial: off
+      - name: Desk Speaker
+        initial: on
+
+fan:
+  - platform: demo
+    fans:
+      - name: Bedroom Fan
+        speed: medium
+        direction: forward
+        oscillating: true
+        speed_list: [low, medium, high]
+
+climate:
+  - platform: demo
+    name: Main Thermostat
+    unique_id: main_thermostat
+    temperature: 72
+    target_temp_high: 75
+    target_temp_low: 70
+    hvac_mode: cool
+    hvac_modes:
+      - heat
+      - cool
+      - heat_cool
+      - off
+
+cover:
+  - platform: demo
+    covers:
+      - name: Garage Door
+        state: closed
+        device_class: garage
 
 automation: !include automations.yaml
 scene: !include scenes.yaml

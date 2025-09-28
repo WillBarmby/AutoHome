@@ -12,6 +12,14 @@
         "show_in_sidebar": true,
         "require_admin": false,
         "mode": "storage"
+      },
+      {
+        "id": "my_home",
+        "show_in_sidebar": true,
+        "title": "My Home",
+        "require_admin": false,
+        "mode": "storage",
+        "url_path": "my-home"
       }
     ]
   }
