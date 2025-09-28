@@ -1,0 +1,19 @@
+# Scenes used to showcase lighting and thermostat changes
+- id: demo_evening
+  name: Demo Evening
+  entities:
+    light.living_room:
+      state: "on"
+      brightness: 180
+    climate.hvac:
+      hvac_mode: heat
+      temperature: 21
+
+- id: demo_daytime
+  name: Demo Daytime
+  entities:
+    light.living_room:
+      state: "off"
+    climate.hvac:
+      hvac_mode: cool
+      temperature: 24

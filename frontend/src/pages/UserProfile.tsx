@@ -131,6 +131,9 @@ export default function UserProfile() {
       wakeTime: "6:00 AM",
       tempAwakeF: 72,
       tempSleepF: 69,
+      location: "Austin",
+      squareFootage: 2400,
+      coolingUnits: 1,
       notes: "I work from home on Tuesdays and Thursdays. I prefer the house to be cooler at night for better sleep. I have a cat who likes to sleep in the living room during the day."
     };
     
@@ -252,6 +255,59 @@ export default function UserProfile() {
 
               <Separator />
 
+              {/* Home Context */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="location">Where is home located?</Label>
+                  <Input
+                    id="location"
+                    placeholder="e.g. San Francisco"
+                    {...register('location', {
+                      onChange: () => setHasUnsavedChanges(true)
+                    })}
+                  />
+                  {errors.location && (
+                    <p className="text-sm text-red-500">{errors.location.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="squareFootage">Home size (sq ft)</Label>
+                  <Input
+                    id="squareFootage"
+                    type="number"
+                    min={200}
+                    max={10000}
+                    {...register('squareFootage', {
+                      valueAsNumber: true,
+                      onChange: () => setHasUnsavedChanges(true)
+                    })}
+                  />
+                  {errors.squareFootage && (
+                    <p className="text-sm text-red-500">{errors.squareFootage.message}</p>
+                  )}
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="coolingUnits">Number of HVAC units</Label>
+                  <Input
+                    id="coolingUnits"
+                    type="number"
+                    min={1}
+                    max={5}
+                    {...register('coolingUnits', {
+                      valueAsNumber: true,
+                      onChange: () => setHasUnsavedChanges(true)
+                    })}
+                  />
+                  {errors.coolingUnits && (
+                    <p className="text-sm text-red-500">{errors.coolingUnits.message}</p>
+                  )}
+                </div>
+              </div>
+
+              <Separator />
+
               {/* Temperature Settings and Notes */}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {/* Temperature Settings */}
@@ -358,13 +414,22 @@ export default function UserProfile() {
                       ease="easeOut"
                     />°F
                   </span> when awake, 
-                  <span className="font-semibold text-primary"> 
+                  <span className="font-semibold text-primary">
                     <NumberFlow 
                       value={watchedValues.tempSleepF} 
                       duration={800}
                       ease="easeOut"
                     />°F
                   </span> when sleeping
+                </p>
+              </div>
+
+              <div className="p-4 bg-muted/20 rounded-lg">
+                <p className="font-medium mb-2">Home Setup:</p>
+                <p>
+                  Located in <span className="font-semibold text-primary">{watchedValues.location}</span>, about
+                  <span className="font-semibold text-primary"> {watchedValues.squareFootage.toLocaleString()} sq ft</span> with
+                  <span className="font-semibold text-primary"> {watchedValues.coolingUnits}</span> HVAC unit{watchedValues.coolingUnits > 1 ? 's' : ''}.
                 </p>
               </div>
 

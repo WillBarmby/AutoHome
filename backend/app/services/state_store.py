@@ -8,7 +8,14 @@ from typing import Any, Dict, List, Optional
 
 from fastapi.encoders import jsonable_encoder
 
-from ..config import DASHBOARD_PATH, COMMANDS_PATH, DEVICES_PATH, PREFERENCES_PATH, STATE_DIR
+from ..config import (
+    DASHBOARD_PATH,
+    COMMANDS_PATH,
+    DEVICES_PATH,
+    PREFERENCES_PATH,
+    SCHEDULE_PATH,
+    STATE_DIR,
+)
 
 
 class StateStore:
@@ -41,6 +48,13 @@ class StateStore:
     def save_dashboard(self, data: Dict[str, Any]) -> None:
         data = jsonable_encoder(data)
         self._write_json(DASHBOARD_PATH, data)
+
+    def load_schedule(self) -> Dict[str, Any]:
+        return self._read_json(SCHEDULE_PATH)
+
+    def save_schedule(self, data: Dict[str, Any]) -> None:
+        data = jsonable_encoder(data)
+        self._write_json(SCHEDULE_PATH, data)
 
     def list_rooms(self) -> List[str]:
         devices = self.load_devices()
@@ -125,6 +139,15 @@ class StateStore:
                     "chat_history": [],
                     "approval_queue": [],
                     "operation_mode": "auto",
+                },
+            )
+        if not SCHEDULE_PATH.exists():
+            self._write_json(
+                SCHEDULE_PATH,
+                {
+                    "daily": [],
+                    "queue": [],
+                    "updatedAt": None,
                 },
             )
 

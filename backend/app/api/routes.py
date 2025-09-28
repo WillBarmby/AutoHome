@@ -19,10 +19,16 @@ from ..models.schema import (
     Command,
     DashboardState,
     Entity,
+    ScheduledCommand,
     UserProfile,
 )
 from ..services.state_store import state_store
 from ..services.ha_thermostat_service import ha_thermostat_service
+from ..services.schedule_service import (
+    append_queue_command,
+    queue_from_intent,
+    rebuild_daily_schedule,
+)
 from ..config import MOCK_HA
 
 router = APIRouter()
@@ -346,6 +352,13 @@ async def create_chat(payload: ChatRequest) -> ChatResult:
     history.append(assistant_message.dict())
     state_store.save_dashboard(dashboard)
 
+    # Persist the intent as a queued command when we can translate it into a
+    # concrete Home Assistant call. This allows the automation runner to
+    # dispatch the action even after the chat UI is closed.
+    queue_candidate = queue_from_intent(text, intent.dict())
+    if queue_candidate:
+        append_queue_command(queue_candidate)
+
     return ChatResult(
         intent=intent,
         response=response,
@@ -361,6 +374,9 @@ DEFAULT_PROFILE: Dict[str, Any] = {
     "wakeTime": "6:30 AM",
     "tempAwakeF": 72,
     "tempSleepF": 70,
+    "location": "San Francisco",
+    "squareFootage": 2200,
+    "coolingUnits": 1,
     "notes": "",
 }
 
@@ -379,6 +395,9 @@ async def update_user_profile(profile: UserProfile) -> UserProfile:
     data = profile.dict()
     data["updatedAt"] = (profile.updatedAt or datetime.now(timezone.utc)).isoformat()
     state_store.save_preferences(data)
+    # Immediately rebuild the default daily automation schedule so the system
+    # can translate preferences into repeatable Home Assistant commands.
+    rebuild_daily_schedule(profile)
     return UserProfile(**data)
 
 

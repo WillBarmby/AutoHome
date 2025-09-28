@@ -1,0 +1,8 @@
+# Base configuration for Home Assistant demo environment
+default_config:
+
+demo:
+
+automation: !include automations.yaml
+scene: !include scenes.yaml
+script: !include scripts.yaml

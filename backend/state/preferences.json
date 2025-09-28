@@ -1,1 +1,13 @@
-{}
+{
+  "leaveTime": "8:00 AM",
+  "returnTime": "6:00 PM",
+  "bedTime": "11:00 PM",
+  "wakeTime": "6:30 AM",
+  "tempAwakeF": 75.0,
+  "tempSleepF": 64.0,
+  "location": "San Francisco",
+  "squareFootage": 3000.0,
+  "coolingUnits": 1,
+  "notes": "",
+  "updatedAt": "2025-09-28T11:58:22.715000+00:00"
+}

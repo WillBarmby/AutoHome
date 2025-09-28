@@ -1,0 +1,13 @@
+version: "3.9"
+
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:stable
+    container_name: homeassistant-demo
+    environment:
+      - TZ=America/New_York
+    volumes:
+      - ./ha-config:/config
+    ports:
+      - "8123:8123"
+    restart: unless-stopped
