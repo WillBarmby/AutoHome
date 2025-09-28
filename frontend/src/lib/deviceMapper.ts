@@ -41,11 +41,9 @@ function resolveState(domain: string, entity: Entity): string | number | boolean
     return entity.state === "on" ? 100 : 0;
   }
   if (domain === "climate") {
-    if (typeof attributes.target_temperature === "number") {
-      return attributes.target_temperature;
-    }
-    const numericState = Number(entity.state);
-    return Number.isFinite(numericState) ? numericState : entity.state;
+    // For climate devices, state represents on/off, not temperature
+    // Temperature is stored in attributes
+    return entity.state === "on" || entity.state === "heat" || entity.state === "cool" || entity.state === "auto";
   }
   if (domain === "cover") {
     return entity.state;

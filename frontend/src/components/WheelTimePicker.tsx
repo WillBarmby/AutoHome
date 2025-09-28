@@ -49,10 +49,10 @@ export function WheelTimePicker({ value, onChange, className }: WheelTimePickerP
         <select
           value={hour}
           onChange={(e) => setHour(parseInt(e.target.value))}
-          className="w-full h-full text-center text-lg font-medium bg-transparent border-none outline-none cursor-pointer"
+          className="w-full h-full text-center text-lg font-medium bg-transparent border-none outline-none cursor-pointer text-foreground"
         >
           {hours.map(h => (
-            <option key={h} value={h}>{h}</option>
+            <option key={h} value={h} className="bg-background text-foreground">{h}</option>
           ))}
         </select>
       </div>
@@ -64,10 +64,10 @@ export function WheelTimePicker({ value, onChange, className }: WheelTimePickerP
         <select
           value={minute}
           onChange={(e) => setMinute(parseInt(e.target.value))}
-          className="w-full h-full text-center text-lg font-medium bg-transparent border-none outline-none cursor-pointer"
+          className="w-full h-full text-center text-lg font-medium bg-transparent border-none outline-none cursor-pointer text-foreground"
         >
           {minutes.map(m => (
-            <option key={m} value={m}>{m.toString().padStart(2, '0')}</option>
+            <option key={m} value={m} className="bg-background text-foreground">{m.toString().padStart(2, '0')}</option>
           ))}
         </select>
       </div>
@@ -77,10 +77,10 @@ export function WheelTimePicker({ value, onChange, className }: WheelTimePickerP
         <select
           value={period}
           onChange={(e) => setPeriod(e.target.value as 'AM' | 'PM')}
-          className="w-full h-full text-center text-lg font-medium bg-transparent border-none outline-none cursor-pointer"
+          className="w-full h-full text-center text-lg font-medium bg-transparent border-none outline-none cursor-pointer text-foreground"
         >
           {periods.map(p => (
-            <option key={p} value={p}>{p}</option>
+            <option key={p} value={p} className="bg-background text-foreground">{p}</option>
           ))}
         </select>
       </div>
