@@ -50,6 +50,15 @@ export function AppSidebar() {
         className="flex items-center justify-center h-full px-4 !bg-transparent"
         style={{ backgroundColor: 'transparent' }}
       >
+        {/* Logo at the top */}
+        <div className="absolute top-10 left-1/2 transform -translate-x-1/2 z-20">
+          <img 
+            src="/imgs/helmr-logo.png" 
+            alt="Helmr Logo" 
+            className="h-12 w-auto object-contain"
+          />
+        </div>
+        
         <SidebarGroup className="!bg-transparent" style={{ backgroundColor: 'transparent' }}>
           <SidebarGroupContent className="!bg-transparent" style={{ backgroundColor: 'transparent' }}>
             <div className="bg-transparent rounded-2xl p-4">

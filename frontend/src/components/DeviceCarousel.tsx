@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from 'react';
-import { motion, PanInfo, useMotionValue, useTransform } from 'motion/react';
+import { motion, PanInfo, useMotionValue } from 'motion/react';
 import React, { JSX } from 'react';
 import { 
   Thermometer, 
@@ -251,7 +251,11 @@ export default function DeviceCarousel({
         {carouselItems.map((item, index) => {
           const range = [-(index + 1) * trackItemOffset, -index * trackItemOffset, -(index - 1) * trackItemOffset];
           const outputRange = [90, 0, -90];
-          const rotateY = useTransform(x, range, outputRange, { clamp: false });
+          // Calculate rotation without using hooks inside map
+          const currentX = x.get();
+          const rotateY = currentX <= range[0] ? outputRange[0] : 
+                         currentX >= range[2] ? outputRange[2] : 
+                         outputRange[1];
           return (
             <motion.div
               key={index}

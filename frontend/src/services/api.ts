@@ -194,3 +194,116 @@ export async function saveUserProfile(profile: UserProfile): Promise<UserProfile
     updatedAt: data.updatedAt ? new Date(data.updatedAt).toISOString() : undefined,
   };
 }
+
+// =============== HOME ASSISTANT INTEGRATION API ===============
+
+export interface TemperatureCalculationRequest {
+  current_temp: number;
+  target_temp: number;
+  location: string;
+  square_footage?: number;
+  num_cooling_units?: number;
+  arrival_time?: string;
+  send_to_ha?: boolean;
+}
+
+export interface TemperatureCalculationResult {
+  time_needed: number;
+  current_temp: number;
+  target_temp: number;
+  outdoor_temp: number;
+  efficiency_factor: number;
+  status: string;
+  square_footage?: number;
+  num_units?: number;
+  location?: string;
+}
+
+export interface HAConnectionStatus {
+  connected: boolean;
+  ha_url?: string;
+  mock_mode: boolean;
+}
+
+export interface HAEntity {
+  entity_id: string;
+  state: string;
+  attributes: Record<string, any>;
+}
+
+export interface ClimateControlRequest {
+  entity_id: string;
+  temperature?: number;
+  hvac_mode?: string;
+}
+
+export interface WeatherData {
+  city: string;
+  temperature: number;
+  unit: string;
+}
+
+export async function calculateTemperature(request: TemperatureCalculationRequest): Promise<TemperatureCalculationResult> {
+  const res = await fetch(`${API_BASE}/ha/calculate-temperature`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to calculate temperature");
+  }
+  const data = await res.json();
+  return data.result;
+}
+
+export async function checkHAConnection(): Promise<HAConnectionStatus> {
+  const res = await fetch(`${API_BASE}/ha/connection`);
+  if (!res.ok) {
+    throw new Error("Failed to check HA connection");
+  }
+  return res.json();
+}
+
+export async function getHAEntities(): Promise<HAEntity[]> {
+  const res = await fetch(`${API_BASE}/ha/entities`);
+  if (!res.ok) {
+    throw new Error("Failed to get HA entities");
+  }
+  return res.json();
+}
+
+export async function getClimateEntities(): Promise<HAEntity[]> {
+  const res = await fetch(`${API_BASE}/ha/climate-entities`);
+  if (!res.ok) {
+    throw new Error("Failed to get climate entities");
+  }
+  return res.json();
+}
+
+export async function getEntityState(entityId: string): Promise<HAEntity> {
+  const res = await fetch(`${API_BASE}/ha/entity/${entityId}`);
+  if (!res.ok) {
+    throw new Error("Failed to get entity state");
+  }
+  return res.json();
+}
+
+export async function setClimateTemperature(request: ClimateControlRequest): Promise<{ status: string; message: string }> {
+  const res = await fetch(`${API_BASE}/ha/climate/set-temperature`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(request),
+  });
+  if (!res.ok) {
+    throw new Error("Failed to set climate temperature");
+  }
+  return res.json();
+}
+
+export async function getWeather(city: string): Promise<WeatherData> {
+  const res = await fetch(`${API_BASE}/ha/weather/${city}`);
+  if (!res.ok) {
+    throw new Error("Failed to get weather data");
+  }
+  return res.json();
+}

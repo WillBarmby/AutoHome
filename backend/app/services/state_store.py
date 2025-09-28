@@ -4,7 +4,7 @@ import json
 import os
 from pathlib import Path
 from tempfile import NamedTemporaryFile
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from fastapi.encoders import jsonable_encoder
 
@@ -46,7 +46,7 @@ class StateStore:
         devices = self.load_devices()
         return devices.get("rooms", [])
 
-    def devices_by_type(self, device_type: str, room: str | None = None) -> List[Dict[str, Any]]:
+    def devices_by_type(self, device_type: str, room: Optional[str] = None) -> List[Dict[str, Any]]:
         devices = self.load_devices().get("devices", [])
         if room:
             devices = [d for d in devices if d.get("room") == room]

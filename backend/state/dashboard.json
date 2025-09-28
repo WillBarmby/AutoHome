@@ -1,29 +1,125 @@
 {
   "pricing": [
-    { "hour": 0, "price_cents_kWh": 11.2, "is_peak": false },
-    { "hour": 1, "price_cents_kWh": 10.8, "is_peak": false },
-    { "hour": 2, "price_cents_kWh": 10.4, "is_peak": false },
-    { "hour": 3, "price_cents_kWh": 10.1, "is_peak": false },
-    { "hour": 4, "price_cents_kWh": 9.9, "is_peak": false },
-    { "hour": 5, "price_cents_kWh": 9.8, "is_peak": false },
-    { "hour": 6, "price_cents_kWh": 12.0, "is_peak": false },
-    { "hour": 7, "price_cents_kWh": 14.2, "is_peak": false },
-    { "hour": 8, "price_cents_kWh": 16.5, "is_peak": false },
-    { "hour": 9, "price_cents_kWh": 18.1, "is_peak": false },
-    { "hour": 10, "price_cents_kWh": 19.4, "is_peak": false },
-    { "hour": 11, "price_cents_kWh": 20.2, "is_peak": false },
-    { "hour": 12, "price_cents_kWh": 21.3, "is_peak": false },
-    { "hour": 13, "price_cents_kWh": 22.8, "is_peak": false },
-    { "hour": 14, "price_cents_kWh": 24.1, "is_peak": false },
-    { "hour": 15, "price_cents_kWh": 25.7, "is_peak": true },
-    { "hour": 16, "price_cents_kWh": 27.5, "is_peak": true },
-    { "hour": 17, "price_cents_kWh": 29.2, "is_peak": true },
-    { "hour": 18, "price_cents_kWh": 31.0, "is_peak": true },
-    { "hour": 19, "price_cents_kWh": 30.4, "is_peak": true },
-    { "hour": 20, "price_cents_kWh": 27.9, "is_peak": true },
-    { "hour": 21, "price_cents_kWh": 24.8, "is_peak": false },
-    { "hour": 22, "price_cents_kWh": 20.5, "is_peak": false },
-    { "hour": 23, "price_cents_kWh": 15.6, "is_peak": false }
+    {
+      "hour": 0,
+      "price_cents_kWh": 11.2,
+      "is_peak": false
+    },
+    {
+      "hour": 1,
+      "price_cents_kWh": 10.8,
+      "is_peak": false
+    },
+    {
+      "hour": 2,
+      "price_cents_kWh": 10.4,
+      "is_peak": false
+    },
+    {
+      "hour": 3,
+      "price_cents_kWh": 10.1,
+      "is_peak": false
+    },
+    {
+      "hour": 4,
+      "price_cents_kWh": 9.9,
+      "is_peak": false
+    },
+    {
+      "hour": 5,
+      "price_cents_kWh": 9.8,
+      "is_peak": false
+    },
+    {
+      "hour": 6,
+      "price_cents_kWh": 12.0,
+      "is_peak": false
+    },
+    {
+      "hour": 7,
+      "price_cents_kWh": 14.2,
+      "is_peak": false
+    },
+    {
+      "hour": 8,
+      "price_cents_kWh": 16.5,
+      "is_peak": false
+    },
+    {
+      "hour": 9,
+      "price_cents_kWh": 18.1,
+      "is_peak": false
+    },
+    {
+      "hour": 10,
+      "price_cents_kWh": 19.4,
+      "is_peak": false
+    },
+    {
+      "hour": 11,
+      "price_cents_kWh": 20.2,
+      "is_peak": false
+    },
+    {
+      "hour": 12,
+      "price_cents_kWh": 21.3,
+      "is_peak": false
+    },
+    {
+      "hour": 13,
+      "price_cents_kWh": 22.8,
+      "is_peak": false
+    },
+    {
+      "hour": 14,
+      "price_cents_kWh": 24.1,
+      "is_peak": false
+    },
+    {
+      "hour": 15,
+      "price_cents_kWh": 25.7,
+      "is_peak": true
+    },
+    {
+      "hour": 16,
+      "price_cents_kWh": 27.5,
+      "is_peak": true
+    },
+    {
+      "hour": 17,
+      "price_cents_kWh": 29.2,
+      "is_peak": true
+    },
+    {
+      "hour": 18,
+      "price_cents_kWh": 31.0,
+      "is_peak": true
+    },
+    {
+      "hour": 19,
+      "price_cents_kWh": 30.4,
+      "is_peak": true
+    },
+    {
+      "hour": 20,
+      "price_cents_kWh": 27.9,
+      "is_peak": true
+    },
+    {
+      "hour": 21,
+      "price_cents_kWh": 24.8,
+      "is_peak": false
+    },
+    {
+      "hour": 22,
+      "price_cents_kWh": 20.5,
+      "is_peak": false
+    },
+    {
+      "hour": 23,
+      "price_cents_kWh": 15.6,
+      "is_peak": false
+    }
   ],
   "vitals": {
     "temperature": {
@@ -68,12 +164,15 @@
         "device": "cover.garage",
         "state": true
       },
-      "guardrailBadges": ["Requires Confirmation", "Security Risk"],
+      "guardrailBadges": [
+        "Requires Confirmation",
+        "Security Risk"
+      ],
       "costDelta": "+$2.40",
-      "comfortDelta": "-2°F",
+      "comfortDelta": "-2\u00b0F",
       "expiresAt": "2024-08-21T12:05:00Z",
       "status": "pending"
     }
   ],
-  "operation_mode": "auto"
+  "operation_mode": "manual"
 }

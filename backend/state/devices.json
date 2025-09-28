@@ -13,7 +13,8 @@
     "state": "off",
     "attributes": {
       "friendly_name": "Bedroom Thermostat",
-      "hvac_mode": "cool"
+      "hvac_mode": "cool",
+      "temperature": 76.7
     },
     "icon": "mdi:thermometer"
   }
