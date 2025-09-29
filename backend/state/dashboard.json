@@ -136,19 +136,43 @@
       "monthly": 142.3
     }
   },
-<<<<<<< HEAD
-  "chat_history": [],
-=======
   "chat_history": [
     {
-      "id": "1759072841937",
+      "id": "1759084762924",
       "type": "user",
-      "content": "turn off my bed light",
-      "timestamp": "2025-09-28T15:20:41.937328Z",
+      "content": "turn on the AC",
+      "timestamp": "2025-09-28T18:39:22.924979Z",
+      "intent": {
+        "type": "ToggleDevice",
+        "device": "switch.ac",
+        "state": true,
+        "level": null,
+        "temperature": null,
+        "before": null,
+        "after": null,
+        "deadline": null,
+        "cheapest": null,
+        "avoid_peak": null,
+        "parameters": null,
+        "runAt": null
+      }
+    },
+    {
+      "id": "1759084762925",
+      "type": "assistant",
+      "content": "\"Okay, got it! I'm turning on your AC now - you should start feeling cooler in no time.\"\n\nNote: Since the system is just setting the state of a device to True (i.e., 'on'), I've framed the response as...",
+      "timestamp": "2025-09-28T18:39:22.924979Z",
+      "intent": null
+    },
+    {
+      "id": "1759084775082",
+      "type": "user",
+      "content": "turn on the bed light",
+      "timestamp": "2025-09-28T18:39:35.082153Z",
       "intent": {
         "type": "ToggleDevice",
         "device": "light.bed_light",
-        "state": false,
+        "state": true,
         "level": null,
         "temperature": null,
         "before": null,
@@ -156,46 +180,18 @@
         "deadline": null,
         "cheapest": null,
         "avoid_peak": null,
-        "parameters": null
+        "parameters": null,
+        "runAt": null
       }
     },
     {
-      "id": "1759072841938",
+      "id": "1759084775083",
       "type": "assistant",
-      "content": "I've turned off the bed light.",
-      "timestamp": "2025-09-28T15:20:41.937328Z",
-      "intent": null
-    },
-    {
-      "id": "1759073700718",
-      "type": "user",
-      "content": "Stacy's mom has got it going on",
-      "timestamp": "2025-09-28T15:35:00.718282Z",
-      "intent": {
-        "type": "QueryStatus",
-        "device": null,
-        "state": null,
-        "level": null,
-        "temperature": null,
-        "before": null,
-        "after": null,
-        "deadline": null,
-        "cheapest": null,
-        "avoid_peak": null,
-        "parameters": {
-          "query": "Stacy's mom has got it going on"
-        }
-      }
-    },
-    {
-      "id": "1759073700719",
-      "type": "assistant",
-      "content": "I think I know where you're going with this! Your mom's system is currently not set up or connected to our home automation network, so I'll send a notification to your parent's account to schedule an ...",
-      "timestamp": "2025-09-28T15:35:00.718282Z",
+      "content": "\"Alright, got it! I've turned on the bed light for you - everything should be nice and bright now.\"",
+      "timestamp": "2025-09-28T18:39:35.082153Z",
       "intent": null
     }
   ],
->>>>>>> 8a8e156b34959218d2775faa3bee6f6bfb679b5f
   "approval_queue": [
     {
       "id": "1",
@@ -307,5 +303,5 @@
       "status": "pending"
     }
   ],
-  "operation_mode": "paused"
+  "operation_mode": "auto"
 }

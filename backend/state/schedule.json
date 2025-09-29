@@ -1,5 +1,55 @@
 {
-  "daily": [],
-  "queue": [],
-  "updatedAt": null
+  "daily": [
+    {
+      "id": "efaea472a8514f6ab3715004c1e57a58",
+      "description": "Pre-condition home for bedtime comfort",
+      "entity_id": "climate.home",
+      "service": "set_temperature",
+      "payload": {
+        "temperature": 68.0
+      },
+      "category": "daily",
+      "run_time": "21:24",
+      "lead_minutes": 66,
+      "source": "preferences",
+      "created_at": "2025-09-28T16:51:12.928765",
+      "next_run_at": "2025-09-29T21:35:43.975413",
+      "last_run_at": null
+    },
+    {
+      "id": "ff5440fdcb04447c9212cedd3978646c",
+      "description": "Restore daytime comfort level",
+      "entity_id": "climate.home",
+      "service": "set_temperature",
+      "payload": {
+        "temperature": 78.0
+      },
+      "category": "daily",
+      "run_time": "07:30",
+      "lead_minutes": 0,
+      "source": "preferences",
+      "created_at": "2025-09-28T16:51:12.928875",
+      "next_run_at": "2025-09-29T21:35:43.975413",
+      "last_run_at": null
+    }
+  ],
+  "queue": [
+    {
+      "id": "fc94efcb9a764c60a4f6b8c15fae448a",
+      "description": "At 12:52 pm turn on ceiling lights",
+      "entity_id": "light.bed_light",
+      "service": "turn_on",
+      "payload": {
+        "entity_id": "light.bed_light"
+      },
+      "category": "queue",
+      "run_time": "2025-09-29T12:52:00",
+      "lead_minutes": 0,
+      "source": "llm",
+      "created_at": "2025-09-28T16:52:05.542328",
+      "next_run_at": "2025-09-29T21:35:43.975413",
+      "last_run_at": null
+    }
+  ],
+  "updatedAt": "2025-09-29T21:30:43.975413"
 }

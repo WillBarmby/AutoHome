@@ -179,7 +179,8 @@
               "cards": [
                 {
                   "type": "heading",
-                  "heading": "New section"
+                  "heading": "Home Thermostat",
+                  "heading_style": "title"
                 },
                 {
                   "type": "tile",
